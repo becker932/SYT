@@ -1,0 +1,108 @@
+/* Posts */
+
+#wps_activity_items {
+	clear: both;
+}
+#wps_activity_post_div {
+	margin-bottom:20px;
+}
+#wps_activity_post {
+	width:100%;
+	margin-bottom:10px;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */	
+}
+#wps_activity_post_button {
+	margin-bottom:10px;
+	margin-right:10px;
+	float:left;
+}
+.wps_activity_item {
+	margin-bottom:10px;
+}
+.wps_activity_item_avatar {
+	padding-top:4px;
+}
+
+.wps_p_content {
+}
+.wps_p_content a {
+    font-size: 0.8em;
+}
+.wps_quoted_content {
+    border: 1px solid #efefef;
+    font-size: 0.8em;
+    font-style: italic;
+    padding: 6px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+/* Comments */
+
+.wps_activity_content {
+}
+#wps_activity_comments {
+	margin-top: 10px;
+}
+.wps_activity_comment {
+	clear: both;
+	position:relative;
+}
+.wps_activity_comment p {
+	margin-bottom: 6px !important;
+}
+.wps_activity_post_comment_div {
+	margin-bottom:20px;
+}
+.wps_activity_post_comment {
+	width:100%;
+	margin-bottom:10px;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */	
+}
+.wps_activity_post_comment_avatar {
+	padding-top:4px;
+}
+
+.wps_activity_post_comment_button {
+	margin-bottom:10px;
+}
+
+.wps_activity_hidden_comments {
+	font-style: italic;
+	cursor: pointer;
+}
+
+/* Activity Settings */
+
+.wps_activity_settings, .wps_comment_settings {
+	z-index: 100;
+	cursor:pointer;
+	position:absolute;
+	top:0px;
+	right:0px;
+}
+
+.wps_activity_settings_options, .wps_comment_settings_options {
+	z-index: 101;
+	display:none;
+	position:absolute;
+	top:0px;
+	right:0px;
+	font-size: 10px;
+	padding: 5px 10px 5px 5px;
+	text-align:center;
+	border:1px solid #666;
+	background-color:#fff;
+	color: #666;
+}
+.wps_activity_settings_options a, .wps_comment_settings_options a {
+	color: #666 !important;
+	margin-left: 5px;
+}
+.wps_activity_settings_options a:hover, .wps_comment_settings_options a:hover {
+	color: #000 !important;
+}

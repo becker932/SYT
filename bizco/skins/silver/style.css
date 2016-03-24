@@ -1,0 +1,107 @@
+/*  
+Skin Name: Silver
+Version: 1.0
+Description: Skin for Bizco.
+*/
+
+html {
+	background: #c9d0d7 url(images/html-bg.png);
+}
+body {
+	color: #8f959b;
+}
+a {
+	color: #000;
+}
+h1, h2, h3, h4, h5, h6, .commentlist cite {
+	color: #4d5156;
+}
+
+
+/* header */
+#header {
+	color: #888;
+}
+#site-logo a {
+	color: #000;
+}
+.header-widget a {
+	color: #666;
+}
+.header-widget  a:hover {
+	color: #000;
+}
+#site-description {
+	color: #666;
+}
+
+/* main level link */
+#main-nav a {
+	color: #585b5d;
+}
+/* current link */
+#main-nav .current_page_item a, #main-nav .current-menu-item a {
+	background: #687076;
+}
+/* main level link :hover */
+#main-nav a:hover {
+	color: #000;
+}
+/* current link :hover */
+#main-nav .current_page_item a:hover, #main-nav .current-menu-item a:hover {
+	color: #000;
+}
+
+/* slider */
+#sliderwrap {
+	background: url(images/slider-bg.png) repeat-x 0 bottom;
+}
+#slider {
+	color: #4f5962;
+}
+#slider h3 {
+	color: #404e5a;
+}
+#slider .slides a {
+	color: #000;
+}
+#slider .slides a:hover {
+	text-decoration: underline;
+}
+#slider a.button {
+	color: #000;
+}
+#slider a.button:hover {
+	text-decoration: none;
+}
+#slider .button.black {
+	color: #fff;
+}
+
+/* content */
+.post-title a {
+	color: #000;
+}
+.post-title a:hover {
+	color: #000;
+	text-decoration: underline;
+}
+
+
+/* footer */
+#footerwrap {
+	background: url(images/footer-bg.png);
+}
+#footer {
+	color: #b9bbbd;
+}
+#footer a {
+	color: #fff;
+}
+#footer a:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+#footer .widget li {
+	border-color: #5d6366;
+}

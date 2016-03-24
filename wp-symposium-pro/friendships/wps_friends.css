@@ -1,0 +1,51 @@
+#wps_friends {
+	overflow:auto;
+}
+.wps_friends_friend {
+	clear: both;
+	margin-bottom: 10px;
+	overflow: auto;
+}
+.wps_friends_friend_avatar {
+	float: left;
+	padding-top:4px;
+}
+
+.wps_friends_add_button {
+	clear:both;
+}
+
+#wps_pending_friends {
+	overflow:auto;
+}
+.wps_pending_friends_friend {
+	clear: both;
+	margin-bottom: 10px;
+	overflow: auto;
+}
+.wps_pending_friends_friend input[type=submit] {
+	float: left;
+	margin-right: 5px;
+}
+.wps_pending_friends_friend_avatar {
+	float: left;
+	margin-right: 6px;
+}
+.wps_friends_friend_avatar_display_name {
+	font-size: 1.2em;
+}
+.wps_friends_friend_avatar_last_active {
+	font-size: 0.8em;
+}
+.wps_pending_friends_accept_reject {
+	overflow:auto;
+}
+
+#wps_alerts_friends_flag {
+    position: relative;
+}
+#wps_alerts_friends_flag_unread {
+    text-align: center;
+    color: #fff;
+    background-color: #f00;
+}

@@ -1,0 +1,86 @@
+/*  
+Skin Name: Green
+Version: 1.0
+Description: Skin for Bizco.
+*/
+
+html {
+	background: #5f8300 url(images/html-bg.png);
+}
+a {
+	color: #598527;
+}
+
+/* header */
+#header {
+	color: #bdc4a9;
+}
+.header-widget a {
+	color: #d1dcb3;
+}
+.header-widget  a:hover {
+	color: #fff;
+}
+#site-description {
+	color: #cad6a7;
+}
+
+/* main level link */
+#main-nav a {
+	color: #d1dcb3;
+}
+/* current link */
+#main-nav .current_page_item a, #main-nav .current-menu-item a {
+	background: #3f5504;
+}
+
+/* slider */
+#sliderwrap {
+	background: #8ea652 url(images/slider-bg.png) repeat-x;
+}
+#slider {
+	color: #485033;
+}
+#slider h3 {
+	color: #232f03;
+}
+#slider .slides a {
+	color: #000;
+}
+#slider .slides a:hover {
+	text-decoration: underline;
+}
+#slider a.button {
+	color: #000;
+}
+#slider a.button:hover {
+	text-decoration: none;
+}
+#slider .button.black {
+	color: #fff;
+}
+
+/* content */
+.post-title a {
+	color: #37531b;
+}
+.post-title a:hover {
+	color: #F60;
+}
+
+/* footer */
+#footerwrap {
+	background: url(images/footer-bg.png);
+}
+#footer {
+	color: #c6ceb3;
+}
+#footer a {
+	color: #fff799;
+}
+#footer a:hover {
+	color: #fff;
+}
+#footer .widget li {
+	border-color: #536b1a;
+}

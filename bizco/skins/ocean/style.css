@@ -1,0 +1,86 @@
+/*  
+Skin Name: Ocean
+Version: 1.0
+Description: Skin for Bizco.
+*/
+
+html {
+	background: #486382 url(images/html-bg.png);
+}
+a {
+	color: #306587;
+}
+
+/* header */
+#header {
+	color: #9aa9ba;
+}
+.header-widget a {
+	color: #b7c2ce;
+}
+.header-widget  a:hover {
+	color: #fff;
+}
+#site-description {
+	color: #b8c3cf;
+}
+
+/* main level link */
+#main-nav a {
+	color: #c9d1da;
+}
+/* current link */
+#main-nav .current_page_item a, #main-nav .current-menu-item a {
+	background: #324760;
+}
+
+/* slider */
+#sliderwrap {
+	background: #91bcd9 url(images/slider-bg.png) repeat-x;
+}
+#slider {
+	color: #4e585e;
+}
+#slider h3 {
+	color: #2f434f;
+}
+#slider .slides a {
+	color: #000;
+}
+#slider .slides a:hover {
+	text-decoration: underline;
+}
+#slider a.button {
+	color: #000;
+}
+#slider a.button:hover {
+	text-decoration: none;
+}
+#slider .button.black {
+	color: #fff;
+}
+
+/* content */
+.post-title a {
+	color: #0c466b;
+}
+.post-title a:hover {
+	color: #F90;
+}
+
+/* footer */
+#footerwrap {
+	background: url(images/footer-bg.png);
+}
+#footer {
+	color: #adb5c1;
+}
+#footer a {
+	color: #dfda98;
+}
+#footer a:hover {
+	color: #fff;
+}
+#footer .widget li {
+	border-color: #5a6a84;
+}

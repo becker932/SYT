@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+
+    <events>
+		<event id="btnover">
+			<rollover>
+				<css name="btnOverCss">this</css>
+			</rollover>
+			
+			<rollout>
+				<css name="btnOutCss">this</css>
+			</rollout>
+		</event>
+
+		<event id="optionover">
+			<rollover>
+				<css name="optionOverCss">this</css>
+			</rollover>
+			
+			<rollout>
+				<css name="optionOutCss">this</css>
+			</rollout>
+		</event>
+		
+		<event id="selectandsubmit">
+			<click>
+				<css name="optionOverCss">this</css>
+				<function name="select">this</function>
+				<function name="submit">this</function>
+			</click>
+		</event>
+
+		<event id="select">
+			<click>
+				<css name="optionOverCss">this</css>
+				<function name="select">this</function>
+			</click>
+		</event>
+
+		<event id="submit">
+			<click>
+				<function name="submit">this</function>
+			</click>
+		</event>
+
+		<event id="reset">
+			<click>
+				<function name="reset">this</function>
+			</click>
+		</event>
+		
+        <event id="begin">
+            <click>
+                <anim type="hide" animtime="0.5" animdelay="0" oncomplete="0">openingText</anim>
+                <function name="begin">this</function>
+            </click>
+        </event>
+
+        <event id="loadNextQuestion">
+            <click>
+                <function name="loadNextQuestion">this</function>
+            </click>
+        </event>
+		
+		<event id="restart">
+            <click>
+                <function name="restart">this</function>
+            </click>
+        </event>
+
+         <event id="showbg1">
+            <click>
+            	<anim type="hide" animtime="2" animdelay="0" oncomplete="0">bg3,bg2</anim>
+            </click>
+        </event>
+
+        <event id="showbg2">
+            <click>
+                <anim type="show" animtime="2" animdelay="0" oncomplete="0">bg2</anim>
+            </click>
+        </event>
+
+         <event id="showbg3">
+            <click>
+                <anim type="show" animtime="2" animdelay="0" oncomplete="0">bg3</anim>
+            </click>
+        </event>
+    </events>
+
+   <image id="bg1" x="0" y="0" anim="show" animtime="2" animdelay="0"><![CDATA[lib/assets/bg_nasa1.jpg]]></image>
+    <image id="bg2" x="0" y="0" anim="hide" animtime="0" animdelay="0"><![CDATA[lib/assets/bg_nasa2.jpg]]></image>
+    <box id="bg3" x="0" y="0" width="850" height="550" anim="hide" animtime="0" animdelay="0" className="blackBox" />
+	
+    <!--opening text-->
+    <box id="openingText" x="90" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox">
+
+    	<text id="title" x="65" y="60" width="500" anim="none" animtime="0.5" animdelay="0"><![CDATA[<h1>LG Quiz</h1><p class="p_16">Welcome to this short quiz.</p><p class="p_16">For each question, select the answer before your time runs out!</p>]]></text>
+		<image id="img1" x="510" y="180" anim="none" animtime="0" animdelay="0"><![CDATA[lib/assets/lg_logo_180.png]]></image>
+
+    	<button id="goBtn" x="580" y="+=30" height="40" width="100" anim="show" animtime="0.5" animdelay="0" event="btnover,begin"><![CDATA[Let's go!]]></button>
+        
+    </box>
+
+    <!--timed quiz-->
+    <custom type="quiz" id="quiz" x="0" y="0">
+		<settings timer="true" timerx="550" timery="20"/>
+        
+	<!-- question 1 -->
+        <question id="q1" time="05" event="" difficulty="1">
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" />
+						<image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+						<text id="question1" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q1. When talking about personal finance, what does ISA stand for?</p>]]></text>
+			<!--option 1 -->
+			<option correct="true">
+				<text id="option1_1" target="questionBox" x="match" y="+=85" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Individual Savings Account</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option1_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Independent Savings Account</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option1_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">International Savings Account</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option1_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Irregular Savings Account </p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>ISA stands for Individual Savings Account. These are tax-efficient accounts that allow you to save up to a certain amount each year.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>ISA stands for Individual Savings Account. These are tax-efficient accounts that allow you to save up to a certain amount each year.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 1 -->
+		
+		<!-- question 2 -->
+        <question id="q2" time="30" event="" difficulty="2">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" />
+			<image id="img1" x="125" y="98" anim="none" animtime="0.5" animdelay="0" ease="Regular.easeOut"> <![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question1" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q2. What role might an ‘executor’ have within someone’s life?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="true">
+				<text id="option2_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">A person who an individual appoints to sort out their affairs when they die</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option2_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">A person who files the legal documents when two people get married</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option2_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">A person who records deaths and births </p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option2_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Don’t know</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-10" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>Executors are the people you nominate in your will to organize your affairs when you die.</p>]]></text>
+			
+					<button id="nextQBtn" x="-10" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-10" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>Executors are the people you nominate in your will to organize your affairs when you die.</p>]]></text>
+			
+					<button id="nextQBtn" x="-10" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 2 -->
+		
+		<!-- question 3 -->
+        <question id="q3" time="30" event=""  difficulty="1">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question3" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q3. Under the government’s Help to Buy scheme, what percentage of the total property price does a person need to have for a deposit?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option3_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">0%</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="true">
+				<text id="option3_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">5%</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option3_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">10%</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option3_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">20%</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>The correct answer is 5%. ‘Help to Buy‘ is a government-backed scheme to support buyers who may previously have struggled to raise a sizeable deposit.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>The correct answer is 5%. ‘Help to Buy‘ is a government-backed scheme to support buyers who may previously have struggled to raise a sizeable deposit.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 3 -->
+		
+		<!-- question 4 -->
+        <question id="q4" time="30" event=""  difficulty="1">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question4" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q4. From April 2015, how much can be deposited into an ISA (cash and/or stocks and shares) over the course of a tax year?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option4_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£3,240</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option4_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£5,240</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option4_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£9,240</p>]]></text>
+			</option>
+			<option correct="true">
+				<text id="option4_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£15,240</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>From April 2015, the limit to the amount you can save is £15,240. With an ISA you can invest up to the limit in cash, or in stocks and shares, and you can switch your savings between the two if you wish.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>From April 2015, the limit to the amount you can save is £15,240. With an ISA you can invest up to the limit in cash, or in stocks and shares, and you can switch your savings between the two if you wish.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 4 -->
+		
+		<!-- question 5 -->
+        <question id="q5" time="30" event="" difficulty="1">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question5" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q5. How much does an average UK family (two adults, two children) spend on grocery shopping for food and non-alcoholic drinks each week? </p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option5_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£25.90</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option5_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£33.50</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="true">
+				<text id="option5_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£56.80</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option5_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£71.20 </p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>According to the Office for National Statistics, average family spending on food and non-alcoholic drinks is £56.80 per week.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>According to the Office for National Statistics, average family spending on food and non-alcoholic drinks is £56.80 per week.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 5 -->
+		
+		<!-- question 6 -->
+        <question id="q6" time="30" event="" difficulty="1">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+    		<text id="question6" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q6. What is the average cost of a wedding in the UK?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option6_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Around £7,000</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option6_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Around £15,000</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option6_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Around £20,000</p>]]></text>
+			</option>
+			<option correct="true">
+				<text id="option6_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Around £25,000</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>A survey by ‘Brides’ magazine in 2014 calculated the average cost of a wedding at just below £25,000.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>A survey by ‘Brides’ magazine in 2014 calculated the average cost of a wedding at just below £25,000.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 6 -->
+		
+		<!-- question 7 -->
+        <question id="q7" time="30" event="" difficulty="2">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+			<text id="question7" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q7. The first six weeks of Statutory Maternity Pay is equal to what percentage of a woman’s average weekly earnings before tax?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="true">
+				<text id="option7_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">90%</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option7_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">100%</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option7_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">80%</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option7_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">70%</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>For the first six weeks Statutory Maternity Pay is equal to 90% of a woman’s average weekly earnings before tax.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>For the first six weeks Statutory Maternity Pay is equal to 90% of a woman’s average weekly earnings before tax.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 7 -->
+		
+		<!-- question 8 -->
+        <question id="q8" time="30" event="" difficulty="2">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question8" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q8. At the time of the birth of a child, the father is entitled to take how long off work, as Ordinary Paternity Leave?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option8_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">No time</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option8_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Three consecutive days</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="true">
+				<text id="option8_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">One or two consecutive weeks </p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option8_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Up to a month </p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>A father can choose to take one or two consecutive paid weeks off work as Ordinary Paternity Leave. Expectant fathers must inform their employer no later than the end of the fifteenth week before the expected week of childbirth.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>A father can choose to take one or two consecutive paid weeks off work as Ordinary Paternity Leave. Expectant fathers must inform their employer no later than the end of the fifteenth week before the expected week of childbirth.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 8 -->
+		
+		<!-- question 9 -->
+        <question id="q9" time="30" event="" difficulty="2">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question1" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q9. When managing your personal finances what does AER mean?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="true">
+				<text id="option9_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Annual equivalent rate</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option9_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Annual equity rate</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option9_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Annual evaluation rate</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option9_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Annual earnings rate</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>AER means ‘annual equivalent rate’. It is the rate of interest that you would receive if you deposited your money for a whole year.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>AER means ‘annual equivalent rate’. It is the rate of interest that you would receive if you deposited your money for a whole year.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 9 -->
+		
+		<!-- question 10 -->
+        <question id="q10" time="30" event="" difficulty="2">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question10" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q10. To get the full state pension how long do you need to have been paying National Insurance contributions and/or receiving credits?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="true">
+				<text id="option10_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">35 years</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option10_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">25 years</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option10_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">30 years</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option10_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">40 years</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>To get the full amount of state pension an individual must have paid full National Insurance contributions for 35 years, or received credits such as during periods of unemployment or when acting as a carer.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>To get the full amount of state pension an individual must have paid full National Insurance contributions for 35 years, or received credits such as during periods of unemployment or when acting as a carer.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 10 -->
+		
+		<!-- question 11 -->
+        <question id="q11" time="30" event="" difficulty="2">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+    		<text id="question11" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q11. When managing your personal finances what does APR mean?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="true">
+				<text id="option11_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Annual percentage rate</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option11_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Annual price rate</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option11_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Annual performance rate </p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option11_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Don’t know </p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>APR means annual percentage rate. It is an interest rate that shows the true cost of borrowing in terms of interest and fees.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>APR means annual percentage rate. It is an interest rate that shows the true cost of borrowing in terms of interest and fees.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 11 -->
+		
+		<!-- question 12 -->
+        <question id="q12" time="30" event="" difficulty="2">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+    		<text id="question12" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q12. In which school year do all children qualify for free school meals?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="true">
+				<text id="option12_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Reception, Year One and Two</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option12_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Reception Only</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option12_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">All years</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option12_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Don't know</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>All children in reception, Years One and Two (ages four to seven) now receive free school meals. (Children from low-income families in other school years may also be eligible).</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>All children in reception, Years One and Two (ages four to seven) now receive free school meals. (Children from low-income families in other school years may also be eligible).</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 12 -->
+		
+		<!-- question 13 -->
+        <question id="q13" time="30" event="" difficulty="3">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question13" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q13. From April 2015 what will be the amount of Child Benefit per week, which a family will receive for a first child (assuming neither of the parents earn more than £50,000 and therefore qualify to receive Child Benefit payments)?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option13_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£20.70</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option13_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£18.20</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="true">
+				<text id="option13_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£24.70</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option13_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£30.00</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>In April 2015 this will increase from £20.50 per week for a first child to £20.70.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>In April 2015 this will increase from £20.50 per week for a first child to £20.70.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 13 -->
+		
+		<!-- question 14 -->
+        <question id="q14" time="30" event="" difficulty="3">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question14" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q14. In April 2016, the new “flat rate” state pension will pay how much per week to those eligible?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option14_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£110.80</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="true">
+				<text id="option14_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£148.40</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option14_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£164.20</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option14_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£172.30</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>From April 2016, a new “flat rate” state pension of no less than £148.40 per week will be paid to everyone eligible after this date.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>From April 2016, a new “flat rate” state pension of no less than £148.40 per week will be paid to everyone eligible after this date.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 14 -->
+		
+		<!-- question 15 -->
+        <question id="q15" time="30" event="" difficulty="3">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question15" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q15. If you were to buy a property costing £125,000, what percentage of this cost would you have to pay as stamp duty?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="true">
+				<text id="option15_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">0%</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option15_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">2%</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option15_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">5%</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option15_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">Don't know</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>Under the new Stamp Duty Land Tax system introduced in December 2014, buyers will pay nothing for the first £125,000. If a property costs more than this, buyers will pay 2% between £125,000 and £250,000, 5% above £250,000, and 10% above £925,001.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>Under the new Stamp Duty Land Tax system introduced in December 2014, buyers will pay nothing for the first £125,000. If a property costs more than this, buyers will pay 2% between £125,000 and £250,000, 5% above £250,000, and 10% above £925,001.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 15 -->
+		
+		<!-- question 16 -->
+        <question id="q16" time="30" event="" difficulty="3">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question16" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q16. In 2040 what will the age of retirement be for men and women?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option16_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">64</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="true">
+				<text id="option16_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">69</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option16_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">66</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option16_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">65</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>For both men and women, pension ages are rising. Both will rise to 66 years by 2020.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>For both men and women, pension ages are rising. Both will rise to 66 years by 2020.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 16 -->
+		
+		<!-- question 17 -->
+        <question id="q17" time="30" event=""  difficulty="3">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question17" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q17. If you have a Junior cash or stocks and shares ISA, what is the maximum you can contribute within one year?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option17_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£3,200</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="true">
+				<text id="option17_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£4,080</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="false">
+				<text id="option17_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£5,500</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option17_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">£15,000</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>From April 2015, the maximum annual amount that can be invested in a Junior ISA is £4,080. The start date for the year is the first day of the tax year (6 April).</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>From April 2015, the maximum annual amount that can be invested in a Junior ISA is £4,080. The start date for the year is the first day of the tax year (6 April).</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 17 -->
+		
+		<!-- question 18 -->
+        <question id="q18" time="30" event=""  difficulty="3">
+
+    		<box id="questionBox" x="100" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox" /><image id="img1" x="125" y="98" anim="none" animtime="0" animdelay="0" ease="Regular.easeOut"><![CDATA[lib/assets/chevron.png]]></image>
+
+    		<text id="question18" target="questionBox" x="82" y="40" width="400" anim="show" animtime="0.5" animdelay="0"><![CDATA[<p class="p_24">Q18. If you studied at a university in the UK as a British resident, what percentage of your income, over and above the repayment threshold, will be deducted from your salary each month to pay back you student loan?</p>]]></text>
+			
+			<!--option 1 -->
+			<option correct="false">
+				<text id="option18_1" target="questionBox" x="match" y="+=50" width="380" anim="show" animtime="0.5" animdelay="0.5" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">7%</p>]]></text>
+			</option>
+			
+			<!--option 2 -->	
+			<option correct="false">
+				<text id="option18_2" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.6" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">5%</p>]]></text>
+			</option>
+			
+			<!--option 3 -->
+			<option correct="true">
+				<text id="option18_3" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">9%</p>]]></text>
+			</option>
+			<option correct="false">
+				<text id="option18_4" target="questionBox" x="match" y="+=20" width="380" anim="show" animtime="0.5" animdelay="0.7" ease="Regular.easeOut" event="optionover,selectandsubmit" className="optionBox"><![CDATA[<p class="p_16 white">4%</p>]]></text>
+			</option>
+			<!--/options -->
+			
+			
+			<!-- feedbacks -->
+			<fb id="pass" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">Correct!</p><p>UK graduates have 9% deducted from their salary, which is over and above the repayment threshold, until they have repaid their student loan.</p>]]></text>
+			
+					<button id="nextQBtn" x="-20" y="+=20" width="230" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Overall, how did I do?]]></button>
+				</box>
+			</fb>
+			
+			<fb id="fail" event="">	
+				<box id="fb" target="questionBox" x="520" y="-100" width="250" height="200" anim="right" animtime="0.5" animdelay="0" ease="Regular.easeOut">
+					<text id="txt1" x="-20" y="150" width="230" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_24">No!</p><p>UK graduates have 9% deducted from their salary, which is over and above the repayment threshold, until they have repaid their student loan.</p>]]></text>
+			
+				<button id="nextQBtn" x="-20" y="+=20" width="230" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Overall, how did I do?]]></button>
+				</box>
+			</fb>
+		</question>
+		<!-- /question 18 -->
+
+		
+		<!--generic timeout text-->
+		<timeout>
+            <box id="timeOut" x="90" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Bounce.easeOut" className="orangeBox">
+
+            	<image id="img1" x="510" y="180" anim="none" animtime="0" animdelay="0"><![CDATA[lib/assets/lg_logo_180.png]]></image>
+
+				<text id="timeoutTxt" x="50" y="102" width="200" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_42">Times up!</p>]]></text>
+		
+				<button id="nextQBtn" x="match" y="+=30" anim="none" animtime="0" animdelay="0" event="btnover,loadNextQuestion"><![CDATA[Try the next one]]></button>
+				<!--><button id="startAgainBtn" x="match" y="+=30" height="40" width="100" anim="none" animtime="0" animdelay="0" event="btnover,restart,showbg1"><![CDATA[Start again]]></button></!-->
+			</box>
+        </timeout>
+
+
+        <!--score screen-->
+        <score masteryscore="80">
+            <fb id="pass" event="showbg3">
+                <box id="passTextBox" x="90" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox">
+
+					<image id="img1" x="510" y="180" anim="none" animtime="0" animdelay="0"><![CDATA[lib/assets/lg_logo_180.png]]></image>
+					
+					<text id="pass_txt" x="470" y="180" width="400" anim="none" animtime="0" animdelay="0">
+					<![CDATA[<p class="p_32">CONGRATULATIONS!</p><p class="p_24">You scored [score]%</p>]]></text>
+					
+					<button id="goBtn" x="match" y="+=40" height="40" width="140" anim="none" animtime="0" animdelay="0" event="btnover,restart,showbg1"><![CDATA[Play again?]]></button>
+                </box>
+            </fb>
+            
+            <fb id="fail" event="showbg3">
+                <box id="failTextBox" x="90" y="72" width="750" height="400" anim="show" animtime="0.5" animdelay="0" ease="Regular.easeOut" className="orangeBox">
+
+                    <image id="img1" x="510" y="180" anim="none" animtime="0" animdelay="0"><![CDATA[lib/assets/lg_logo_180.png]]></image>
+
+                    <text id="fail_txt" x="520" y="140" width="300" anim="none" animtime="0" animdelay="0"><![CDATA[<p class="p_32">BAD LUCK!</p><p class="p_24">You scored [score]%<br/></p><p class="p_24">Why not have another go?</p>]]></text>
+                        
+					<button id="goBtn" x="match" y="+=45" height="40" width="120" anim="none" animtime="0.5" animdelay="0" event="btnover,restart,showbg1"><![CDATA[Start again]]></button>
+                </box>  
+            </fb>
+        </score>
+
+    </custom>
+
+</data>
+

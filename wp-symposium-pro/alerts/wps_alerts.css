@@ -1,0 +1,55 @@
+ul.select2-results {
+	max-height: 400px;
+}
+
+.wps_alerts_activity {
+	font-size: 0.8em;
+}
+
+.wps_alerts_activity .wps_alerts_unread {
+	font-weight: bold;
+}
+
+.wps_alerts_list_item {
+    padding: 4px;   
+    margin-bottom: 2px;
+    clear: both;
+}
+
+.wps_alerts_list_item.wps_alerts_unread {
+    background-color: #efefef;
+    padding: 12px;   
+    margin-bottom: 6px;
+}
+
+.wps_alerts_list_item_delete {
+    width: 12px;
+    height: 12px;
+    float: right;
+    margin-top: 5px;
+    margin-right: 6px;
+    cursor: pointer;
+    display: none;
+}
+
+.wps_alerts_list_item.wps_alerts_unread .wps_alerts_list_item_delete {
+    margin-right: -2px;
+}
+
+#wps_alerts_flag {
+    position: relative;
+}
+#wps_alerts_flag_unread {
+    text-align: center;
+    color: #fff;
+    background-color: #f00;
+}
+
+#wps_mark_all_as_read_div,
+#wps_alerts_delete_all_div {
+    margin-top: 20px;
+    font-size: 0.8em;
+    float: left;
+    padding-right: 10px;
+    margin-bottom: 6px;
+}

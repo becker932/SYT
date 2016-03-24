@@ -1,0 +1,72 @@
+/*  
+Skin Name: Blueprint
+Version: 1.0
+Description: Skin for Bizco.
+*/
+
+html {
+	background: #446bb1 url(images/html-bg.png);
+}
+a {
+	color: #446bb1;
+}
+
+/* header */
+#header {
+	color: #96abd3;
+}
+.header-widget a {
+	color: #b4c4e0;
+}
+.header-widget  a:hover {
+	color: #fff;
+}
+#site-description {
+	color: #b8c3cf;
+}
+
+/* main level link */
+#main-nav a {
+	color: #c8d3e8;
+}
+/* current link */
+#main-nav .current_page_item a, #main-nav .current-menu-item a {
+	background: #22417b;
+}
+
+/* slider */
+#sliderwrap {
+	background: url(images/slider-bg.png) repeat-x;
+}
+#slider {
+	color: #fff;
+}
+
+/* content */
+#body {
+	background: #f7f7f7 url(images/middlewrap-bg.png) repeat-x 0 0;
+	border-bottom: solid 2px #ccc;
+}
+.post-title a {
+	color: #305290;
+}
+.post-title a:hover {
+	color: #F90;
+}
+
+/* footer */
+#footerwrap {
+	background: url(images/footer-bg.png) repeat-x;
+}
+#footer {
+	color: #b5c4e1;
+}
+#footer a {
+	color: #dfda98;
+}
+#footer a:hover {
+	color: #fff;
+}
+#footer .widget li {
+	border-color: #6a89c3;
+}

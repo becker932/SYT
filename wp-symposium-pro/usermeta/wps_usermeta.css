@@ -1,0 +1,12 @@
+.wps_usermeta_change_item {
+	clear: both;
+	margin-top:20px;
+}
+
+#wps_usermeta_change_submit {
+	margin-top: 10px;
+}
+
+.wps_usermeta_change_label {
+	font-weight: bold;
+}

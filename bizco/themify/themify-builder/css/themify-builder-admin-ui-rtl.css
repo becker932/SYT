@@ -1,0 +1,48 @@
+.themify_builder_module {
+	padding: 5px 32px 5px 5px;
+	float: right;
+}
+.themify_builder_module .add_module {
+	right: auto;
+	left: -10px;
+}
+.themify_builder_module:before {
+	left: auto;
+	right: 7px;
+}
+.themify_builder_save {
+	text-align: left;
+}
+.themify_builder_switch_frontend {
+	margin-left: 10px;
+}
+.themify_builder_icon.add {
+	margin-left: 5px;
+}
+.themify_builder_row .toggle_row {
+	left: 5px;
+	right: auto;
+}
+.themify_builder_row_top .themify_builder_dropdown {
+	left: auto;
+	right: 0;
+}
+.themify_builder.builder-lightbox .close_lightbox {
+	right: auto;
+	left: 15px;
+}
+.themify_builder_label {
+	float: right;
+}
+.module_menu {
+	left: auto;
+	right: 6px;
+}
+.themify_builder_module.active_module {
+	padding-left: 0;
+	padding-right: 38px;
+}
+.themify_builder_dropdown {
+	left: auto;
+	right: 0;
+}

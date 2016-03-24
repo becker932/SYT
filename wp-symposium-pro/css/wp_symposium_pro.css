@@ -1,0 +1,295 @@
+@font-face
+{
+    font-family:'wps_pro';
+    src:url('fonts/wps_pro.eot');
+    src:url('fonts/wps_pro.eot?#iefix') format('embedded-opentype'),
+        url('fonts/wps_pro.svg#wps_pro') format('svg'),
+        url('fonts/wps_pro.woff') format('woff'),
+        url('fonts/wps_pro.ttf') format('truetype');
+    font-weight:normal;
+    font-style:normal;
+
+}
+
+/* WPS Pro Overlay (please wait, etc...) */
+.wps_wait_modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('images/wait.gif') 
+                50% 50% 
+                no-repeat;
+}
+
+body.wps_wait_loading {
+    overflow: hidden;   
+}
+
+body.wps_wait_loading .wps_wait_modal {
+    display: block;
+}
+
+/* Image view */
+#wps_activity_dialog img {
+	-moz-box-shadow: 0 0 7px #000;
+	-webkit-box-shadow: 0 0 7px #000;
+	-o-box-shadow: 0 0 7px #000;
+	-ms-box-shadow: 0 0 7px #000;
+	box-shadow: 0 0 7px #000;
+}
+
+/* Menu icon */
+.toplevel_page_wps_pro .dashicons-before:before {
+	background-image: none !important;
+	font-family: 'wps_pro';
+	content: "\e600";	
+}
+
+/* Global styles */
+
+.wps_account_closed {
+	border-left: 10px solid #990;
+	background: #f9f9f9;
+	color: #000;
+	padding: 10px;
+}
+
+.wps_success {
+	border-left: 10px solid #090;
+	background: #f9f9f9;
+	color: #000;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+.wps_error {
+	border-left: 10px solid #900;
+	background: #f9f9f9;
+	color: #000;
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+.wps_field_error {
+	border: 1px solid red !important;
+	background-color: #faa !important;
+	color: #000 !important;
+}
+
+.wps_ago {
+	font-size:0.8em;
+}
+
+.wps_button {
+	background-color: #E6E6E6 !important;
+	background-image: linear-gradient(to bottom, #FFFFFF 0px, #E0E0E0 100%) !important;
+	background-repeat: repeat-x !important;
+	border: 1px solid #D2D2D2 !important;
+	border-radius: 3px !important;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 1px 1px rgba(0, 0, 0, 0.075) !important;
+	color: #7C7C7C !important;
+	font-size: 14px !important;
+	font-weight: normal !important;
+	line-height: 19.5px !important;
+	padding: 0.428571rem 0.714286rem !important;
+}
+
+.wps_button:active {
+	background-image: linear-gradient(to top, #FFFFFF 0px, #E0E0E0 100%) !important;
+}
+
+
+/* Admin */
+
+#TB_window {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+#TB_ajaxContent {
+    width: 100% !important;
+    height: 95% !important;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */    
+}
+
+/* Editor button */
+#wps_admin_shortcodes_button:after
+{ 
+	background-image: none !important;
+	font-family: 'wps_pro';
+	content: "\e600";
+}
+
+
+#wps_admin_shortcodes {
+	display:none;
+	border-radius:3px;
+	position:absolute;
+	top:30px;
+	left:0px;
+	width:200px;
+	background-color:#fff;
+	border:1px solid #afafaf;
+	border-left:1px solid #afafaf;
+	border-right:1px solid #afafaf;
+	border-bottom:1px solid #afafaf;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+#wps_admin_shortcodes div {
+	padding:2px 6px 2px 6px;
+	font-size: 0.8em;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */	
+}	
+#wps_admin_shortcodes div a {
+	color: #6f6f6f;
+}
+#wps_admin_shortcodes div a:hover {
+	color: #000;
+	font-weight: bold;
+}
+.wps_admin_shortcodes_dialog_div {
+}
+
+
+/* Admin Getting Started/Help */
+.wps_admin_getting_started_menu_item {
+    background: rgba( 255, 255, 255, .8 ) 
+                url('images/wrench_light.svg') 
+                50% 50% 
+                no-repeat;	
+    background-size: 16px 16px;
+    background-position: 99% 5px;
+    background-repeat: no-repeat;
+	cursor: pointer;
+	background-color: #000;
+	margin-top: 10px;
+	padding: 4px 8px;
+	color: #fff;
+ 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+   	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+   	box-sizing: border-box;         /* Opera/IE 8+ */	
+	width: 100%;
+}
+
+.wps_admin_getting_started_content {
+ 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+   	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+   	box-sizing: border-box;         /* Opera/IE 8+ */	
+	background-color: #fff;
+	padding: 8px 8px 8px 18px;
+	margin: 0px 0px 10px 0px;
+}
+
+/* =========================== BB Codes */
+
+.wps_bbcode_center {
+	width: 100%;
+ 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+   	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+   	box-sizing: border-box;         /* Opera/IE 8+ */	
+	text-align: center;
+	margin-top: -0.5em;
+	margin-bottom: 0.5em;
+}
+
+.wps_bbcode_list_item {
+	margin-top: -0.6em !important;
+	margin-bottom: -0.6em !important;
+}
+
+pre, .wps_bbcode_code {
+	background: #f9f9f9;
+	color: #000;
+	padding: 10px;
+	font-family: courier;
+    margin: 15px 0 15px 0;
+	font-size: 0.8em;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */	
+}
+
+.wps_bbcode_quote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  padding: 0.5em 10px;
+  font-size: 0.8em;
+  margin: 15px 0 15px 0;
+  quotes: "\201C""\201D";
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */	
+}
+.wps_bbcode_quote:before {
+  color: #ccc;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}
+.wps_bbcode_quote p {
+  display: inline;
+}
+
+/* Responsive videos */
+.wps_video_container {
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top: 30px;
+    height: 0; 
+    overflow: hidden;
+    margin-bottom:20px;
+}
+.wps_video_container iframe,
+.wps_video_container object,
+.wps_video_container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Welcome */
+#wps_welcome {
+	background: -webkit-linear-gradient(top, rgba(81,0,81,1) 0%,rgba(125,185,232,0) 80%); /* Chrome10+,Safari5.1+ */
+	background: -moz-linear-gradient(top, rgba(81,0,81,1) 0%, rgba(125,185,232,0) 80%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(81,0,81,1)), color-stop(80%,rgba(125,185,232,0))); /* Chrome,Safari4+ */
+	background: -o-linear-gradient(top, rgba(81,0,81,1) 0%,rgba(125,185,232,0) 80%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, rgba(81,0,81,1) 0%,rgba(125,185,232,0) 80%); /* IE10+ */
+	background: linear-gradient(to bottom, rgba(81,0,81,1) 0%,rgba(125,185,232,0) 80%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#510051', endColorstr='#007db9e8',GradientType=0 ); /* IE6-9 */
+	overflow:hidden;
+	color: #000;
+	margin-top:25px;
+	padding-left:20px;
+	padding-top:20px;
+	padding-right:20px;
+}
+#wps_welcome a {
+	color: #510051;
+	font-weight: bold;
+}
+
+.tooltipsy
+{
+	padding: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	overflow: hidden;
+	color: #000;
+	font-size: 0.8em;
+	background-color: #dfdfdf;
+	border: 1px solid #cfcfcf;
+}
