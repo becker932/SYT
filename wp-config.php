@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 define('WP_MEMORY_LIMIT', '64M' /* WebSharks™ Core auto-fix. */);
 /**
  * The base configurations of the WordPress.
@@ -51,6 +51,9 @@ define('AUTH_SALT',        '2wvunvKLF@76hwo|[Or Jf18:LbW7(0o=G8y+dM=|CB{N_>w~oZ9
 define('SECURE_AUTH_SALT', 'wws=]q*.tJ CCQGZZxXMZ@nI :#PGi&%UZ,>#5,G+|{?|8w?hihT/wD@-&vivlDt');
 define('LOGGED_IN_SALT',   '!AZo+L JW//v?5r`YqiR5P-+!CLBajO(@jI6FRu8[fq;)GgD+XE%[Qc.pb-|8!f}');
 define('NONCE_SALT',       '58kZiL,P1ypP8C18|M,-/JLel4?yU9CImV{WwUJnWyJ]PV&=m]aV+R-|C:O/ngH+');
+define( 'FS_METHOD', 'direct' );
+define( 'FS_CHMOD_DIR', 0777 );
+define( 'FS_CHMOD_FILE', 0777 );
 
 /**#@-*/
 
@@ -79,19 +82,19 @@ define('WPLANG', '');
  * It is strongly recommended that plugin and theme developers use WP_DEBUG
  * in their development environments.
  */
-define('WP_DEBUG', false);
+//define('WP_DEBUG', false);
  // Enable WP_DEBUG mode
-//define('WP_DEBUG', true);
+define('WP_DEBUG', true);
 
 // Enable Debug logging to the /wp-content/debug.log file
-//define('WP_DEBUG_LOG', true);
+define('WP_DEBUG_LOG', true);
 
 // Disable display of errors and warnings 
-//define('WP_DEBUG_DISPLAY', false);
-//@ini_set('display_errors',0);
+define('WP_DEBUG_DISPLAY', false);
+@ini_set('display_errors',0);
 
 // Use dev versions of core JS and CSS files (only needed if you are modifying these core files)
-//define('SCRIPT_DEBUG', true);
+define('SCRIPT_DEBUG', true);
 
 
 

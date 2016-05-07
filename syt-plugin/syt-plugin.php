@@ -46,17 +46,19 @@ class syt_revision_widget extends WP_Widget {
 		echo $args['before_title'] . $title . $args['after_title'];
 
 		// This is where you run the code and display the output
-		if($_SESSION['SYT_DEMO_USER'])
+        if(!empty($_SESSION['SYT_DEMO_USER']) && $_SESSION['SYT_DEMO_USER'])
 		{
 			error_log("IN DEMO MODE IN VERSIONS BOX");
 			echo do_shortcode('[themify_box style="orange rounded shadow"]<span style="font-family: Arial, serif;"><b>You are currently in draft mode.</b> In this mode you can edit your documents (by clicking on the coloured area) but they are not live until they are approved. This allows staff to see the current policy rather than one that is under revision. Approving changes and saving edits (which would turn the edit box green and track your versions) is disabled in your Demo membership.</span>[/themify_box]');
 		} else 
 		{
-			if($_SESSION['SYT_READ_ONLY_USER'])
+            error_log("checking if use can edit ".$SYT_custom_revision."   =    ".current_user_can('edit_post', $SYT_custom_revision));
+			if(!empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER'])
 			{
 				error_log("READ ONLY USER CANNOT EDIT THIS POST SO NO BUTTON ADDED ".$SYT_custom_revision);
 			}else if (current_user_can('edit_post', $SYT_custom_revision) ) 
 			{
+                error_log("Add a save Draft button ".$SYT_custom_revision);
 				//add a svae draft mode button
 				$visDB = (get_post_meta( $SYT_custom_revision, 'syt-draft-mode', true) == "false" || isset($_GET["revNo"]) === true)?'none':'block';
 				echo "<div id='draft_mode_box' style='display: ".$visDB.";'>";
@@ -65,7 +67,7 @@ class syt_revision_widget extends WP_Widget {
 			}
 			else
 			{
-				error_log("USER CANNOT EDIT THIS POST SO NO BUTTON ADDED ".$SYT_custom_revision);
+				error_log("USER CANNOT EDIT THIS POST SO NO BUTTON ADDED ".$SYT_custom_revision."   ".current_user_can('edit_post', $SYT_custom_revision));
 			}
 
 			$array1 = wp_get_post_revisions($SYT_custom_query);
@@ -377,8 +379,8 @@ function syt_sig_authorise_func($entry, $form) {
 
 	if((int)$form['id'] > 6 && (int)$form['id'] < 22)
 	{
-		
-		if (current_user_can('edit_post',$entry["4"]) && empty($_SESSION['SYT_READ_ONLY_USER']) ) 
+$notRO = (empty($_SESSION['SYT_READ_ONLY_USER'])  || !empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER']==false)?true:false;
+		if (current_user_can('edit_post',$entry["4"]) && $notRO )
 		{
 			//error_log ("syt_sig_authorise_func >".$entry["4"].urldecode($entry["1"]));
 			if(urldecode($entry["1"]) == "DELETING")
@@ -697,7 +699,6 @@ add_action ('wp_authenticate' , 'check_custom_authentication',5,1);
 function check_custom_authentication ($username) {
 	global $wpdb;
 
-	$_SESSION['SYT_READ_ONLY_USER'] = $_SESSION['SYT_DEMO_USER'] = false;
     if (!username_exists($username)) {
 		return;
 	}
@@ -725,14 +726,15 @@ function check_custom_authentication ($username) {
 // When retrieving posts we check if we are the read only user, if so we modify the query to use the admin user for that accoutn
 // the read only user thus sees everything the admin user sees, but has their abilities curtailed by the $SYT_READ_ONLY_USER session var
 function syt_pre_get_posts( $query ) {
-	if($_SESSION['SYT_READ_ONLY_USER'] )
+
+	if(!empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER'] )
 	{
 		//error_log("ATTEMPTING TO ADD NEW AUTHOR ID TO QUERY", $query->author);
 		$query->set('author__in', array($query->author,$_SESSION['SYT_PARENT'],1));
 	}
 }
 
-add_action( 'pre_get_posts', 'syt_pre_get_posts' ); 
+add_action( 'pre_get_posts', 'syt_pre_get_posts' );
 add_action('init', 'myStartSession', 1);
 add_action('wp_logout', 'myEndSession');
 add_action('wp_login', 'myEndSession');
@@ -756,7 +758,7 @@ add_filter( 'edit_post_link', '__return_null' );
 function block_dashboard() {
     $file = basename($_SERVER['PHP_SELF']);
     if (is_user_logged_in() && is_admin() && !current_user_can('edit_posts') && $file != 'admin-ajax.php'){
-    	if($_SESSION['SYT_READ_ONLY_USER'])
+        if(!empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER'])
     	{
     		wp_set_current_user($_SESSION['SYT_RO']);
     	}
@@ -831,7 +833,7 @@ function syt_docs_to_sign_func( $atts, $content = null ) {
 	wp_reset_query();
 	if(count($toReview)==0)
 	{
-		if($_SESSION['SYT_DEMO_USER'] )
+        if(!empty($_SESSION['SYT_DEMO_USER']) && $_SESSION['SYT_DEMO_USER'])
 		{
 			return '5 Policies require signatures (Disabled in Demo Mode)';
 		}
@@ -842,7 +844,7 @@ function syt_docs_to_sign_func( $atts, $content = null ) {
 	}
 	else
 	{
-		if($_SESSION['SYT_DEMO_USER'] )
+        if(!empty($_SESSION['SYT_DEMO_USER']) && $_SESSION['SYT_DEMO_USER'])
 		{
 			return count($toReview).' Policies require signatures (Disabled in Demo Mode)';
 		}
@@ -903,7 +905,7 @@ function syt_docs_to_review_func( $atts, $content = null ) {
 	//any docs which do not have a custom page or where the article 
 	//is in draft
 
-	if($_SESSION['SYT_READ_ONLY_USER'])
+    if(!empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER'])
 	{
 
 		$str = " </br>";
@@ -921,7 +923,8 @@ function syt_docs_to_review_func( $atts, $content = null ) {
 		$draft_query = new WP_Query( $args );
 		$num = ((int)$control_query->found_posts - (int)$users_docs_query->found_posts) + (int)$draft_query->found_posts;
 		//subtract one number from the other
-		if($_SESSION['SYT_DEMO_USER'] )
+        $str="";
+        if(!empty($_SESSION['SYT_DEMO_USER']) && $_SESSION['SYT_DEMO_USER'])
 		{
 			$str .= $num.' Policies to review (Disabled in Demo Mode)';
 		}
@@ -976,7 +979,7 @@ add_shortcode( 'syt_updates_alert', 'syt_updates_alert_func' );
 
 //custom shortcode to disply popup for inline profile edit
 function syt_edit_profile_link_func( $atts, $content = null ) {
-	if($_SESSION['SYT_READ_ONLY_USER'])
+    if(!empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER'])
 	{
 		return '';
 	}
@@ -990,8 +993,7 @@ add_shortcode( 'syt_edit_profile_link', 'syt_edit_profile_link_func' );
 //custom shortcode displaying the options part of a dropdown containg the quicklinks
 function syt_show_dropdown_options_func( $atts, $content = null ) {
 
-
-	if($_SESSION['SYT_DEMO_USER'])
+	if(!empty($_SESSION['SYT_DEMO_USER']) && $_SESSION['SYT_DEMO_USER'])
 	{
 		
 		$str = 	'<option value="#">Select a section...</option>
@@ -1027,10 +1029,10 @@ function syt_show_dropdown_options_func( $atts, $content = null ) {
 		<option disabled="disabled">Evaluation of compliance</option>
 		<option value="?p=2331">DEMO: Incident Investigation</option>
 		<option disabled="disabled">Control of Records</option>
-		<option disabled="disabled">Internal Auit</option>	
+		<option disabled="disabled">Internal Audit</option>
 	</optgroup>
 	<option disabled="disabled">Management Review</option>
-	<optgroup label = "Topic Specific Polies ">
+	<optgroup label = "Topic Specific Policies ">
 		<option disabled="disabled">Contents</option>
 		<option value="?p=2342">DEMO: Accidents + First-aid</option>
 		<option disabled="disabled">Alcohol, Drugs + Smoking</option>
@@ -1098,10 +1100,10 @@ function syt_show_dropdown_options_func( $atts, $content = null ) {
 		<option value="?p=2328">Evaluation of compliance</option>
 		<option value="?p=2331">Incident Investigation</option>
 		<option value="?p=2333">Control of Records</option>
-		<option value="?p=2335">Internal Auit</option>	
+		<option value="?p=2335">Internal Audit</option>
 	</optgroup>
 	<option value="?p=2337">Management Review</option>
-	<optgroup label = "Topic Specific Polies ">
+	<optgroup label = "Topic Specific Policies ">
 		<option value="?p=2339">Contents</option>
 		<option value="?p=2342">Accidents + First-aid</option>
 		<option value="?p=2344">Alcohol, Drugs + Smoking</option>
@@ -1140,7 +1142,7 @@ add_shortcode( 'syt_show_dropdown_options', 'syt_show_dropdown_options_func' );
 
 //custom shortcode displaying the options part of a dropdown containg the quicklinks to downloadable templates
 function syt_show_dropdown_downloads_func( $atts, $content = null ) {
-	if($_SESSION['SYT_DEMO_USER'])
+    if(!empty($_SESSION['SYT_DEMO_USER']) && $_SESSION['SYT_DEMO_USER'])
 	{
 		$str = '<option value="#">Select a section...</option>
 		<optgroup label = "Employee Declarations Templates" >
