@@ -155,7 +155,7 @@ function register_tcustom_button( $buttons ) {
 }
 function add_tcustom_tinymce_plugin( $plugin_array ) {
 
-    $plugin_array['syt_tc_button'] = plugins_url( 'sytsavebutton.js', __FILE__ );
+    $plugin_array['syt_tc_button'] = plugins_url( 'sytsavebutton.js?chacheBuster='.((float) mt_rand() / (float) mt_getrandmax()), __FILE__ );
     return $plugin_array;
 }
 ?>

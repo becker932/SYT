@@ -134,7 +134,6 @@ class ICPagePosts {
 						//echo 'is customisable  '.($page_posts->the_post.get_the_ID());
 						$my_query = new WP_Query();
 						$my_query->query(array( 'author' => $myId, 'meta_key' => 'syt-original-doc', 'meta_value' => $page_posts->the_post.get_the_ID()));
-                        $style = "style='background-color:peachpuff; padding: 10px 10px 10px 10px ; visibility:hidden'";
                         $areaColour = "peachpuff";
 						if ( $my_query->have_posts() ){
                             //error_log('returned a version of the doc with the right value in the custom field'.count($my_query));
@@ -179,6 +178,7 @@ class ICPagePosts {
 							}
 							else
 							{
+                                $areaColour = '#b2d582';
                                 $SYT_custom_query = $my_query->posts[0]->ID;
 								//error_log("WE HAVE A VALID POST NOT IN DRAFT MODE".$my_query->posts[0]->ID);
 							}
@@ -194,8 +194,8 @@ class ICPagePosts {
                             wp_editor( $my_query->posts[0]->post_content, $editor_id, $settings);
                             $html = ob_get_contents();
                             ob_end_clean();
-                            $content = "<div id='my-nested-post' class='my-nested-post' {$nonEditorStyle}>{$content}</div>";
-                            $content .="<form action=\"\" {$style} method=\"post\" id=\"syt_docedit_form\"><input type=\"hidden\" id =\"postID\" name=\"postID\" value=\"{$my_query->posts[0]->ID}\"><input type=\"hidden\" name=\"action\" value=\"sytdocedit\">{$html}</form>";
+                            $content = "<div id='my-nested-post' class='my-nested-post' {$nonEditorStyle}><button id =\"editDocBtn\" name=\"editDocBtn\" class= \"editDocBtn\" style=\"position: fixed; visibility:hidden; width: 200px;  height: 50px;  overflow: auto;  margin: auto;  top: 0; left: 0; bottom: 0; right: 20%;\"  >Click to Edit</button>{$content}</div>";
+                            $content .="<form action=\"\" {$style} method=\"post\" id=\"syt_docedit_form\"><button id =\"saveMsg\" name=\"saveMsg\" class= \"saveMsg\" style=\"position: fixed; visibility:hidden; width: 200px;  height: 50px;  overflow: auto;  margin: auto;  top: 0; left: 0; bottom: 0; right: 20%;\"  >Changes Saved</button><input type=\"hidden\" id =\"postID\" name=\"postID\" value=\"{$my_query->posts[0]->ID}\"><input type=\"hidden\" name=\"action\" value=\"sytdocedit\">{$html}</form>";
 
 
                             $output .= $content;
@@ -253,8 +253,8 @@ class ICPagePosts {
                                 ob_end_clean();
                                 $style =  "style='background-color:{$areaColour}; padding: 10px 10px 10px 10px ; height:480px; display: none ;visibility: hidden;'";
                                 $nonEditorStyle ="style='background-color:{$areaColour}; display: block'";
-                                $content = "<div id='my-nested-post' class='my-nested-post' {$nonEditorStyle}>{$content}</div>";
-                                $content .= "<form action=\"\" {$style} method=\"post\" id=\"syt_docedit_form\"><input type=\"hidden\" id =\"postID\" name=\"postID\" value=\"{$post_id}\"><input type=\"hidden\" name=\"action\" value=\"sytdocedit\">{$html}</form>";
+                                $content = "<div id='my-nested-post' class='my-nested-post' {$nonEditorStyle}><button id =\"editDocBtn\" name=\"editDocBtn\" class= \"editDocBtn\" style=\"position: fixed; visibility:hidden; width: 200px;  height: 50px;  overflow: auto;  margin: auto;  top: 0; left: 0; bottom: 0; right: 20%;\"  >Click to Edit</button>{$content}</div>";
+                                $content .= "<form action=\"\" {$style} method=\"post\" id=\"syt_docedit_form\"><button id =\"saveMsg\" name=\"saveMsg\" class= \"saveMsg\" style=\"position: fixed; visibility:hidden; width: 200px;  height: 50px;  overflow: auto;  margin: auto;  top: 0; left: 0; bottom: 0; right: 20%;\"  >Changes Saved</button><input type=\"hidden\" id =\"postID\" name=\"postID\" value=\"{$post_id}\"><input type=\"hidden\" name=\"action\" value=\"sytdocedit\">{$html}</form>";
                                 $output .= $content;
 								$output .= $customCount;
 
@@ -295,6 +295,15 @@ contentEdited = false;
 window.onload = function() {
     var barePost = document.getElementById('my-nested-post');
     var edPost = document.getElementById('syt_docedit_form');
+    var docBtn =  document.getElementById('editDocBtn');
+    barePost.onmouseover = function()
+    {
+        docBtn.style.visibility = 'visible' ;
+    }
+    barePost.onmouseout = function()
+    {
+        docBtn.style.visibility = 'hidden' ;
+    }
     barePost.style.cursor = 'pointer';
     barePost.onclick = function() {
         barePost.style.visibility = 'hidden' ;
@@ -303,6 +312,7 @@ window.onload = function() {
         edPost.style.visibility = 'visible' ;
     }
 }
+
 window.onbeforeunload = function (e) {
             if(contentEdited){
             var message = 'You have unsaved edits on this page, are you sure you want to leave?',
