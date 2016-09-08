@@ -31,7 +31,7 @@ a {
 }
 /* current link */
 #main-nav .current_page_item a, #main-nav .current-menu-item a {
-	background: #324760;
+	background-color: #324760;
 }
 
 /* slider */

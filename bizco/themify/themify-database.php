@@ -29,6 +29,9 @@ $themify_cached = false;
  */
 function themify_set_data( $data ) {
 	global $themify_data, $themify_cached;
+	if ( empty( $data ) || ! is_array( $data ) ) {
+		$data = array();
+	}
 	foreach ( $data as $name => $value ) {
 		if ( 'save' == $name || 'page' == $name ) {
 			unset( $data[$name] );
@@ -62,7 +65,9 @@ function themify_get_data() {
 function themify_sanitize_data( $data ) {
 	if ( is_array( $data ) && count( $data ) >= 1 ) {
 		foreach( $data as $name => $value ){
-			if ( 'setting-custom_css' == $name ) {
+			if ( in_array( $name, array( 'setting-custom_css', 'setting-header_html', 'setting-footer_html', 'setting-footer_text_left', 'setting-footer_text_right', 'setting-homepage_welcome', 'setting-store_info_address' ) )
+				|| ( false !== stripos( $name, 'setting-hooks' ) )
+			) {
 				$data[$name] = str_replace( "\'", "'", $value );
 			} else {
 				$data[$name] = stripslashes( $value );

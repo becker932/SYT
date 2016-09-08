@@ -234,11 +234,14 @@ class ICPagePosts {
 								add_post_meta($post_id, 'syt-draft-mode', 'true', true);
 								$custom_fields = get_post_custom($page_posts->the_post.get_the_ID());
                                 $customCount ="";
+                                error_log("CREATING NEW POST - CHECKING FOR SIGS ");
                                 if(!empty($custom_fields['syt_sig'])) {
                                     $my_custom_field = $custom_fields['syt_sig'];
+                                    error_log("CREATING NEW POST - FOUND SIGS ");
                                     if ($my_custom_field) {
                                         foreach ($my_custom_field as $key => $value) {
                                             add_post_meta($post_id, 'syt_sig', $value);
+                                            error_log("CREATING NEW POST AND ADDING META DATA of VAlue: ".$value);
                                         }
                                     }
                                 }
@@ -257,7 +260,7 @@ class ICPagePosts {
                                 $content .= "<form action=\"\" {$style} method=\"post\" id=\"syt_docedit_form\"><button id =\"saveMsg\" name=\"saveMsg\" class= \"saveMsg\" style=\"position: fixed; visibility:hidden; width: 200px;  height: 50px;  overflow: auto;  margin: auto;  top: 0; left: 0; bottom: 0; right: 20%;\"  >Changes Saved</button><input type=\"hidden\" id =\"postID\" name=\"postID\" value=\"{$post_id}\"><input type=\"hidden\" name=\"action\" value=\"sytdocedit\">{$html}</form>";
                                 $output .= $content;
 								$output .= $customCount;
-
+                                break;
 								//we break here but we could concatanate and continue the while loop (but we only ever use one post in page special case)
 								//create new post using this template content.. set its SYT id and customisable fields
 							}
@@ -335,7 +338,7 @@ window.onbeforeunload = function (e) {
 		// If this post has signatures defined (a list of custom fields of the cprrect names) then handle those
 		if( count(get_post_meta( $SYT_custom_query, 'syt_sig')) >0)
 		{
-			////error_log("IT RECKONS THERE ARE SIGS ON ".$SYT_custom_query."  ".count(get_post_meta( $SYT_custom_query, 'syt_sig')));
+			error_log("IT RECKONS THERE ARE SIGS ON ".$SYT_custom_query."  ".count(get_post_meta( $SYT_custom_query, 'syt_sig')));
 			if(!empty($custom_fields['syt_sig']))
             {
                 $my_custom_field = $custom_fields['syt_sig'];
@@ -346,14 +349,14 @@ window.onbeforeunload = function (e) {
                     $mybreak = false;
                     if (get_post_meta($SYT_custom_query, 'syt-draft-mode', true) == "true") {
                         // in draft mode with sigs - reset all sigs
-                        //error_log("IN DRAFT MODE WITH ALL SIGS - RESET ALL SIGS");
+//                        error_log("IN DRAFT MODE WITH ALL SIGS - RESET ALL SIGS ".urldecode($a[0]) . '|' . urldecode($a[1])."||" .(7 + $multiFormSeperator."     >>> ". $value));
                         add_post_meta($SYT_custom_query, 'syt_sig_archive', $value);
-                        update_post_meta($SYT_custom_query, 'syt_sig', urldecode($a[0]) . '|' . urldecode($a[1]) . "||" . (8 + $multiFormSeperator), $value);
+                        update_post_meta($SYT_custom_query, 'syt_sig', urldecode($a[0]) . '|' . urldecode($a[1]) . "||" . (7 + $multiFormSeperator), $value);
                         $multiFormSeperator++;
                     } else {
 
                         if (!empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER']) {
-                            //error_log("SESSION VARIABLE OF READ ONLY USER STILL SET");
+                            error_log("SESSION VARIABLE OF READ ONLY USER STILL SET");
                             $customCount .= "<br><table width ='100%'>
 						<tr>
 						<th colspan='3' >Approved By</th>
@@ -370,22 +373,23 @@ window.onbeforeunload = function (e) {
 						</tr>
 						</table>";
                         } else {
-                            //error_log("SET UP SIGS FORM");
+//                            error_log("SET UP SIGS FORM for:".$SYT_custom_query."  ::  ".urlencode($value));
                             //add forms
                             $customCount .= "<br><hr>";
-                            $customCount .= do_shortcode('[gravityform id="' . (8 + $multiFormSeperator) . '" ajax="true" field_values="multiformid=' . (8 + $multiFormSeperator) . '&syt_sig_post_id=' . $SYT_custom_query . '&syt_sig_original_value=' . urlencode($value) . '&syt_sig_name=' . urlencode($a[0]) . '&syt_sig_role=' . urlencode($a[1]) . '&syt_sig_date=' . urlencode($a[2]) . '&is_approved=' . (($a[2] == "") ? 0 : 1) . '"]');
+                            $customCount .= do_shortcode('[gravityform id="' . (7 + $multiFormSeperator) . '" ajax="true" field_values="multiformid=' . (7 + $multiFormSeperator) . '&syt_sig_post_id=' . $SYT_custom_query . '&syt_sig_original_value=' . urlencode($value) . '&syt_sig_name=' . urlencode($a[0]) . '&syt_sig_role=' . urlencode($a[1]) . '&syt_sig_date=' . urlencode($a[2]) . '&is_approved=' . (($a[2] == "") ? 0 : 1) . '"]');
                             $multiFormSeperator++;
                             if ($multiFormSeperator == 13) $multiFormSeperator = 15;
-                            //error_log("after sig set up");
+//                            error_log("after sig set up");
                         }
 
 
                     }
 
                 }
-                //error_log ("page_posts multiFormSeperator".$multiFormSeperator);
-                if(!empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER'])
+                error_log ("page_posts multiFormSeperator".$multiFormSeperator."     is logged in:".is_user_logged_in()."  isadmin:".is_admin().   "can edit posts: ".current_user_can('edit_posts').empty($_SESSION['SYT_READ_ONLY_USER'])."   >>>>    ".get_post_meta( $SYT_custom_query, 'syt-draft-mode', true));
+                if(is_user_logged_in() && current_user_can('edit_posts') && empty($_SESSION['SYT_READ_ONLY_USER']))
                 {
+                    error_log("I CAN ADD SIGNAT");
                     if(get_post_meta( $SYT_custom_query, 'syt-draft-mode', true) != "true")
                     {
                         if($multiFormSeperator==12)
@@ -395,7 +399,7 @@ window.onbeforeunload = function (e) {
                         else
                         {
                             //add the "new signatory" button
-                            $customCount .= do_shortcode('[gravityform id="22" title="false" field_values="syt_sig_post_id='.$SYT_custom_query.'&syt_sig_current_index='.(8+$multiFormSeperator).'"]');
+                            $customCount .= do_shortcode('[gravityform id="22" title="false" field_values="syt_sig_post_id='.$SYT_custom_query.'&syt_sig_current_index='.(7+$multiFormSeperator).'"]');
                         }
                     }
                 }
@@ -548,6 +552,7 @@ window.onbeforeunload = function (e) {
 	 *	@return string results of the output
 	 */
 	protected function add_template_part( $ic_posts, $singles=false ) {
+        error_log("ADD TEMPLATE PART    self::has_theme_template():  ".self::has_theme_template() );
 		if ( $singles ) {
 			setup_postdata( $ic_posts );
 		} else {

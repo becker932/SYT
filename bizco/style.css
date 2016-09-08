@@ -1,14 +1,15 @@
-/*  
-Theme Name: Bizco
+/*
+Theme Name: Themify Bizco
 Theme URI: http://themify.me/themes/bizco
-Version: 1.5.9
+Version: 1.9.9 
 Description: Created by <a href="http://www.themify.me">Themify</a>.
 Author: Themify
 Author URI: http://www.themify.me
 License: GNU General Public License v2.0
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Copyright: (c) 2014 Themify.
-Tags: themify, featured-images, translation-ready, custom-menu, sidebar
+Copyright: (c) 2016 Themify.
+Tags: featured-images, translation-ready, custom-menu
+Text Domain: themify
 
 ---------
 
@@ -43,12 +44,12 @@ img {
 }
 /* ie 8 img max-width */
 @media \0screen {
-  img { width: auto;}
+	img { width: auto;}
 }
 
 /* set html5 elements to block */
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section { 
-    display: block;
+	display: block;
 }
 
 /* audio */
@@ -66,6 +67,7 @@ GENERAL STYLING
 *************************************************************************************/
 html {
 	background: #2c426d url(images/html-bg.png);
+	-webkit-font-smoothing: antialiased;
 }
 body {
 	font: 13px/150% Arial, Helvetica, sans-serif;
@@ -106,6 +108,7 @@ h1, h2, h3, h4, h5, h6 {
 	line-height: 1.4em;
 	color: #000;
 	margin: 20px 0 .4em;
+	word-wrap: normal;
 }
 h1 {
 	font-size: 2em;
@@ -137,7 +140,7 @@ textarea {
 textarea, input[type=text], input[type=password], input[type=search], input[type=email], input[type=url] {
 	border: solid 1px #ccc;
 	padding: 6px 7px;
-	background: #f9f9f9;
+	background-color: #f9f9f9;
 	border-radius: 5px;
 }
 textarea:focus, input[type=text]:focus, input[type=password]:focus, input[type=search]:focus, input[type=email]:focus, input[type=url]:focus {
@@ -156,6 +159,7 @@ textarea {
 	width: 96%;
 }
 
+
 /* form button */
 input[type=reset], input[type=submit], button {
 	font-weight: bold;
@@ -164,25 +168,29 @@ input[type=reset], input[type=submit], button {
 	padding: 6px 15px;
 	cursor: pointer;
 	box-shadow: 0 1px 0 rgba(0,0,0,.2);
-	background-color: #666;
-	
+	background-color: #666;	
 	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIwLjM1Ii8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
-	background-image: -moz-linear-gradient(top,  rgba(255,255,255,0.35) 0%, rgba(0,0,0,0.1) 100%);
-	background-image: -webkit-linear-gradient(top,  rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
-	background-image: linear-gradient(to bottom,  rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
-	background-image: linear-gradient(top,  #d8d8d8 0%,#999898 100%);
-	
+	background-image: -moz-linear-gradient(top, rgba(255,255,255,0.35) 0%, rgba(0,0,0,0.1) 100%);
+	background-image: -webkit-linear-gradient(top, rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
+	background-image: linear-gradient(to bottom, rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
+	background-image: linear-gradient(top, #d8d8d8 0%,#999898 100%);	
 	border-radius: 10em;
 	text-shadow: 0 -1px 0 rgba(0,0,0,.3);
+	-webkit-appearance: none;
 }
 input[type=reset]:hover, input[type=submit]:hover, button:hover {
 	color: #fff;
-	background: #666;
+	background-color: #666;
 }
 
 /************************************************************************************
 STRUCTURE
 *************************************************************************************/
+#pagewrap, .pagewidth, #headerwrap, #header, #main-nav, #body, #layout, #content, .post, .author-box, .post-nav, .pagenav, #sidebar, .widget, #footerwrap, #footer {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
 #pagewrap {
 	overflow: hidden;
 	position: relative;
@@ -194,7 +202,7 @@ STRUCTURE
 }
 
 #body {
-	background: #fff;
+	background-color: #fff;
 	padding: 50px 0;
 	min-height: 400px;
 	box-shadow: 0 0 6px rgba(0,0,0,.3);
@@ -231,6 +239,7 @@ STRUCTURE
 /* fullwidth content */
 .full_width #layout {
 	width: 100%;
+	max-width: 100%;
 }
 .full_width #content {
 	padding: 0;
@@ -320,12 +329,12 @@ HEADER
 .social-widget a {
 	margin-left: 5px;
 }
-.social-widget  a {
+.social-widget a {
 	text-decoration: none;
 	color: #a1aabb;
 	margin: 0 2px;
 }
-.social-widget  a:hover {
+.social-widget a:hover {
 	text-decoration: none;
 	color: #fff;
 }
@@ -359,10 +368,10 @@ HEADER
 	vertical-align: middle;
 }
 /* rss button */
-.social-widget .rss {
+.social-widget div.rss {
 	float: left;
 }
-.social-widget .rss a {
+.social-widget div.rss a {
 	background: url(images/rss.png) no-repeat left center;
 	padding: 4px 0 3px 21px;
 }
@@ -418,7 +427,7 @@ MAIN NAVIGATION
 }
 /* current link */
 #main-nav .current_page_item a, #main-nav .current-menu-item a {
-	background: #1b2b4b;
+	background-color: #1b2b4b;
 	color: #fff;
 	border-radius: 5px;
 }
@@ -441,7 +450,7 @@ MAIN NAVIGATION
 }
 /* sub-levels link :hover */
 #main-nav ul a:hover, #main-nav .current_page_item ul a:hover, #main-nav ul .current_page_item a:hover, #main-nav .current-menu-item ul a:hover, #main-nav ul .current-menu-item a:hover {
-	background: #F3F3F3;
+	background-color: #F3F3F3;
 	color: #000;
 	color: black;
 }
@@ -451,7 +460,7 @@ MAIN NAVIGATION
 	padding: 5px 0;
 	list-style: none;
 	position: absolute;
-	background: #fff;
+	background-color: #fff;
 	border: solid 1px #666;
 	z-index: 200;
 	display: none;
@@ -470,7 +479,7 @@ MAIN NAVIGATION
 	top: 0;
 }
 /* show dropdown ul */
-#main-nav li:hover > ul {
+.no-touch #main-nav li:hover > ul {
 	display: block;
 }
 
@@ -607,16 +616,16 @@ body.rtl #slider {
 	height: 8px;
 	display: block;
 	margin: 0 3px;
-	background: #555;
-	background: rgba(0,0,0,.6);
+	background-color: #555;
+	background-color: rgba(0,0,0,.6);
 	border: solid 2px #111;
 	border-radius: 10em;
 	cursor: pointer;
 }
 /* pager active */
-.flex-control-nav a.active  {
-	background: #ccc;
-	background: rgba(255,255,255,.3);
+.flex-control-nav .flex-active {
+	background-color: #ccc;
+	background-color: rgba(255,255,255,.3);
 	border-color: #666;
 }
 
@@ -645,11 +654,11 @@ body.rtl #slider {
 #slider:hover .flex-direction-nav a {
 	display: block;
 }
-.flex-direction-nav .prev {
+.flex-direction-nav .flex-prev {
 	background: url(images/slide-next-prev.png) no-repeat;
 	left: 5px;
 }
-.flex-direction-nav .next {
+.flex-direction-nav .flex-next {
 	background: url(images/slide-next-prev.png) no-repeat 0 -57px;
 	right: 5px;
 }
@@ -719,7 +728,7 @@ AUTHOR PAGE
 	margin: 0 15px 0 0;
 }
 .author-bio .author-avatar img {
-	background: #fff;
+	background-color: #fff;
 	padding: 4px;
 	border: solid 1px #ccc;
 }
@@ -817,28 +826,6 @@ POST
 	margin-right: 20px;
 }
 
-/* lightbox zoom image */
-.post-image .lightbox {
-	position: relative;
-	display: inline-block;
-	zoom:1;
-	*display:inline;
-	max-width: 100%;
-}
-.post-image .lightbox .zoom {
-	width: 40px;
-	height: 40px;
-	background: url(images/icon-zoom.png) no-repeat center center;
-	margin: -20px 0 0 -20px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	border-radius: 10em;
-}
-.post-image .lightbox:hover .zoom {
-	background-color: #000;
-}
-
 /* more button */
 .more-link {
 	font: 12px/100% Arial, Helvetica, sans-serif;
@@ -855,15 +842,15 @@ POST
 	
 	background-color: #eee;
 	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIwLjM1Ii8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
-	background-image: -moz-linear-gradient(top,  rgba(255,255,255,0.35) 0%, rgba(0,0,0,0.1) 100%);
-	background-image: -webkit-linear-gradient(top,  rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
-	background-image: linear-gradient(to bottom,  rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
-	background-image: linear-gradient(top,  #d8d8d8 0%,#999898 100%);
+	background-image: -moz-linear-gradient(top, rgba(255,255,255,0.35) 0%, rgba(0,0,0,0.1) 100%);
+	background-image: -webkit-linear-gradient(top, rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
+	background-image: linear-gradient(to bottom, rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
+	background-image: linear-gradient(top, #d8d8d8 0%,#999898 100%);
 }
 .more-link:hover {
 	text-decoration: none;
 	color: #000;
-	background: #eee;
+	background-color: #eee;
 }
 
 /* query post content wrapper */
@@ -934,9 +921,9 @@ POST
 
 /* list-thumb-image */
 .loops-wrapper.list-thumb-image .post {
-	margin-bottom: 0px;
-	padding-bottom: 0px;
-	border-bottom: solid 0px #ddd;
+	margin-bottom: 40px;
+	padding-bottom: 20px;
+	border-bottom: solid 1px #ddd;
 }
 .loops-wrapper.list-thumb-image .post-image {
 	float: left;
@@ -990,12 +977,12 @@ POST VIDEO (css for fluid video)
 	overflow: hidden;
 	margin-bottom: 15px;
 }
-.post-video iframe,  
-.post-video object,  
+.post-video iframe,
+.post-video object,
 .post-video embed,
-.embed-youtube iframe,  
-.embed-youtube object,  
-.embed-youtube embed  {
+.embed-youtube iframe,
+.embed-youtube object,
+.embed-youtube embed {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -1078,7 +1065,7 @@ PAGE NAGIVATION
 	text-align: right;
 }
 .pagenav a, .pagenav span {
-	background: #aaa;
+	background-color: #aaa;
 	color: #fff;
 	text-decoration: none;
 	padding: 2px 8px;
@@ -1090,10 +1077,10 @@ PAGE NAGIVATION
 }
 .pagenav a:hover {
 	text-decoration: none;
-	background: #0069cb;
+	background-color: #0069cb;
 }
 .pagenav .current {
-	background: #fff;
+	background-color: #fff;
 	color: #333;
 	border: solid 1px #ddd;
 }
@@ -1190,15 +1177,15 @@ COMMENTS
 	background-color: #eee;
 	
 	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIwLjM1Ii8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMC4xIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
-	background-image: -moz-linear-gradient(top,  rgba(255,255,255,0.35) 0%, rgba(0,0,0,0.1) 100%);
-	background-image: -webkit-linear-gradient(top,  rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
-	background-image: linear-gradient(to bottom,  rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
-	background-image: linear-gradient(top,  #d8d8d8 0%,#999898 100%);
+	background-image: -moz-linear-gradient(top, rgba(255,255,255,0.35) 0%, rgba(0,0,0,0.1) 100%);
+	background-image: -webkit-linear-gradient(top, rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
+	background-image: linear-gradient(to bottom, rgba(255,255,255,0.35) 0%,rgba(0,0,0,0.1) 100%);
+	background-image: linear-gradient(top, #d8d8d8 0%,#999898 100%);
 }
 .commentlist .comment-reply-link:hover {
 	text-decoration: none;
 	color: #000;
-	background: #eee;
+	background-color: #eee;
 }
 
 /* comment pagenav */
@@ -1236,11 +1223,11 @@ COMMENTS
 	text-decoration: none;
 	padding: 4px 10px;
 	color: #fff;
-	background: #F60;
+	background-color: #F60;
 	border-radius: 10em;
 }
 #respond #cancel-comment-reply-link:hover {
-	background: #333;
+	background-color: #333;
 }
 #commentform {
 	margin: 15px 0 0;
@@ -1479,7 +1466,7 @@ WORDPRESS POST FORMATTING
 	margin-bottom: 15px;
 }
 .wp-caption-text {
-	font: italic 95%/120% Georgia, "Times New Roman", Times, serif;
+	font: normal 95%/120% Georgia, "Times New Roman", Times, serif;
 	margin: 6px 0;
 }
 

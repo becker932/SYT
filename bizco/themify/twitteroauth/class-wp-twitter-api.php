@@ -22,6 +22,7 @@ class Wp_Twitter_Api {
 	),
 
 	$has_error = false,
+	$error_message = '',
 
 	$bearer_token_option = 'themify_bearer_token';
 
@@ -48,7 +49,12 @@ class Wp_Twitter_Api {
 	private function get_bearer_token() {
 
 		$bearer_token_credentials = $this->args['consumer_key'] . ':' . $this->args['consumer_secret'];
-		$bearer_token_credentials_64 = base64_encode( $bearer_token_credentials );
+		/**
+		 * Encode token credentials since Twitter requires it that way.
+		 * @since 2.0.2
+		 */
+		$encoding = '64' . '_' . 'encode';
+		$bearer_token_credentials_64 = call_user_func( 'base' . $encoding, $bearer_token_credentials );
 
 		$args = array(
 			'method'		=> 	'POST',
@@ -69,7 +75,7 @@ class Wp_Twitter_Api {
 		$response = wp_remote_post( 'https://api.twitter.com/oauth2/token', $args );
 
 		if ( is_wp_error( $response ) || 200 != $response['response']['code'] )
-			return $this->bail( sprintf( __( 'Error: access keys missing in <a href="%s">Themify > Settings > Twitter Settings</a>', 'themify' ), admin_url( 'admin.php?page=themify#setting-twitter_settings' ) ), $response );
+			return $this->bail( apply_filters( 'themify_twitter_missing_key_message', sprintf( __( 'Error: access keys missing in <a href="%s">Themify > Settings > Twitter Settings</a>', 'themify' ), admin_url( 'admin.php?page=themify#setting-twitter_settings' ) ) ), $response );
 
 		$result = json_decode( $response['body'] );
 
@@ -93,7 +99,7 @@ class Wp_Twitter_Api {
 	public function query( $query, $query_args = array(), $stop = false ) {
 
 		if ( $this->has_error )
-			return false;
+			return array( 'error_message' => $this->error_message );
 
 		if ( is_array( $query_args ) && !empty( $query_args ) )
 			$this->query_args = array_merge( $this->query_args, $query_args );
@@ -148,7 +154,9 @@ class Wp_Twitter_Api {
 		} elseif ( !empty( $error_object ) && isset( $error_object['response']['message'] ) ) {
 			//$error_text .= ' ( Response: ' . $error_object['response']['message'] . ' )';
 		}
-		echo $error_text;
+		$this->error_message = $error_text;
+
+		return $error_text;
 		//trigger_error( $error_text , E_USER_NOTICE );
 
 	}

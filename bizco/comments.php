@@ -74,7 +74,7 @@ $custom_comment_form = array( 'fields' => apply_filters( 'comment_form_default_f
 	'comment_field' => '<p class="comment-form-comment">' .
 			'<textarea id="comment" name="comment" cols="45" rows="8" aria-required="true" class="required"></textarea>' .
 			'</p>',
-	'logged_in_as' => '<p class="logged-in-as">' . sprintf( __( 'Logged in as <a href="%1$s">%2$s</a>. <a href="%3$s">Log out?</a>', 'themify' ), admin_url( 'profile.php' ), $user_identity, wp_logout_url( apply_filters( 'the_permalink', get_permalink( get_the_ID() ) ) ) ) . '</p>',
+	'logged_in_as' => '<p class="logged-in-as">' . sprintf( __( 'Logged in as <a href="%1$s">%2$s</a>. <a href="%3$s">Log out?</a>', 'themify' ), admin_url( 'profile.php' ), $user_identity, wp_logout_url( apply_filters( 'the_permalink', get_permalink( get_the_id() ) ) ) ) . '</p>',
 	'title_reply' => __( 'Leave a Reply' , 'themify' ),
 	'comment_notes_before' => '',
 	'comment_notes_after' => '',

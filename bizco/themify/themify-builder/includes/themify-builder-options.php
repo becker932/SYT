@@ -1,467 +1,747 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH'))
+	exit; // Exit if accessed directly
 
-if ( ! function_exists( 'themify_builder_module_settings_field' ) ) {
+function themify_builder_tabs($field, $module_name, $styling = false) {
+	$id = $field['id'];
+	?>
+	<div class="themify_builder_tabs" id="themify_builder_tabs_<?php echo esc_attr($id); ?>">
+		<ul class="clearfix">
+			<?php foreach ($field['tabs'] as $key => $tab) : ?>
+				<li><a href="#tf_<?php echo esc_attr($id . '_' . $key); ?>"> <?php echo esc_html($tab['label']); ?> </a></li>
+			<?php endforeach; ?>
+		</ul>
+
+		<?php foreach ($field['tabs'] as $key => $tab) : ?>
+			<div id="tf_<?php echo esc_attr($id . '_' . $key); ?>" class="themify_builder_tab">
+				<?php
+				if ($styling) {
+					themify_render_styling_settings($tab['fields']);
+				} else {
+					themify_builder_module_settings_field($tab['fields'], $module_name);
+				}
+				?>
+			</div>
+		<?php endforeach; ?>
+	</div>
+	<?php
+}
+
+function themify_render_styling_settings($fields) {
+	foreach ($fields as $styling):
+
+		if ($styling['type'] == 'tabs') {
+			themify_builder_tabs($styling, '', true);
+			continue;
+		}
+                $wrap_with_class = isset($styling['wrap_with_class']) ? $styling['wrap_with_class'] : '';
+		echo ( $styling['type'] != 'separator' ) ? '<div class="themify_builder_field ' . esc_attr($wrap_with_class) . '">' : '';
+		if (isset($styling['label'])) {
+			echo '<div class="themify_builder_label">' . esc_html($styling['label']) . '</div>';
+		}
+		echo ( $styling['type'] != 'separator' ) ? '<div class="themify_builder_input">' : '';
+		if ($styling['type'] == 'multi') {
+			foreach ($styling['fields'] as $field) {
+				themify_builder_styling_field($field);
+			}
+		} else {
+			themify_builder_styling_field($styling);
+		}
+		echo ( $styling['type'] != 'separator' ) ? '</div>' : ''; // themify_builder_input
+		echo ( $styling['type'] != 'separator' ) ? '</div>' : ''; // themify_builder_field
+
+	endforeach;
+}
+
+function themify_builder_get_binding_data($field) {
+	if (isset($field['binding'])) {
+		echo " data-binding='" . json_encode($field['binding']) . "'";
+	}
+}
+
+function themify_builder_module_settings_field_builder($field) {
+	?>
+	<?php foreach ($field['options'] as $option): ?>
+		<?php if (isset($option['separated']) && $option['separated'] == 'top'): ?>
+			<hr />
+		<?php endif; ?>
+		<?php if ($option['type'] == 'multi') : ?>
+			<div class="themify_builder_field <?php echo isset($option['wrap_with_class']) ? esc_attr($option['wrap_with_class']) : ''; ?>">
+
+				<?php if (isset($option['label']) && $option['label'] != false): ?>
+					<div class="themify_builder_label"><?php echo esc_html($option['label']); ?></div><!-- /themify_builder_input_title -->
+				<?php endif; ?>
+
+				<div class="<?php echo esc_attr($option['id']) . ' tf_multi_fields tf_fields_count_' . esc_attr(count($option['options'])) ?>">
+					<?php themify_builder_module_settings_field_builder($option); ?>
+				</div>
+			</div>
+			<?php
+			continue;
+		endif;
+		?>
+		<div class="themify_builder_field <?php echo isset($option['wrap_with_class']) ? esc_attr($option['wrap_with_class']) : ''; ?>">
+
+			<?php if (isset($option['label']) && $option['label'] != false): ?>
+				<div class="themify_builder_label"><?php echo esc_html($option['label']); ?></div><!-- /themify_builder_input_title -->
+			<?php endif; ?>
+
+			<div class="themify_builder_input"<?php echo ( 'wp_editor' == $option['type'] ) ? ' style="width:100%;"' : ''; ?>>
+				<?php if ($option['type'] == 'text'): ?>
+
+					<?php if (isset($option['colorpicker']) && $option['colorpicker'] == true) : ?>
+						<span class="builderColorSelect"><span></span></span> 
+						<input type="text" class="<?php echo isset($option['class']) ? esc_attr($option['class']) : ''; ?> colordisplay" <?php echo themify_builder_get_binding_data($option); ?> />
+						<input id="<?php echo esc_attr($option['id']); ?>" name="<?php echo esc_attr($option['id']); ?>" value="<?php if (isset($option['value'])) echo esc_attr($option['value']); ?>" class="builderColorSelectInput tfb_lb_option_child" type="hidden"  data-input-id="<?php echo esc_attr($option['id']); ?>" />
+					<?php else : ?>
+						<input name="<?php echo esc_attr($option['id']); ?>" class="<?php echo isset($option['class']) ? esc_attr($option['class']) : ''; ?> tfb_lb_option_child <?php echo isset($add_class) ? esc_attr($add_class) : ''; ?>" type="text" data-input-id="<?php echo esc_attr($option['id']); ?>" />
+						<?php if (isset($option['iconpicker']) && $option['iconpicker'] == true) : ?>
+							<a class="button button-secondary hide-if-no-js themify_fa_toggle" href="#"><?php _e('Insert Icon', 'themify'); ?></a>
+						<?php endif; ?>
+						<?php
+						if (isset($option['after'])) : echo wp_kses_post($option['after']);
+						endif;
+						?>
+					<?php endif; ?>
+
+				<?php elseif ('image' == $option['type']): ?>
+					<input data-input-id="<?php echo esc_attr($option['id']); ?>" name="<?php echo esc_attr($option['id']); ?>" placeholder="<?php if (isset($option['value'])) echo esc_attr($option['value']); ?>" class="<?php echo esc_attr($option['class']); ?> themify-builder-uploader-input tfb_lb_option_child" type="text" /><br />
+
+					<div class="small">
+
+						<?php if (is_multisite() && !is_upload_space_available()): ?>
+							<?php echo sprintf(__('Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify'), get_space_allowed()); ?>
+						<?php else: ?>
+							<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo esc_attr($option['id']); ?>themify-builder-plupload-upload-ui">
+								<input id="<?php echo esc_attr($option['id']); ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify')); ?>" class="builder_button" />
+								<span class="ajaxnonceplu" id="ajaxnonceplu<?php echo wp_create_nonce($option['id'] . 'themify-builder-plupload'); ?>"></span>
+							</div> <?php _e('or', 'themify'); ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php esc_attr_e('Upload an Image', 'themify') ?>" data-uploader-button-text="<?php esc_attr_e('Insert file URL', 'themify') ?>"><?php _e('Browse Library', 'themify') ?></a>
+
+						<?php endif; ?>
+
+					</div>
+
+					<p class="thumb_preview">
+						<span class="img-placeholder"></span>
+						<a href="#" class="themify_builder_icon small delete themify-builder-delete-thumb"></a>
+					</p>
+
+				<?php elseif ('audio' == $option['type']): ?>
+					<input data-input-id="<?php echo esc_attr($option['id']); ?>" name="<?php echo esc_attr($option['id']); ?>" placeholder="<?php if (isset($option['value'])) echo esc_attr($option['value']); ?>" class="<?php echo esc_attr($option['class']); ?> themify-builder-uploader-input tfb_lb_option_child" type="text" /><br />
+
+					<div class="small">
+
+						<?php if (is_multisite() && !is_upload_space_available()): ?>
+							<?php echo sprintf(__('Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify'), get_space_allowed()); ?>
+						<?php else: ?>
+							<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo esc_attr($option['id']); ?>themify-builder-plupload-upload-ui" data-extensions="<?php echo esc_attr(implode(',', wp_get_audio_extensions())); ?>">
+								<input id="<?php echo esc_attr($option['id']); ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify')); ?>" class="builder_button" />
+								<span class="ajaxnonceplu" id="ajaxnonceplu<?php echo wp_create_nonce($option['id'] . 'themify-builder-plupload'); ?>"></span>
+							</div> <?php _e('or', 'themify'); ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php esc_attr_e('Upload an Image', 'themify') ?>" data-uploader-button-text="<?php esc_attr_e('Insert file URL', 'themify') ?>" data-library-type="audio"><?php _e('Browse Library', 'themify') ?></a>
+
+						<?php endif; ?>
+
+					</div>
+
+				<?php elseif ($option['type'] == 'textarea'): ?>
+					<textarea name="<?php echo esc_attr($option['id']); ?>" class="<?php echo esc_attr($option['class']); ?> tfb_lb_option_child" <?php echo (isset($option['rows'])) ? 'rows="' . esc_attr($option['rows']) . '"' : ''; ?> data-input-id="<?php echo esc_attr($option['id']); ?>"></textarea><br />
+
+					<?php if (isset($option['radio'])): ?>
+						<div data-input-id="<?php echo esc_attr($option['radio']['id']); ?>" class="tfb_lb_option_child tf-radio-choice">
+							<?php echo esc_html($option['radio']['label']); ?>
+							<?php foreach ($option['radio']['options'] as $k => $v): ?>
+								<input id="<?php echo esc_attr($option['radio']['id'] . '_' . $k); ?>" type="radio" name="<?php echo esc_attr($option['radio']['id']); ?>" class="themify-builder-radio-dnd" value="<?php echo esc_attr($k); ?>" />
+								<label for="<?php echo esc_attr($option['radio']['id'] . '_' . $k); ?>" class="pad-right themify-builder-radio-dnd-label"><?php echo wp_kses_post($k); ?></label>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; // endif radio input   ?>
+
+				<?php elseif ($option['type'] == 'select') : ?>
+					<select data-input-id="<?php echo esc_attr($option['id']); ?>" name="<?php echo esc_attr($option['id']); ?>" class="tfb_lb_option_child">
+						<?php if (isset($option['empty'])): ?>
+							<option value="<?php echo esc_attr($option['empty']['val']); ?>"><?php echo esc_html($option['empty']['label']); ?></option>
+						<?php endif; ?>
+
+						<?php
+						foreach ($option['options'] as $key => $value) {
+							$selected = ( isset($option['default']) && $option['default'] == $value ) ? ' selected="selected"' : '';
+							echo '<option value="' . esc_attr($key) . '" ' . $selected . '>' . esc_html($value) . '</option>';
+						}
+						?>
+					</select>
+
+				<?php elseif ('layout' == $option['type']): ?>
+					<p id="<?php echo esc_attr($option['id']); ?>" class="layout_icon tfb_lb_option_child themify-layout-icon">
+						<?php foreach ($option['options'] as $option): ?>
+							<a href="#" id="<?php echo esc_attr($option['value']); ?>" title="<?php echo esc_attr($option['label']); ?>" class="tfl-icon">
+								<?php $image_url = ( filter_var($option['img'], FILTER_VALIDATE_URL) ) ? $option['img'] : THEMIFY_BUILDER_URI . '/img/builder/' . $option['img']; ?>
+								<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($option['label']); ?>" />
+							</a>
+						<?php endforeach; ?>
+					</p>
+
+					<?php
+				elseif ('wp_editor' == $option['type']):
+					wp_editor('', $option['id'], array('editor_class' => $option['class'] . ' tfb_lb_wp_editor tfb_lb_option_child', 'textarea_rows' => 12));
+					?>
+
+				<?php elseif ('checkbox' == $option['type']): ?>
+					<?php
+					if (isset($option['before'])) : echo wp_kses_post($option['before']);
+					endif;
+					$option_js_wrap = (isset($option['option_js']) && $option['option_js'] == true) ? ' tf-option-checkbox-enable' : '';
+					?>
+
+					<div id="<?php echo esc_attr($option['id']); ?>"  class="tfb_lb_option_child themify-checkbox<?php echo $option_js_wrap ?>">
+						<?php foreach ($option['options'] as $opt): ?>
+							<?php
+							$checkbox_checked = '';
+							if (isset($option['default']) && is_array($option['default'])) {
+								if (in_array($opt['name'], $option['default'])) {
+									$checkbox_checked = 'checked="checked"';
+								}
+							} elseif (isset($option['default'])) {
+								$checkbox_checked = checked($option['default'], $opt['name'], false);
+							}
+							$data_el = (isset($option['option_js']) && $option['option_js'] == true) ? 'data-selected="tf-checkbox-element-' . $opt['name'] . '"' : '';
+							?>
+							<label class="pad-right"><input id="<?php echo esc_attr($option['id'] . '_' . $opt['name']); ?>" name="<?php echo esc_attr($option['id']); ?>[]" type="checkbox" class="<?php echo isset($option['class']) ? $option['class'] : '' ?> tf-checkbox" value="<?php echo esc_attr($opt['name']); ?>" <?php echo $checkbox_checked . ' ' . $data_el; ?> /><?php echo wp_kses_post($opt['value']); ?></label>
+							<?php if (isset($opt['help'])): ?>
+								<small><?php echo wp_kses_post($opt['help']); ?></small>
+							<?php endif; ?>
+
+							<?php if (!isset($option['new_line']) || $option['new_line'] == true): ?>
+								<br />
+							<?php endif; ?>
+
+						<?php endforeach; ?>
+					</div>
+					<?php
+					if (isset($field['after'])) : echo wp_kses_post($field['after']);
+					endif;
+					?>
+
+				<?php elseif ('radio' == $option['type']): ?>
+					<div data-input-id="<?php echo esc_attr($option['id']); ?>" class="tfb_lb_option_child tf-radio-choice">
+						<?php foreach ($option['options'] as $k => $v): ?>
+							<?php $checked = isset($field['default']) && $k == $field['default'] ? 'checked="checked" data-checked="checked"' : ''; ?>
+							<input id="<?php echo esc_attr($option['id'] . '_' . $k); ?>" type="radio" name="<?php echo esc_attr($option['id']); ?>" class="themify-builder-radio-dnd" value="<?php echo esc_attr($k); ?>" />
+							<label for="<?php echo esc_attr($option['id'] . '_' . $k); ?>" class="pad-right themify-builder-radio-dnd-label"><?php echo wp_kses_post($v); ?></label>
+						<?php endforeach; ?>
+					</div>
+
+				<?php elseif ('video' == $option['type']): ?>
+					<input id="<?php echo esc_attr($option['id']); ?>" name="<?php echo esc_attr($option['id']); ?>" placeholder="<?php if (isset($option['value'])) echo esc_attr($option['value']); ?>" class="<?php echo esc_attr($option['class']); ?> themify-builder-uploader-input tfb_lb_option_child" type="text" /><br />
+					<div class="small">
+						<?php if (is_multisite() && !is_upload_space_available()) : ?>
+							<?php echo sprintf(__('Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify'), get_space_allowed()); ?>
+						<?php else: ?>
+							<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo esc_attr($option['id']) ?>themify-builder-plupload-upload-ui" data-extensions="<?php echo esc_attr(implode(',', wp_get_video_extensions())) ?>">
+								<input id="<?php echo esc_attr($option['id']) ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify')) ?>" class="builder_button" />
+								<span class="ajaxnonceplu" id="ajaxnonceplu<?php echo wp_create_nonce($option['id'] . 'themify-builder-plupload') ?>"></span>
+							</div> <?php _e('or', 'themify') ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php _e('Upload a Video', 'themify') ?>" data-uploader-button-text="<?php esc_attr_e('Insert file URL', 'themify') ?>" data-library-type="video"><?php _e('Browse Library', 'themify') ?></a>
+						<?php endif; ?>
+					</div>
+					<?php
+					if (isset($option['description'])) {
+						echo '<small>' . wp_kses_post($option['description']) . '</small>';
+					}
+					?>
+
+				<?php endif; ?>
+
+				<?php if (isset($option['help'])): ?>
+					<?php if (isset($option['help']['new_line'])): ?>
+						<br />
+					<?php endif; ?>
+					<small><?php echo wp_kses_post($option['help']['text']); ?></small>
+				<?php endif; ?>
+
+			</div><!-- /themify_builder_input -->
+
+		</div>
+		<!-- /themify_builder_field -->
+
+		<?php
+	endforeach;
+}
+
+if (!function_exists('themify_builder_module_settings_field')) {
+
 	/**
 	 * Module Settings Fields
 	 * @param array $module_options 
 	 * @return string
 	 */
-	function themify_builder_module_settings_field( $module_options, $module_name ) {
-		foreach ( $module_options as $field ):
-			
-			if( isset( $field['separated'] ) && $field['separated'] == 'top' ): ?>
+	function themify_builder_module_settings_field($module_options, $module_name) {
+		foreach ($module_options as $field):
+
+			$id = isset($field['id']) ? $field['id'] : '';
+
+			// custom field types used by 3rd party module authors
+			if (function_exists("themify_builder_field_{$field['type']}")) {
+				call_user_func("themify_builder_field_{$field['type']}", $field, $module_name);
+				continue;
+			} elseif ($field['type'] == 'group') { // simple wrapper for multiple related options
+				$classes = isset($field['wrap_with_class']) ? $field['wrap_with_class'] : '';
+				echo '<div class="themify_builder_field ' . esc_attr($id . ' ' . $classes) . '">';
+				themify_builder_module_settings_field($field['fields'], $module_name);
+				echo '</div>';
+				continue;
+			} else if ($field['type'] == 'tabs') {
+				themify_builder_tabs($field, $module_name);
+				continue;
+			}
+
+			if (isset($field['separated']) && $field['separated'] == 'top'):
+				?>
 				<hr />
 			<?php endif; ?>
 
-			<?php if( $field['type'] != 'builder' && ( !isset($field['hide']) || $field['hide'] == false) ): ?>
-			<div class="themify_builder_field <?php echo (isset($field['wrap_with_class'])) ? $field['wrap_with_class'] : ''; ?>">
-			<?php endif; ?>
-
-				<?php if(isset($field['id']) && isset($field['label']) && $field['label'] != false): ?>
-					<div class="themify_builder_label"><?php echo $field['label']; ?></div>
+			<?php if ($field['type'] != 'builder' && (!isset($field['hide']) || $field['hide'] == false)): ?>
+				<div class="themify_builder_field <?php echo esc_attr($id); ?> <?php echo (isset($field['wrap_with_class'])) ? esc_attr($field['wrap_with_class']) : ''; ?>">
 				<?php endif; ?>
 
-			<?php 
-				if('wp_editor' == $field['type']){
-					wp_editor( '', $field['id'], array('editor_class' => $field['class'] . ' tfb_lb_wp_editor tfb_lb_option', 'textarea_rows' => 20));
+				<?php
+				if ($field['type'] == 'separator') {
+					echo isset($field['meta']['html']) && '' != $field['meta']['html'] ? $field['meta']['html'] : '<hr class="meta_fields_separator" />';
+					echo '</div><!-- .themify_builder_field -->';
+					continue;
 				}
-				
-				elseif( 'builder' == $field['type'] ) { ?>
+				?>
 
-				<div class="<?php echo (isset($field['wrap_with_class'])) ? $field['wrap_with_class'] : ''; ?>">
-				<hr />
+				<?php if (isset($field['id']) && isset($field['label']) && $field['label'] != false): ?>
+					<div class="themify_builder_label"><?php echo esc_html($field['label']); ?></div>
+				<?php endif; ?>
 
-				<div id="<?php echo $field['id']; ?>" class="themify_builder_module_opt_builder_wrap themify_builder_row_js_wrapper tfb_lb_option">
-					
-					<div class="themify_builder_row clearfix">
-					
-						<div class="themify_builder_row_top">
-							<div class="row_menu">
-								<div class="menu_icon">
-								</div>
-								<ul style="display: none;" class="themify_builder_dropdown">
-									<li><a href="#" class="themify_builder_duplicate_row"><?php _e('Duplicate', 'themify') ?></a></li>
-									<li><a href="#" class="themify_builder_delete_row"><?php _e('Delete', 'themify') ?></a></li>
-								</ul>
-							</div>
-							<!-- /row_menu -->
-							<div class="toggle_row"></div><!-- /toggle_row -->
-						</div>
-						<!-- /row_top -->
-						
-						<div class="themify_builder_row_content">
+				<?php
+				if ($field['type'] == 'multi') {
+					echo '<div class="' . esc_attr($id) . ' tf_multi_fields tf_fields_count_' . esc_attr(count($field['fields'])) . '">';
+					foreach ($field['fields'] as $_field) {
+						themify_builder_module_settings_field(array($_field), $module_name);
+					}
+					echo '</div>';
+				} else if ('wp_editor' == $field['type']) {
+					wp_editor('', $field['id'], array('editor_class' => $field['class'] . ' tfb_lb_wp_editor tfb_lb_option', 'textarea_rows' => 12));
+				} elseif ('builder' == $field['type']) {
+					?>
+					<div class="<?php echo (isset($field['wrap_with_class'])) ? esc_attr($field['wrap_with_class']) : ''; ?>">
+						<hr />
 
-							<?php foreach( $field['options'] as $option ): ?>
-							<div class="themify_builder_field <?php echo (isset($field['wrap_with_class'])) ? $field['wrap_with_class'] : ''; ?>">
-								
-								<?php if( isset($option['label']) && $option['label'] != false ): ?>
-								<div class="themify_builder_label"><?php echo $option['label']; ?></div><!-- /themify_builder_input_title -->
-								<?php endif; ?>
-								
-								<div class="themify_builder_input"<?php echo $option['type'] == 'wp_editor' ? ' style="width:100%;"' : ''; ?>>
+						<div id="<?php echo esc_attr($field['id']); ?>" class="themify_builder_module_opt_builder_wrap themify_builder_row_js_wrapper tfb_lb_option">
 
-									<?php if( $option['type'] == 'text' ): ?>
-									<input name="<?php echo $option['id']; ?>" class="<?php echo $option['class']; ?> tfb_lb_option_child" type="text" data-input-id="<?php echo $option['id']; ?>" />
-									
-									<?php elseif( 'image' == $option['type'] ): ?>
-									<input data-input-id="<?php echo $option['id']; ?>" name="<?php echo $option['id'] ?>" placeholder="<?php if(isset($option['value'])) echo $option['value']; ?>" class="<?php echo $option['class']; ?> themify-builder-uploader-input tfb_lb_option_child" type="text" /><br />
-									
-									<div class="small">
+							<div class="themify_builder_row clearfix">
 
-										<?php if ( is_multisite() && !is_upload_space_available() ): ?>
-											<?php echo sprintf( __( 'Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify' ), get_space_allowed() ); ?>
-										<?php else: ?>
-										<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo $option['id']; ?>themify-builder-plupload-upload-ui">
-												<input id="<?php echo $option['id']; ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify') ); ?>" class="builder_button" />
-												<span class="ajaxnonceplu" id="ajaxnonceplu<?php echo wp_create_nonce($option['id'] . 'themify-builder-plupload'); ?>"></span>
-										</div> <?php _e( 'or', 'themify' ); ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php _e('Upload an Image', 'themify') ?>" data-uploader-button-text="<?php _e('Insert file URL', 'themify') ?>"><?php _e('Browse Library', 'themify') ?></a>
-
-										<?php endif; ?>
-
-									</div>
-									
-									<p class="thumb_preview">
-										<span class="img-placeholder"></span>
-										<a href="#" class="themify_builder_icon small delete themify-builder-delete-thumb"></a>
-									</p>
-
-									<?php elseif( $option['type'] == 'textarea' ): ?>
-									<textarea name="<?php echo $option['id']; ?>" class="<?php echo $option['class']; ?> tfb_lb_option_child" <?php echo (isset($option['rows'])) ? 'rows="'.$option['rows'].'"' : ''; ?> data-input-id="<?php echo $option['id']; ?>"></textarea><br />
-									
-									<?php if( isset($option['radio']) ): ?>
-									<div data-input-id="<?php echo $option['radio']['id']; ?>" class="tfb_lb_option_child tf-radio-choice">
-									<?php echo $option['radio']['label']; ?> 
-									<?php foreach( $option['radio']['options'] as $k => $v ): ?>
-									<input id="<?php echo $option['radio']['id'] .'_'. $k; ?>" type="radio" name="<?php echo $option['radio']['id']; ?>" class="themify-builder-radio-dnd" value="<?php echo $k; ?>" /> 
-									<label for="<?php echo $option['radio']['id'] .'_'. $k; ?>" class="pad-right themify-builder-radio-dnd-label"><?php echo $k; ?></label>
-									<?php endforeach; ?>
-									</div>
-									<?php endif; // endif radio input ?>
-									
-									<?php
-									elseif('wp_editor' == $option['type']):
-										wp_editor( '', $option['id'], array('editor_class' => $option['class'] . ' tfb_lb_wp_editor tfb_lb_option_child', 'textarea_rows' => 20));
-									?>
-
-									<?php elseif( 'radio' == $option['type'] ): ?>
-										<div data-input-id="<?php echo $option['id']; ?>" class="tfb_lb_option_child tf-radio-choice">
-										<?php foreach( $option['options'] as $k => $v ): ?>
-										<input id="<?php echo $option['id'] .'_'. $k; ?>" type="radio" name="<?php echo $option['id']; ?>" class="themify-builder-radio-dnd" value="<?php echo $k; ?>" /> 
-										<label for="<?php echo $option['id'] .'_'. $k; ?>" class="pad-right themify-builder-radio-dnd-label"><?php echo $k; ?></label>
-										<?php endforeach; ?>
+								<div class="themify_builder_row_top">
+									<div class="row_menu">
+										<div class="menu_icon">
 										</div>
-									<?php endif; // endif radio input ?>
-									
-									<?php if( isset($option['help']) ): ?>
-										<?php if( isset($option['help']['new_line'])): ?>
+										<ul style="display: none;" class="themify_builder_dropdown">
+											<li><a href="#" class="themify_builder_duplicate_row"><?php _e('Duplicate', 'themify') ?></a></li>
+											<li><a href="#" class="themify_builder_delete_row"><?php _e('Delete', 'themify') ?></a></li>
+										</ul>
+									</div>
+									<!-- /row_menu -->
+									<div class="toggle_row"></div><!-- /toggle_row -->
+								</div>
+								<!-- /row_top -->
+
+								<div class="themify_builder_row_content">
+									<?php themify_builder_module_settings_field_builder($field); ?>
+								</div>
+								<!-- /themify_builder_row_content -->
+
+							</div>
+							<!-- /builder_row -->
+
+						</div>
+						<!-- /themify_builder_module_opt_builder_wrap -->
+
+						<p class="add_new"><a href="#"><span class="themify_builder_icon add"></span><?php echo isset($field['new_row_text']) ? $field['new_row_text'] : __('Add new row', 'themify'); ?></a></p>
+					</div>
+					<!-- /builder wrapper -->
+					<?php
+				} else {
+					?>
+					<div class="themify_builder_input<?php echo isset($field['pushed']) && $field['pushed'] != '' ? ' ' . $field['pushed'] : ''; ?>">
+						<?php if ('text' == $field['type']): ?>
+
+							<?php if (isset($field['colorpicker']) && $field['colorpicker'] == true) : ?>
+								<span class="builderColorSelect"><span></span></span> 
+								<input type="text" class="<?php echo esc_attr($field['class']); ?> colordisplay" <?php echo themify_builder_get_binding_data($field); ?> />
+								<input id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" value="<?php if (isset($field['value'])) echo esc_attr($field['value']); ?>" class="builderColorSelectInput tfb_lb_option" type="hidden" />
+							<?php else : ?>
+								<input id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" value="<?php if (isset($field['value'])) echo esc_attr($field['value']); ?>" class="<?php echo isset($field['class']) ? $field['class'] : '' ?> <?php echo isset($add_class) ? esc_attr($add_class) : ''; ?> tfb_lb_option" type="text" <?php echo themify_builder_get_binding_data($field); ?> />
+								<?php
+								if (isset($field['after'])) : echo wp_kses_post($field['after']);
+								endif;
+								?>
+
+								<?php if (isset($field['unit'])): ?>
+									<select id="<?php echo esc_attr($field['unit']['id']); ?>" class="tfb_lb_option" <?php echo themify_builder_get_binding_data($field); ?>>
+										<?php foreach ($field['unit']['options'] as $u): ?>
+											<option value="<?php echo esc_attr($u['value']); ?>" <?php echo ( isset($field['unit']['selected']) && $field['unit']['selected'] == $u['value'] ) ? 'selected="selected"' : ''; ?>><?php echo esc_html($u['value']); ?></option>
+										<?php endforeach; ?>
+									</select>
+								<?php endif; // unit ?>
+							<?php endif; ?>
+
+						<?php elseif ('icon' == $field['type']): ?>
+							<input id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" value="<?php if (isset($field['value'])) echo esc_attr($field['value']); ?>" class="themify_field_icon <?php if (isset($field['class'])) echo esc_attr($field['class']); ?> tfb_lb_option" type="text" <?php echo themify_builder_get_binding_data($field); ?> />
+							<a class="button button-secondary hide-if-no-js themify_fa_toggle" href="#" data-target="#<?php echo esc_attr($field['id']); ?>"><?php _e('Insert Icon', 'themify'); ?></a>
+
+						<?php elseif ('radio' == $field['type']): ?>
+							<?php
+							$option_js = (isset($field['option_js']) && $field['option_js'] == true) ? 'tf-option-checkbox-js' : '';
+							$option_js_wrap =$option_js ? 'tf-option-checkbox-enable' : '';
+							?>
+							<div id="<?php echo esc_attr($field['id']); ?>" class="tfb_lb_option tf-radio-input-container <?php echo esc_attr($option_js_wrap); ?>">
+								<?php foreach ($field['options'] as $k => $v): ?>
+									<?php
+									$default_checked = (isset($field['default']) && $field['default'] == $k) ? 'checked="checked"' : '';
+									$data_el = $option_js ? 'data-selected="tf-group-element-' . $k . '"' : '';
+									?>
+									<input id="<?php echo esc_attr($field['id'] . '_' . $k); ?>" name="<?php echo esc_attr($field['id']); ?>" type="radio" class="<?php echo $option_js; ?>" value="<?php echo esc_attr($k); ?>" <?php echo " $default_checked $data_el"; ?>/>
+									<label for="<?php echo esc_attr($field['id'] . '_' . $k); ?>" class="pad-right"><?php echo wp_kses_post($v); ?></label>
+
+									<?php if (isset($field['break']) && $field['break'] == true): ?>
 										<br />
-										<?php endif; ?>
-										<small><?php echo $option['help']['text']; ?></small>
 									<?php endif; ?>
 
-								</div><!-- /themify_builder_input -->
-							
+								<?php endforeach; ?>
 							</div>
-							<!-- /themify_builder_field -->
-							
-							<?php endforeach; ?>		
 
-						</div>
-						<!-- /themify_builder_row_content -->
+						<?php elseif ('layout' == $field['type']): ?>
+							<p id="<?php echo esc_attr($field['id']); ?>" class="layout_icon tfb_lb_option themify-layout-icon">
+								<?php foreach ($field['options'] as $option): ?>
+									<a href="#" id="<?php echo esc_attr($option['value']); ?>" title="<?php echo esc_attr($option['label']); ?>" class="tfl-icon">
+										<?php $image_url = ( filter_var($option['img'], FILTER_VALIDATE_URL) ) ? $option['img'] : THEMIFY_BUILDER_URI . '/img/builder/' . $option['img']; ?>
+										<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($option['label']); ?>" />
+									</a>
+								<?php endforeach; ?>
+							</p>
 
-					</div>
-					<!-- /builder_row -->
+						<?php elseif ('image' == $field['type']): ?>
+							<input id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" placeholder="<?php if (isset($field['value'])) echo esc_attr($field['value']); ?>" class="<?php echo esc_attr($field['class']); ?> themify-builder-uploader-input tfb_lb_option" type="text" <?php echo themify_builder_get_binding_data($field); ?> /><br />
 
-				</div>
-				<!-- /themify_builder_module_opt_builder_wrap -->
-					
-				<p class="add_new"><a href="#"><span class="themify_builder_icon add"></span><?php _e('Add new row', 'themify') ?></a></p>
-				</div>
-				<!-- /builder wrapper -->
-				<?php
-				}
+							<div class="small">
 
-				else{
-			?>
-				<div class="themify_builder_input<?php echo isset($field['pushed']) && $field['pushed'] != '' ? ' '.$field['pushed'] : ''; ?>">
-					<?php if( 'text' == $field['type'] ): ?>
-					<?php
-						$add_class = ( isset($field['colorpicker']) && $field['colorpicker'] == true ) ? ' builderColorSelectInput' : '';
-					?>
-					<?php if( isset($field['colorpicker']) && $field['colorpicker'] == true ): ?>
-					<span class="builderColorSelect"><span></span></span> 
-					<?php endif; ?>
-					<input id="<?php echo $field['id'] ?>" name="<?php echo $field['id'] ?>" value="<?php if(isset($field['value'])) echo $field['value']; ?>" class="<?php echo $field['class'] . $add_class; ?> tfb_lb_option" type="text" />
+								<?php if (is_multisite() && !is_upload_space_available()): ?>
+									<?php echo sprintf(__('Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify'), get_space_allowed()); ?>
+								<?php else: ?>
+									<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo esc_attr($field['id']); ?>themify-builder-plupload-upload-ui">
+										<input id="<?php echo esc_attr($field['id']); ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify')); ?>" class="builder_button" />
+										<span class="ajaxnonceplu" id="ajaxnonceplu<?php echo wp_create_nonce($field['id'] . 'themify-builder-plupload'); ?>"></span>
+									</div> <?php _e('or', 'themify') ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php esc_attr_e('Upload an Image', 'themify') ?>" data-uploader-button-text="<?php esc_attr_e('Insert file URL', 'themify') ?>"><?php _e('Browse Library', 'themify') ?></a>
 
-					<?php if( isset($field['unit']) ): ?>
-						<select id="<?php echo $field['unit']['id']; ?>" class="tfb_lb_option">
-							<?php foreach($field['unit']['options'] as $u): ?>
-							<option value="<?php echo $u['value']; ?>" <?php echo ($field['unit']['selected'] == $u['value']) ? 'selected="selected"':''; ?>><?php echo $u['value']; ?></option>
-							<?php endforeach; ?>
-						</select>
-					<?php endif; // unit ?>
-
-					<?php elseif( 'radio' == $field['type'] ): ?>
-					<?php
-					$option_js = (isset($field['option_js']) && $field['option_js'] == true) ? 'tf-option-checkbox-js' : '';
-					$option_js_wrap = (isset($field['option_js']) && $field['option_js'] == true) ? 'tf-option-checkbox-enable' : '';
-					?>
-						<div id="<?php echo $field['id']; ?>" class="tfb_lb_option tf-radio-input-container <?php echo $option_js_wrap; ?>">
-							<?php foreach($field['options'] as $k => $v): ?>
-							<?php
-								$default_checked = (isset($field['default']) && $field['default'] == $k) ? 'checked="checked"' : '';
-								$data_el = (isset($field['option_js']) && $field['option_js'] == true) ? 'data-selected="tf-group-element-'.$k.'"' : '';
-							?>
-							<input id="<?php echo $field['id'].'_'.$k; ?>" name="<?php echo $field['id']; ?>" type="radio" class="<?php echo $option_js; ?>" value="<?php echo $k; ?>" <?php echo $default_checked .' '.$data_el; ?>/>
-							<label for="<?php echo $field['id'].'_'.$k; ?>" class="pad-right"><?php echo $v; ?></label> 
-							
-							<?php if( isset($field['break']) && $field['break'] == true ): ?>
-							<br />
-							<?php endif; ?>
-
-							<?php endforeach; ?>
-						</div>
-
-					<?php elseif( 'layout' == $field['type'] ): ?>
-					<p id="<?php echo $field['id']; ?>" class="layout_icon tfb_lb_option themify-layout-icon">
-						<?php foreach($field['options'] as $option): ?>
-						<a href="#" id="<?php echo $option['value']; ?>" title="<?php echo $option['label']; ?>" class="tfl-icon">
-							<img src="<?php echo THEMIFY_URI . '/themify-builder'; ?>/img/builder/<?php echo $option['img']?>" alt="<?php echo $option['label']; ?>" />
-						</a>
-						<?php endforeach; ?>
-					</p>
-
-					<?php elseif( 'image' == $field['type'] ): ?>
-					<input id="<?php echo $field['id'] ?>" name="<?php echo $field['id'] ?>" placeholder="<?php if(isset($field['value'])) echo $field['value']; ?>" class="<?php echo $field['class']; ?> themify-builder-uploader-input tfb_lb_option" type="text" /><br />
-					
-					<div class="small">
-
-						<?php if ( is_multisite() && !is_upload_space_available() ): ?>
-							<?php echo sprintf( __( 'Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify' ), get_space_allowed() ); ?>
-						<?php else: ?>
-						<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo $field['id']; ?>themify-builder-plupload-upload-ui">
-								<input id="<?php echo $field['id']; ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify') ); ?>" class="builder_button" />
-								<span class="ajaxnonceplu" id="ajaxnonceplu<?php echo wp_create_nonce($field['id'] . 'themify-builder-plupload'); ?>"></span>
-						</div> <?php _e('or', 'themify') ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php _e('Upload an Image', 'themify') ?>" data-uploader-button-text="<?php _e('Insert file URL', 'themify') ?>"><?php _e('Browse Library', 'themify') ?></a>
-
-						<?php endif; ?>
-
-					</div>
-					
-					<p class="thumb_preview">
-						<span class="img-placeholder"></span>
-						<a href="#" class="themify_builder_icon small delete themify-builder-delete-thumb"></a>
-					</p>
-					
-					<?php elseif( 'checkbox' == $field['type'] ): ?>
-
-						<div id="<?php echo $field['id']; ?>" class="tfb_lb_option themify-checkbox">
-						<?php foreach( $field['options'] as $opt): ?>
-							<?php
-								$checkbox_checked = '';
-								if( isset($field['default']) && is_array($field['default']) ) {
-									$checkbox_checked = in_array($opt['name'], $field['default']) ? 'checked="checked"' : '';
-								}
-								elseif( isset($field['default']) ) {
-									$checkbox_checked = checked( $field['default'], $opt['name'], false );
-								}
-							?>
-							<input id="<?php echo $field['id'] . '_' . $opt['name']; ?>" name="<?php echo $field['id']; ?>[]" type="checkbox" class="tf-checkbox" value="<?php echo $opt['name']?>" <?php echo $checkbox_checked; ?> /> 
-							<label for="<?php echo $field['id'] . '_' . $opt['name']; ?>" class="pad-right"><?php echo $opt['value']; ?></label>
-							
-							<?php if( isset($opt['help']) ): ?>
-							<small><?php echo $opt['help']; ?></small>
-							<?php endif; ?>
-							
-							<?php if( !isset($field['new_line']) || $field['new_line'] == true ): ?>
-							<br />
-							<?php endif; ?>
-
-						<?php endforeach; ?>
-						</div>
-
-					<?php elseif( 'textarea' == $field['type'] ): ?>
-					<textarea id="<?php echo $field['id']; ?>" name="<?php echo $field['id']; ?>" class="<?php echo $field['class']; ?> tfb_lb_option" row="3" type="text"></textarea>
-
-					<?php elseif( 'select' == $field['type'] ): ?>
-					
-					<?php if( !isset($field['hide']) || $field['hide'] == false ): ?>
-						<select id="<?php echo $field['id'] ?>" name="<?php echo $field['id'] ?>" class="tfb_lb_option" >
-							<?php if( isset($field['empty']) ): ?>
-								<option value="<?php echo $field['empty']['val']; ?>"><?php echo $field['empty']['label']; ?></option>
-							<?php endif; ?>
-							
-							<?php
-							foreach ($field['options'] as $key => $value) {
-								$selected = ( isset($field['default']) && $field['default'] == $value ) ? ' selected="selected"' : '';
-								echo '<option value="' . $key . '" '.$selected.'>' . $value . '</option>';
-							}
-							?>
-						</select>
-					<?php endif; // isset hide ?>
-					
-					<?php if( isset($field['help']) ): ?>
-					<br />
-					<?php endif; // isset help ?>
-
-					<?php elseif( 'selectbasic' == $field['type'] ): ?>
-					<select id="<?php echo $field['id'] ?>" name="<?php echo $field['id'] ?>" class="tfb_lb_option" >
-						<?php
-						foreach ($field['options'] as $value) {
-							$selected = ( isset($field['default']) && $field['default'] == $value ) ? ' selected="selected"' : '';
-							echo '<option value="' . $value . '" '.$selected.'>' . $value . '</option>';
-						}
-						?>
-					</select>
-
-					<?php elseif( 'select_menu' == $field['type'] ): ?>
-					<select id="<?php echo $field['id'] ?>" name="<?php echo $field['id'] ?>" class="tfb_lb_option select_menu_field" >
-						<option value=""><?php _e('Select a Menu...', 'themify') ?></option>
-						<?php
-						foreach ($field['options'] as $key => $value) {
-							$selected = ( isset($field['default']) && $field['default'] == $value ) ? ' selected="selected"' : '';
-							echo '<option value="' . $value->slug . '" '.$selected.' data-termid="'. $value->term_id .'">' . $value->name . '</option>';
-						}
-						?>
-					</select>
-
-					<?php elseif( 'query_category' == $field['type'] ): ?>
-					<?php
-						$terms_tax = isset($field['options']['taxonomy'])? $field['options']['taxonomy']: 'category';			
-						$terms_options = '';
-						$terms_by_tax = get_terms($terms_tax);
-						$terms_list = array();
-						$terms_list['0'] = array(
-							'title' => __('All Categories', 'themify'),										
-							'slug'	=> '0'
-						);
-						foreach ($terms_by_tax as $term) {
-							$terms_list[$term->term_id] = array(
-								'title' => $term->name,
-								'slug'	=> $term->slug
-							);
-						}
-						foreach ($terms_list as $term_id => $term) {
-							$term_selected = '';
-							$terms_options .= sprintf(
-								'<option value="%s" data-termid="%s" %s>%s</option>',
-								$term['slug'],
-								$term_id,
-								$term_selected,
-								$term['title']
-							);
-						}
-						?>
-						<select id="<?php echo $field['id'].'_dropdown'; ?>" class="query_category_single">
-							<option></option>
-							<?php echo $terms_options; ?>
-						</select>
-					 <?php _e('or', 'themify') ?>
-					<input class="small query_category_multiple" type="text" /><br /><small><?php _e('multiple category IDs (eg. 2,5,8) or slug (eg. news,blog,featured)', 'themify'); ?></small><br />
-					<input type="hidden" id="<?php echo $field['id']; ?>" name="<?php echo $field['id']; ?>" value="" class="tfb_lb_option themify-option-query-cat" />
-
-					<?php
-					///////////////////////////////////////////
-					// Query category single field
-					///////////////////////////////////////////
-					elseif( 'query_category_single' == $field['type'] ): ?>
-					<?php
-						echo preg_replace('/>/', '><option></option>',
-						wp_dropdown_categories(
-						array(
-							'taxonomy' => isset($field['options']['taxonomy'])?$field['options']['taxonomy']: 'category', 
-							'class' => 'tfb_lb_option',
-							'show_option_all' => __('All Categories', 'themify'),
-							'hide_empty' => 0,
-							'echo' => 0,
-							'name' => $field['id'],
-							'selected' => ''
-						)), 1);
-						echo '<br />';
-					?>
-
-					<?php 
-						///////////////////////////////////////////
-						// Multifield
-						///////////////////////////////////////////
-						elseif( 'multifield' == $field['type'] ): ?>
-
-						<?php if( isset($field['options']['select']) ): ?>
-						<select id="<?php echo $field['options']['select']['id']; ?>" class="tfb_lb_option">
-							<?php foreach( $field['options']['select']['options'] as $opt ): ?>
-							<option value="<?php echo $opt; ?>"><?php echo $opt; ?></option>
-							<?php endforeach; ?>
-						</select>
-						<?php endif; ?>
-						
-						<?php if( isset($field['options']['text']) ): ?>
-						<input id="<?php echo $field['options']['text']['id']; ?>" class="xsmall tfb_lb_option" type="text" /> 
-							<?php if( isset($field['options']['text']['help']) ): ?>
-							<small><?php echo $field['options']['text']['help']; ?></small>
-							<?php endif; ?>
-						<?php endif; ?>
-
-						<?php if( isset($field['options']['colorpicker']) ): ?>
-						<?php $color_class = isset($field['options']['colorpicker']['class']) ? $field['options']['colorpicker']['class'] : 'xsmall'; ?>
-							<span class="builderColorSelect"><span></span></span> 
-							<input id="<?php echo $field['options']['colorpicker']['id']; ?>" class="<?php echo $color_class; ?> tfb_lb_option builderColorSelectInput" type="text" /> 
-						<?php endif; ?>
-
-						<?php 
-						///////////////////////////////////////////
-						// Type Slider option
-						///////////////////////////////////////////
-						elseif( 'slider' == $field['type'] ):
-						?>
-
-						<?php foreach( $field['options'] as $fieldsec): ?>
-
-						<?php if( $fieldsec['type'] == 'select' ): ?>
-							<select id="<?php echo $fieldsec['id'] ?>" name="<?php echo $fieldsec['id'] ?>" class="tfb_lb_option" >
-								<?php if( isset($fieldsec['empty']) ): ?>
-									<option value="<?php echo $fieldsec['empty']['val']; ?>"><?php echo $fieldsec['empty']['label']; ?></option>
 								<?php endif; ?>
-								
+
+							</div>
+
+							<p class="thumb_preview">
+								<span class="img-placeholder"></span>
+								<a href="#" class="themify_builder_icon small delete themify-builder-delete-thumb"></a>
+							</p>
+
+						<?php elseif ('checkbox' == $field['type']): ?>
+							<?php
+							if (isset($field['before'])) : echo wp_kses_post($field['before']);
+							endif;
+							$option_js_wrap = (isset($field['option_js']) && $field['option_js'] == true) ? ' tf-option-checkbox-enable' : '';
+							?>
+							<div id="<?php echo esc_attr($field['id']); ?>" class="tfb_lb_option themify-checkbox<?php echo $option_js_wrap ?>">
+								<?php foreach ($field['options'] as $opt): ?>
+									<?php
+									$checkbox_checked = '';
+									if (isset($field['default']) && is_array($field['default'])) {
+										if (in_array($opt['name'], $field['default'])) {
+											$checkbox_checked = 'checked="checked"';
+										}
+									} elseif (isset($field['default'])) {
+										$checkbox_checked = checked($field['default'], $opt['name'], false);
+									}
+									$data_el = (isset($field['option_js']) && $field['option_js'] == true) ? 'data-selected="tf-checkbox-element-' . $opt['name'] . '"' : '';
+									?>
+									<input id="<?php echo esc_attr($field['id'] . '_' . $opt['name']); ?>" name="<?php echo esc_attr($field['id']); ?>[]" type="checkbox" class="<?php echo isset($opt['class']) ? $opt['class'] : '' ?> tf-checkbox" value="<?php echo esc_attr($opt['name']); ?>" <?php echo $checkbox_checked . ' ' . $data_el; ?> <?php echo themify_builder_get_binding_data($opt); ?> />
+									<label for="<?php echo esc_attr($field['id'] . '_' . $opt['name']); ?>" class="pad-right"><?php echo wp_kses_post($opt['value']); ?></label>
+
+									<?php if (isset($opt['help'])): ?>
+										<small><?php echo wp_kses_post($opt['help']); ?></small>
+									<?php endif; ?>
+
+									<?php if (!isset($field['new_line']) || $field['new_line'] == true): ?>
+										<br />
+									<?php endif; ?>
+
+								<?php endforeach; ?>
+							</div>
+							<?php
+							if (isset($field['after'])) : echo wp_kses_post($field['after']);
+							endif;
+							?>
+
+						<?php elseif ('textarea' == $field['type']): ?>
+							<textarea id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" class="<?php echo esc_attr($field['class']); ?> tfb_lb_option" <?php if (isset($field['rows'])) echo 'rows="' . $field['rows'] . '"'; ?> type="text" <?php echo themify_builder_get_binding_data($field); ?>></textarea>
+
+						<?php elseif ('select' == $field['type']): ?>
+
+							<?php if (!isset($field['hide']) || $field['hide'] == false): ?>
+								<select id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" class="tfb_lb_option" <?php echo themify_builder_get_binding_data($field); ?>>
+									<?php if (isset($field['empty'])): ?>
+										<option value="<?php echo esc_attr($field['empty']['val']); ?>"><?php echo esc_html($field['empty']['label']); ?></option>
+									<?php endif; ?>
+
+									<?php
+									foreach ($field['options'] as $key => $value) {
+										$selected = ( isset($field['default']) && $field['default'] == $value ) ? ' selected="selected"' : '';
+										echo '<option value="' . esc_attr($key) . '" ' . $selected . '>' . esc_html($value) . '</option>';
+									}
+									?>
+								</select>
+							<?php endif; // isset hide ?>
+
+							<?php if (isset($field['help'])): ?>
+								<br />
+							<?php endif; // isset help  ?>
+
+						<?php elseif ('selectbasic' == $field['type']): ?>
+							<select id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" class="tfb_lb_option" <?php echo themify_builder_get_binding_data($field); ?>>
 								<?php
-								foreach ($fieldsec['options'] as $key => $value) {
-									$selected = ( isset($fieldsec['default']) && $fieldsec['default'] == $value ) ? ' selected="selected"' : '';
-									echo '<option value="' . $key . '" '.$selected.'>' . $value . '</option>';
+								foreach ($field['options'] as $value) {
+									$selected = ( isset($field['default']) && $field['default'] == $value ) ? ' selected="selected"' : '';
+									echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($value) . '</option>';
 								}
 								?>
 							</select>
 
-						<?php elseif( $fieldsec['type'] == 'text' ): ?>
-							<input id="<?php echo $fieldsec['id'] ?>" name="<?php echo $fieldsec['id'] ?>" placeholder="<?php if(isset($fieldsec['value'])) echo $fieldsec['value']; ?>" class="<?php echo $fieldsec['class']; ?> tfb_lb_option" type="text" />
-							<?php echo (isset($fieldsec['unit'])) ? '<small>'.$fieldsec['unit'].'</small>' : ''; ?>
-						<?php endif; ?>
-						<?php echo (isset($fieldsec['help'])) ? $fieldsec['help'] : ''; ?><br />
-						<?php endforeach; ?>
-					<?php endif; ?>
+						<?php elseif ('select_menu' == $field['type']): ?>
+							<select id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" class="tfb_lb_option select_menu_field" <?php echo themify_builder_get_binding_data($field); ?>>
+								<option value=""><?php esc_html_e('Select a Menu...', 'themify'); ?></option>
+								<?php
+								foreach ($field['options'] as $key => $value) {
+									$selected = ( isset($field['default']) && $field['default'] == $value ) ? ' selected="selected"' : '';
+									echo '<option value="' . esc_attr($value->slug) . '" ' . $selected . ' data-termid="' . esc_attr($value->term_id) . '">' . esc_html($value->name) . '</option>';
+								}
+								?>
+							</select>
 
-					<?php
-					// hook actions
-					do_action( 'themify_builder_lightbox_fields', $field, $module_name );
-					?>
-					
-					<?php if( isset($field['break']) && $field['break'] == true ): ?>
-						<br />
-					<?php endif; ?>
-					
-					<?php if(isset($field['help'])): ?>
-					<small><?php echo $field['help']; ?></small>
-					<?php endif; ?>
-				</div>
-				<!-- /themify_builder_input -->
+						<?php elseif ('query_category' == $field['type']): ?>
+							<?php
+							$terms_tax = isset($field['options']['taxonomy']) ? $field['options']['taxonomy'] : 'category';
+                                                        $terms_count = wp_count_terms($terms_tax,array('hide_empty'=>true));
+                                                        $max_count = 100;
+                                                        if($terms_count<$max_count){
+                                                            $terms_by_tax = get_terms($terms_tax,array('hide_empty'=>true,'number'=>$max_count));
+                                                            $terms_list = array();
+                                                            $terms_list['0'] = array(
+                                                                    'title' => __('All Categories', 'themify'),
+                                                                    'slug' => '0'
+                                                            );
+                                                            if( ! is_wp_error( $terms_by_tax ) ) {
+                                                                    foreach ($terms_by_tax as $term) {
+                                                                            $terms_list[$term->term_id] = array(
+                                                                                    'title' => $term->name,
+                                                                                    'slug' => $term->slug
+                                                                            );
+                                                                    }
+                                                            }
+                                                            ?>
+                                                            <select id="<?php echo esc_attr($field['id'] . '_dropdown'); ?>" class="query_category_single" <?php echo themify_builder_get_binding_data($field); ?>>
+                                                                    <option></option>
+                                                                    <?php
+                                                                    foreach ($terms_list as $term_id => $term) {
+                                                                            $term_selected = '';
+                                                                            printf(
+                                                                                    '<option value="%s" data-termid="%s" %s>%s</option>', esc_attr($term['slug']), esc_attr($term_id), $term_selected, esc_html($term['title'])
+                                                                            );
+                                                                    }
+                                                                    ?>
+                                                            </select>
+                                                        <?php   
+                                                        
+                                                        }
+                                                        else{
+                                                            if(!wp_script_is('jquery-ui-autocomplete')){
+                                                                wp_enqueue_script('jquery-ui-autocomplete');
+                                                            }
+                                                            ?>
+                                                            <input id="themify_search_cat_<?php echo $terms_tax?>" type="text" value="" autocomplete="off" placeholder="<?php printf(__('Search by %s','themify'),$field['label'])?>" data-tax="<?php echo $terms_tax?>" data-action="themify_get_tax" class="themify_tax_autocomplete"/>
+                                                            <?php
+                                                        }
+                                                        ?>
+							<?php _e('or', 'themify') ?>
+							<input class="small query_category_multiple" type="text" /><br /><small><?php _e('multiple category IDs (eg. 2,5,8) or slug (eg. news,blog,featured) or exclude category IDs(eg. -2,-5,-8)', 'themify'); ?></small><br />
+							<input type="hidden" id="<?php echo esc_attr($field['id']); ?>" name="<?php echo esc_attr($field['id']); ?>" value="" class="tfb_lb_option themify-option-query-cat" />
+
+							<?php
+						///////////////////////////////////////////
+						// Query category single field
+						///////////////////////////////////////////
+						elseif ('query_category_single' == $field['type']):
+							?>
+							<?php
+							echo preg_replace('/>/', '><option></option>', wp_dropdown_categories(
+											array(
+												'taxonomy' => isset($field['options']['taxonomy']) ? $field['options']['taxonomy'] : 'category',
+												'class' => 'tfb_lb_option',
+												'show_option_all' => __('All Categories', 'themify'),
+												'hide_empty' => 0,
+												'echo' => 0,
+												'name' => $field['id'],
+												'selected' => ''
+									)), 1);
+							echo '<br />';
+							?>
+
+							<?php
+						///////////////////////////////////////////
+						// Multifield
+						///////////////////////////////////////////
+						elseif ('multifield' == $field['type']):
+							?>
+
+							<?php if (isset($field['options']['select'])): ?>
+								<select id="<?php echo esc_attr($field['options']['select']['id']); ?>" class="tfb_lb_option" <?php echo themify_builder_get_binding_data($field); ?>>
+									<?php foreach ($field['options']['select']['options'] as $opt => $label): ?>
+										<option value="<?php echo esc_attr($opt); ?>"><?php echo esc_html($label); ?></option>
+									<?php endforeach; ?>
+								</select>
+							<?php endif; ?>
+
+							<?php if (isset($field['options']['text'])): ?>
+								<input id="<?php echo esc_attr($field['options']['text']['id']); ?>" class="xsmall tfb_lb_option" type="text" <?php echo themify_builder_get_binding_data($field); ?> />
+								<?php if (isset($field['options']['text']['help'])): ?>
+									<small><?php echo wp_kses_post($field['options']['text']['help']); ?></small>
+								<?php endif; ?>
+							<?php endif; ?>
+
+							<?php if (isset($field['options']['colorpicker'])): ?>
+								<?php $color_class = isset($field['options']['colorpicker']['class']) ? $field['options']['colorpicker']['class'] : 'xsmall'; ?>
+								<span class="builderColorSelect"><span></span></span> 
+								<input id="<?php echo esc_attr($field['options']['colorpicker']['id']); ?>" class="<?php echo esc_attr($color_class); ?> tfb_lb_option builderColorSelectInput" type="text" />
+							<?php endif; ?>
+
+							<?php
+						///////////////////////////////////////////
+						// Type Slider option
+						///////////////////////////////////////////
+						elseif ('slider' == $field['type']):
+							?>
+
+							<?php foreach ($field['options'] as $fieldsec): ?>
+
+								<?php if ($fieldsec['type'] == 'select'): ?>
+									<select id="<?php echo esc_attr($fieldsec['id']); ?>" name="<?php echo esc_attr($fieldsec['id']); ?>" class="tfb_lb_option" <?php echo themify_builder_get_binding_data($field); ?>>
+										<?php if (isset($fieldsec['empty'])): ?>
+											<option value="<?php echo esc_attr($fieldsec['empty']['val']); ?>"><?php echo esc_html($fieldsec['empty']['label']); ?></option>
+										<?php endif; ?>
+
+										<?php
+										foreach ($fieldsec['options'] as $key => $value) {
+											$selected = ( isset($fieldsec['default']) && $fieldsec['default'] == $value ) ? ' selected="selected"' : '';
+											echo '<option value="' . esc_attr($key) . '" ' . $selected . '>' . esc_html($value) . '</option>';
+										}
+										?>
+									</select>
+                                                                        <?php echo isset($fieldsec['help']) ? wp_kses_post($fieldsec['help']) : ''; ?><br />
+
+								<?php elseif ($fieldsec['type'] == 'text'): ?>
+									<input id="<?php echo esc_attr($fieldsec['id']); ?>" name="<?php echo esc_attr($fieldsec['id']); ?>" class="<?php echo esc_attr($fieldsec['class']); ?> tfb_lb_option" class="<?php echo esc_attr($fieldsec['class']); ?> tfb_lb_option" type="text" />
+									<?php echo (isset($fieldsec['unit'])) ? '<small>' . esc_html($fieldsec['unit']) . '</small>' : ''; ?>
+                                                                        <?php echo isset($fieldsec['help']) ? wp_kses_post($fieldsec['help']) : ''; ?><br />
+                                                                <?php else:?>
+                                                                        <?php themify_builder_module_settings_field(array($fieldsec),$module_name);?>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						<?php endif; ?>
+
+						<?php
+						// hook actions
+						do_action('themify_builder_lightbox_fields', $field, $module_name);
+						?>
+
+						<?php if (isset($field['break']) && $field['break'] == true): ?>
+							<br />
+						<?php endif; ?>
+
+						<?php if (isset($field['help'])): ?>
+							<small><?php echo wp_kses_post($field['help']); ?></small>
+						<?php endif; ?>
+					</div>
+					<!-- /themify_builder_input -->
 				<?php } ?>
-			
-			<?php if( $field['type'] != 'builder' && (!isset($field['hide']) || $field['hide'] == false) ): ?>
-			</div>
-			<!-- /themify_builder_field -->
+
+				<?php if ($field['type'] != 'builder' && (!isset($field['hide']) || $field['hide'] == false)): ?>
+				</div>
+				<!-- /themify_builder_field -->
 			<?php endif; ?>
-		
-		<?php if( isset( $field['separated'] ) && $field['separated'] == 'bottom' ): ?>
-			<hr />
-		<?php endif; endforeach;
+
+			<?php if (isset($field['separated']) && $field['separated'] == 'bottom'): ?>
+				<hr />
+				<?php
+			endif;
+		endforeach;
 	}
+
 }
 
-if ( ! function_exists( 'themify_builder_styling_field' ) ) {
+if (!function_exists('themify_builder_styling_field')) {
+
 	/**
 	 * Module Styling Fields
 	 * @param array $styling 
 	 * @return string
 	 */
-	function themify_builder_styling_field( $styling ){
+	function themify_builder_styling_field($styling) {
 		switch ($styling['type']) {
-			
+
 			case 'text':
-				$html = '<input id="'.$styling['id'].'" name="'.$styling['id'].'" type="text" value="" class="'.$styling['class'].' tfb_lb_option">';
-				$html .= isset( $styling['description'] ) ? $styling['description'] : '';
-				echo $html;
-			break;
+				?>
+				<input id="<?php echo esc_attr($styling['id']); ?>" name="<?php echo esc_attr($styling['id']); ?>" type="text" value="" class="<?php echo esc_attr($styling['class']); ?> tfb_lb_option">
+				<?php
+				if (isset($styling['description'])) {
+					echo '<small>' . wp_kses_post($styling['description']) . '</small>';
+				}
+				?>
+				<?php
+				break;
+
+			case 'textarea':
+				?>
+				<textarea id="<?php echo esc_attr($styling['id']); ?>" name="<?php echo esc_attr($styling['id']); ?>" class="<?php echo esc_attr($styling['class']); ?> tfb_lb_option"><?php
+					if (isset($styling['value'])) : echo esc_textarea($styling['value']);
+					endif;
+					?></textarea>
+				<?php
+				if (isset($styling['description'])) {
+					echo '<small>' . wp_kses_post($styling['description']) . '</small>';
+				}
+				?>
+				<?php
+				break;
 
 			case 'separator':
-				echo $html = isset($styling['meta']['html']) && '' != $styling['meta']['html']? $styling['meta']['html'] : '<hr class="meta_fields_separator" />';
-			break;
+				echo isset($styling['meta']['html']) && '' != $styling['meta']['html'] ? $styling['meta']['html'] : '<hr class="meta_fields_separator" />';
+				break;
 
-			case 'image': ?>
-				<input id="<?php echo $styling['id']; ?>" name="<?php echo $styling['id'] ?>" placeholder="<?php if(isset($styling['value'])) echo $styling['value']; ?>" class="<?php echo $styling['class']; ?> themify-builder-uploader-input tfb_lb_option" type="text" /><br />
-								
+			case 'image':
+				?>
+				<input id="<?php echo esc_attr($styling['id']); ?>" name="<?php echo esc_attr($styling['id']); ?>" placeholder="<?php if (isset($styling['value'])) echo esc_attr($styling['value']); ?>" class="<?php echo esc_attr($styling['class']); ?> themify-builder-uploader-input tfb_lb_option" type="text" /><br />
+
 				<div class="small">
 
-					<?php if ( is_multisite() && !is_upload_space_available() ): ?>
-						<?php echo sprintf( __( 'Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify' ), get_space_allowed() ); ?>
+					<?php if (is_multisite() && !is_upload_space_available()): ?>
+						<?php echo sprintf(__('Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify'), get_space_allowed()); ?>
 					<?php else: ?>
-					<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo $styling['id']; ?>themify-builder-plupload-upload-ui">
-							<input id="<?php echo $styling['id']; ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify') ); ?>" class="builder_button" />
+						<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo esc_attr($styling['id']); ?>themify-builder-plupload-upload-ui">
+							<input id="<?php echo esc_attr($styling['id']); ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify')); ?>" class="builder_button" />
 							<span class="ajaxnonceplu" id="ajaxnonceplu<?php echo wp_create_nonce($styling['id'] . 'themify-builder-plupload'); ?>"></span>
-					</div> <?php _e('or', 'themify') ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php _e('Upload an Image', 'themify') ?>" data-uploader-button-text="<?php _e('Insert file URL', 'themify') ?>"><?php _e('Browse Library', 'themify') ?></a>
+						</div> <?php _e('or', 'themify') ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php esc_attr_e('Upload an Image', 'themify') ?>" data-uploader-button-text="<?php esc_attr_e('Insert file URL', 'themify') ?>"><?php _e('Browse Library', 'themify') ?></a>
 
 					<?php endif; ?>
 
 				</div>
-				
+
 				<p class="thumb_preview">
 					<span class="img-placeholder"></span>
 					<a href="#" class="themify_builder_icon small delete themify-builder-delete-thumb"></a>
@@ -469,562 +749,284 @@ if ( ! function_exists( 'themify_builder_styling_field' ) ) {
 
 
 				<?php
-			break;
+				break;
 
-			case 'select': ?>
-				
-				<select id="<?php echo $styling['id'] ?>" name="<?php echo $styling['id']; ?>" class="tfb_lb_option <?php echo $styling['class']; ?>">
-					<?php if( isset( $styling['default'] ) ): ?>
-					<option value="<?php echo $styling['default']; ?>"><?php echo $styling['default']; ?></option>
-					<?php endif;
+			case 'video':
+				?>
+				<input id="<?php echo esc_attr($styling['id']); ?>" name="<?php echo esc_attr($styling['id']); ?>" placeholder="<?php if (isset($styling['value'])) echo esc_attr($styling['value']); ?>" class="<?php echo esc_attr($styling['class']); ?> themify-builder-uploader-input tfb_lb_option" type="text" /><br />
 
-					foreach( $styling['meta'] as $option ): ?>
-					<option value="<?php echo $option['value']; ?>"><?php echo $option['name']; ?></option>
+				<div class="small">
+
+					<?php if (is_multisite() && !is_upload_space_available()): ?>
+						<?php echo sprintf(__('Sorry, you have filled your %s MB storage quota so uploading has been disabled.', 'themify'), get_space_allowed()); ?>
+					<?php else: ?>
+						<div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="<?php echo esc_attr($styling['id']); ?>themify-builder-plupload-upload-ui" data-extensions="<?php echo esc_attr(implode(',', wp_get_video_extensions())); ?>">
+							<input id="<?php echo esc_attr($styling['id']); ?>themify-builder-plupload-browse-button" type="button" value="<?php esc_attr_e(__('Upload', 'themify')); ?>" class="builder_button" />
+							<span class="ajaxnonceplu" id="ajaxnonceplu<?php echo wp_create_nonce($styling['id'] . 'themify-builder-plupload'); ?>"></span>
+						</div> <?php _e('or', 'themify') ?> <a href="#" class="themify-builder-media-uploader tf-upload-btn" data-uploader-title="<?php _e('Upload a Video', 'themify') ?>" data-uploader-button-text="<?php esc_attr_e('Insert file URL', 'themify') ?>" data-library-type="video"><?php _e('Browse Library', 'themify') ?></a>
+
+					<?php endif; ?>
+
+				</div>
+
+				<?php
+				if (isset($styling['description'])) {
+					echo '<small>' . wp_kses_post($styling['description']) . '</small>';
+				}
+				?>
+
+				<?php
+				break;
+
+			case 'select':
+				?>
+
+				<select id="<?php echo esc_attr($styling['id']); ?>" name="<?php echo esc_attr($styling['id']); ?>" class="tfb_lb_option <?php echo isset($styling['class']) ? esc_attr($styling['class']) : ''; ?>">
+					<?php if (isset($styling['default'])): ?>
+						<option value="<?php echo esc_attr($styling['default']); ?>"><?php echo esc_html($styling['default']); ?></option>
+						<?php
+					endif;
+
+					foreach ($styling['meta'] as $option):
+						?>
+						<option value="<?php echo esc_attr($option['value']); ?>"><?php echo esc_html($option['name']); ?></option>
 					<?php endforeach; ?>
 
 				</select>
 
-				<?php if ( isset( $styling['description'] ) ) {
-					echo $styling['description'];
-				} ?>
+				<?php
+				if (isset($styling['description'])) {
+					echo wp_kses_post($styling['description']);
+				}
+				?>
 
-			<?php
-			break;
+				<?php
+				break;
+
+			case 'animation_select':
+				?>
+				<?php $class = isset($styling['class']) ? $styling['class'] : ''; ?>
+				<select id="<?php echo esc_attr($styling['id']); ?>" name="<?php echo esc_attr($styling['id']); ?>" class="tfb_lb_option <?php echo esc_attr($class); ?>">
+					<option value=""></option>
+
+					<?php
+					$animation = Themify_Builder_model::get_preset_animation();
+					foreach ($animation as $group):
+						?>
+
+						<optgroup label="<?php echo esc_attr($group['group_label']); ?>">
+							<?php foreach ($group['options'] as $opt): ?>
+								<option value="<?php echo esc_attr($opt['value']); ?>"><?php echo esc_html($opt['name']); ?></option>
+							<?php endforeach; ?>
+						</optgroup>
+
+					<?php endforeach; ?>
+
+				</select>
+
+				<?php
+				if (isset($styling['description'])) {
+					echo wp_kses_post($styling['description']);
+				}
+				?>
+
+				<?php
+				break;
 
 			case 'font_select':
-			$fonts = array_merge( themify_get_web_safe_font_list(), themify_get_google_web_fonts_list() );
-			 ?>
-				
-				<select id="<?php echo $styling['id'] ?>" name="<?php echo $styling['id']; ?>" class="tfb_lb_option <?php echo $styling['class']; ?>">
-					<?php if( isset( $styling['default'] ) ): ?>
-					<option value="<?php echo $styling['default']; ?>"><?php echo $styling['default']; ?></option>
-					<?php endif;
+				static $google_fonts_group = FALSE;
+				static $web_safe_group = FALSE;
+				static $loaded = false;
+				if(!$loaded){
+					$web_safe = themify_get_web_safe_font_list();
+				}
+				if(!$web_safe_group){
+					$web_safe_group = $web_safe[1]['name'];
+					unset($web_safe[1]);
+				}
 
-					foreach( $fonts as $option ): ?>
-					<option value="<?php echo $option['value']; ?>"><?php echo $option['name']; ?></option>
+				if(!$loaded){
+					$google_fonts = themify_get_google_web_fonts_list();
+				}
+				if(!$google_fonts_group){
+					$google_fonts_group = $google_fonts[1]['name'];
+					unset($google_fonts[1]);
+				}
+
+				$default = isset($styling['default']);
+				if (!$default) {
+					$styling['default'] = 'default';
+				}
+				?>
+				<div class="themify_builder_font_preview_wrapper">
+					<select  id="<?php echo esc_attr($styling['id']); ?>" name="<?php echo esc_attr($styling['id']); ?>" class="tfb_lb_option <?php echo esc_attr($styling['class']); ?>">
+						<option value="<?php echo esc_attr($styling['default']); ?>"><?php echo $default ? esc_html($styling['default']) : '---'; ?></option>
+						<optgroup label="<?php echo $web_safe_group ?>"></optgroup>
+						<optgroup  label="<?php echo $google_fonts_group ?>"></optgroup>
+					</select>
+					<span class="themify_builder_font_preview"><span><?php _e('Font Preview', 'themify') ?></span></span>
+				</div>
+				<?php
+				if (isset($styling['description'])) {
+					echo wp_kses_post($styling['description']);
+				}
+				$loaded = TRUE;
+			break;
+
+			case 'color':
+				?>
+				<span class="builderColorSelect"><span></span></span>
+				<input type="text" class="<?php echo esc_attr($styling['class']); ?> colordisplay"/>
+				<input id="<?php echo esc_attr($styling['id']); ?>" name="<?php echo esc_attr($styling['id']); ?>" value="" class="builderColorSelectInput tfb_lb_option" type="hidden" />
+				<?php
+				break;
+
+			case 'gradient' :
+				?>
+				<div class="themify-gradient-field">
+					<select class="tfb_lb_option themify-gradient-type" id="<?php echo esc_attr($styling['id']); ?>-gradient-type" name="<?php echo esc_attr($styling['id']); ?>-gradient-type">
+						<option value="linear"><?php _e( 'Linear', 'themify' ); ?></option>
+						<option value="radial"><?php _e( 'Radial', 'themify' ); ?></option>
+					</select>
+					<input type="text" class="xsmall tfb_lb_option themify-gradient-angle" id="<?php echo esc_attr($styling['id']); ?>-gradient-angle" name="<?php echo esc_attr($styling['id']); ?>-gradient-angle" value="180" data-min="0" data-max="360" data-cursor="true" data-thickness=".4" data-step="1" data-width="63" data-height="63" />
+                                        <span><?php _e( 'Rotation', 'themify' ); ?></span>
+					<label  class="themify-radial-circle" for="<?php echo esc_attr($styling['id']); ?>-circle-radial"><input type="checkbox" value="1" id="<?php echo esc_attr($styling['id']); ?>-circle-radial" name="<?php echo esc_attr($styling['id']); ?>-circle-radial" /><?php _e('Circle Radial','themify')?></label>
+                                        <div class="themify-gradient-container"></div>
+					<input style="display: none;" type="text" class="xlarge themify-gradient tfb_lb_option" data-id="<?php  esc_attr_e($styling['id']); ?>" id="<?php  esc_attr_e($styling['id']); ?>-gradient" name="<?php echo esc_attr($styling['id']); ?>-gradient" data-default-gradient="<?php echo isset( $styling['default-gradient'] )?$styling['default-gradient']:'0% rgba(0,0,0, 1)|100% rgba(255,255,255,1)'; ?>" />
+					<textarea style="display: none;" class="xlarge tfb_lb_option themify-gradient-css" id="<?php echo esc_attr($styling['id']); ?>-css" name="<?php echo esc_attr($styling['id']); ?>-css"></textarea>
+					<a href="#" title="<?php _e( 'Clear Gradient', 'themify' ); ?>" class="themify-clear-gradient"><i class="ti ti-close"></i></a>
+				</div>
+				<?php
+				break;
+
+			case 'image_and_gradient' :
+				?>
+				<div class="tf-image-gradient-field">
+                                        <?php 
+                                            $original = $styling;
+                                            $styling['type'] = 'radio'; 
+                                            $styling['meta'] = array(
+                                                array('value' => 'image', 'name' => __('Image', 'themify')),
+                                                array('value' => 'gradient', 'name' => __('Gradient', 'themify')),
+                                            );
+                                            $styling['default']	= 'image';
+                                            $styling['id'].= '-type';
+                                            themify_builder_styling_field($styling);
+                                            $styling = $original;
+                                            $styling['type'] = 'image';
+                                        ?>
+					<div class="themify-image-field">
+                                            <?php themify_builder_styling_field($styling);?>
+					</div>
+					<?php 
+                                        $styling['type'] = 'gradient'; 
+                                        themify_builder_styling_field($styling); 
+                                        ?>
+				</div>
+				<?php
+				break;
+
+			case 'checkbox':
+				if (isset($styling['before'])) : echo wp_kses_post($styling['before']);
+				endif;
+				$option_js_wrap = (isset($styling['option_js']) && $styling['option_js'] == true) ? ' tf-option-checkbox-enable' : '';
+				?>
+				<div id="<?php echo esc_attr($styling['id']); ?>" class="tfb_lb_option themify-checkbox<?php echo $option_js_wrap ?>">
+					<?php foreach ($styling['options'] as $opt): ?>
+						<?php
+						$checkbox_checked = '';
+						if (isset($styling['default']) && is_array($styling['default'])) {
+							$checkbox_checked = in_array($opt['name'], $styling['default']) ? 'checked="checked"' : '';
+						} elseif (isset($styling['default'])) {
+							$checkbox_checked = checked($styling['default'], $opt['name'], false);
+						}
+						$data_el = (isset($styling['option_js']) && $styling['option_js'] == true) ? 'data-selected="tf-checkbox-element-' . $opt['name'] . '"' : '';
+						?>
+						<input id="<?php echo esc_attr($styling['id'] . '_' . $opt['name']); ?>" name="<?php echo esc_attr($styling['id']); ?>" type="checkbox" class="<?php echo isset($styling['class']) ? $styling['class'] : '' ?> tfb_lb_option tf-checkbox" value="<?php echo esc_attr($opt['name']); ?>" <?php echo $checkbox_checked . ' ' . $data_el; ?> />
+						<label for="<?php echo esc_attr($styling['id'] . '_' . $opt['name']); ?>" class="pad-right"><?php echo wp_kses_post($opt['value']); ?></label>
+
+						<?php if (isset($opt['help'])): ?>
+							<small><?php echo wp_kses_post($opt['help']); ?></small>
+						<?php endif; ?>
+
+						<?php if (!isset($styling['new_line']) || $styling['new_line'] == true): ?>
+							<br />
+						<?php endif; ?>
+
 					<?php endforeach; ?>
-
-				</select>
-
-				<?php if ( isset( $styling['description'] ) ) {
-					echo $styling['description'];
-				} ?>
-
-			<?php
-			break;
-
-			case 'color': ?>
-				<span class="builderColorSelect"><span></span></span> 
-				<input id="<?php echo $styling['id'] ?>" name="<?php echo $styling['id'] ?>" value="" class="<?php echo $styling['class']; ?> builderColorSelectInput tfb_lb_option" type="text" />
-			<?php
-			break;
+				</div>
+				<?php
+				if (isset($styling['after'])) : echo wp_kses_post($styling['after']);
+				endif;
+				break;
 
 			case 'radio':
-				foreach( $styling['meta'] as $option ) {
-					$checked = isset( $option['selected'] ) && $option['selected'] == true ? 'checked="checked"' : ''; ?>
-					<input type="radio" id="<?php echo $styling['id'] . '_' . $option['value']; ?>" name="<?php echo $styling['id']; ?>" value="<?php echo $option['value']; ?>" class="tfb_lb_option" <?php echo $checked; ?>> <label for="<?php echo $styling['id'] . '_' . $option['value']; ?>"><?php echo $option['name']; ?></label> 
+				$option_js = (isset($styling['option_js']) && $styling['option_js'] == true) ? 'tf-option-checkbox-js' : '';
+				$option_js_wrap = $option_js ? 'tf-option-checkbox-enable' : '';
+				?>
+				<div id="<?php echo esc_attr($styling['id']); ?>" class="tfb_lb_option tf-radio-input-container <?php echo esc_attr($option_js_wrap); ?>">
+					<?php
+					foreach ($styling['meta'] as $k=>$option) {
+						$checked = isset($option['selected']) && $option['selected'] == true ? 'checked="checked"' : '';
+						$data_el = $option_js ? 'data-selected="tf-group-element-' . $option['value'] . '"' : '';
+						$checked = !$checked && isset($styling['default']) && $styling['default'] == $k ? 'checked="checked"' : $checked;
+                                                ?>
+						<input type="radio" id="<?php echo esc_attr($styling['id'] . '_' . $option['value']); ?>" name="<?php echo esc_attr($styling['id']); ?>" value="<?php echo esc_attr($option['value']); ?>" class="tfb_lb_option <?php echo $option_js; ?>" <?php echo $checked . ' ' . $data_el; ?>> <label for="<?php echo esc_attr($styling['id'] . '_' . $option['value']); ?>"><?php echo esc_html($option['name']); ?></label>
+						<?php
+					}
+					?>
+					<?php
+					if (isset($styling['description'])) {
+						echo '<br/><small>' . wp_kses_post($styling['description']) . '</small>';
+					}
+					?>
+				</div>
 				<?php
-				}
+				break;
 
-			break;
+			case 'builder':
+				?>
+				<div id="<?php echo esc_attr($styling['id']); ?>" class="themify_builder_row_opt_builder_wrap themify_builder_row_js_wrapper tfb_lb_option">
+					<div class="themify_builder_row clearfix">
+						<div class="themify_builder_row_top">
+							<div class="row_menu">
+								<div class="menu_icon"></div>
+								<ul style="display:none" class="themify_builder_dropdown">
+									<li><a href="#" class="themify_builder_duplicate_row"><?php _e('Duplicate', 'themify') ?></a></li>
+									<li><a href="#" class="themify_builder_delete_row"><?php _e('Delete', 'themify') ?></a></li>
+								</ul>
+							</div>
+							<div class="toggle_row"></div>
+						</div>
+						<div class="themify_builder_row_content">
+							<?php themify_builder_module_settings_field_builder($styling) ?>
+						</div>
+					</div>
+				</div>
+				<p class="add_new"><a href="#"><span class="themify_builder_icon add"></span><?php echo isset($styling['new_row_text']) ? $styling['new_row_text'] : __('Add new row', 'themify') ?></a></p>
+				<?php
+				break;
 		}
 	}
+
 }
 
-// check for rights
-if ( !is_user_logged_in() || !current_user_can('edit_posts') )
-	wp_die(__('You are not allowed to be here', 'themify'));
-	
-	if ( $this->load_form == 'module' ): ?>
-	
-	<form id="tfb_module_settings">
-
-	<div class="lightbox_inner">
-		
-		<ul class="themify_builder_options_tab clearfix">
-			<li><a href="#themify_builder_options_setting"><?php echo ucfirst( $module->name ); ?></a></li>
-			<?php if( isset( $module->styling ) ): ?>
-			<li><a href="#themify_builder_options_styling"><?php _e('Styling', 'themify') ?></a></li>
-			<?php endif; ?>
-		</ul>
-
-		<div id="themify_builder_options_setting" class="themify_builder_options_tab_content">
-			<?php if( isset( $module->options ) ) {
-				themify_builder_module_settings_field( $module->options, $module->slug );
-			} ?>
-		</div>
-	
-		<?php if ( isset( $module->styling ) ): ?>
-		<div id="themify_builder_options_styling" class="themify_builder_options_tab_content">
-			<?php
-			foreach( $module->styling as $styling ): ?>
-			<?php
-				echo $styling['type'] != 'separator' ? '<div class="themify_builder_field">' : '';
-				if ( isset( $styling['label'] ) ) {
-					echo '<div class="themify_builder_label">'.$styling['label'].'</div>';
-				}
-				echo $styling['type'] != 'separator' ? '<div class="themify_builder_input">' : '';
-				if ( $styling['type'] != 'multi' ) {
-					themify_builder_styling_field( $styling );
-				} else {
-					foreach( $styling['fields'] as $field ) {
-						themify_builder_styling_field( $field );
-					}
-				}
-				echo $styling['type'] != 'separator' ? '</div>' : ''; // themify_builder_input
-				echo $styling['type'] != 'separator' ? '</div>' : ''; // themify_builder_field
-			?>
-
-			<?php endforeach; ?>
-
-			<p>
-				<a href="#" class="reset-module-styling" data-reset="module">
-					<span class="themify_builder_icon delete"></span>
-					<?php _e('Reset Styling', 'themify') ?>
-				</a>
-			</p>
-		</div>
-		<!-- /themify_builder_options_tab_content -->
-		<?php endif; ?>
-					
-	</div>
-	<!-- /themify_builder_lightbox_inner -->
-
-	<p class="themify_builder_save">
-		<input class="builder_button" type="submit" name="submit" value="<?php _e('Save', 'themify') ?>" />
-	</p>
-
-	</form>
-
-<?php elseif ( $this->load_form == 'row' ): ?>
-
-<?php
-$row_settings = array(
-	// Rows Width
-	array(
-		'id' => 'row_width',
-		'label' => __( 'Row Width', 'themify' ),
-		'type' => 'radio',
-		'meta' => array(
-			array( 'value' => '', 'name' => __( 'Default', 'themify' ), 'selected' => true ),
-			array( 'value' => 'fullwidth', 'name' => __( 'Fullwidth', 'themify' ) )
-		)
-	),
-	// Animation
-	array(
-		'type' => 'separator',
-		'meta' => array('html'=>'<hr />')
-	),
-	array(
-		'id' => 'separator_animation',
-		'title' => '',
-		'description' => '',
-		'type' => 'separator',
-		'meta' => array('html'=>'<h4>'.__('Animation', 'themify').'</h4>'),
-	),
-	array(
-		'id' => 'animation_effect',
-		'type' => 'select',
-		'label' => __( 'Effect', 'themify' ),
-		'meta'	=> array(
-			array('value' => '',   'name' => '', 'selected' => true),
-			array('value' => 'fly-in',   'name' => __('Fly In', 'themify')),
-			array('value' => 'fade-in', 'name' => __('Fade In', 'themify')),
-			array('value' => 'slide-up',  'name' => __('Slide Up', 'themify'))
-		)
-	),
-	// Background
-	array(
-		'type' => 'separator',
-		'meta' => array('html'=>'<hr />')
-	),
-	array(
-		'id' => 'separator_image_background',
-		'title' => '',
-		'description' => '',
-		'type' => 'separator',
-		'meta' => array('html'=>'<h4>'.__('Background', 'themify').'</h4>'),
-	),
-	array(
-		'id' => 'background_image',
-		'type' => 'image',
-		'label' => __('Background Image', 'themify'),
-		'class' => 'xlarge'
-	),
-	array(
-		'id' => 'background_color',
-		'type' => 'color',
-		'label' => __('Background Color', 'themify'),
-		'class' => 'small'
-	),
-	// Background repeat
-	array(
-		'id' 		=> 'background_repeat',
-		'label'		=> __('Background Mode', 'themify'),
-		'type' 		=> 'select',
-		'default'	=> '',
-		'meta'		=> array(
-			array('value' => 'repeat', 'name' => __('Repeat All', 'themify')),
-			array('value' => 'repeat-x', 'name' => __('Repeat Horizontally', 'themify')),
-			array('value' => 'repeat-y', 'name' => __('Repeat Vertically', 'themify')),
-			array('value' => 'repeat-none', 'name' => __('Do not repeat', 'themify')),
-			array('value' => 'fullcover', 'name' => __('Fullcover', 'themify')),
-			array('value' => 'builder-parallax-scrolling', 'name' => __('Parallax Scrolling', 'themify'))
-		)
-	),
-	// Font
-	array(
-		'type' => 'separator',
-		'meta' => array('html'=>'<hr />')
-	),
-	array(
-		'id' => 'separator_font',
-		'type' => 'separator',
-		'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
-	),
-	array(
-		'id' => 'font_family',
-		'type' => 'font_select',
-		'label' => __('Font Family', 'themify'),
-		'class' => 'font-family-select'
-	),
-	array(
-		'id' => 'font_color',
-		'type' => 'color',
-		'label' => __('Font Color', 'themify'),
-		'class' => 'small'
-	),
-	array(
-		'id' => 'multi_font_size',
-		'type' => 'multi',
-		'label' => __('Font Size', 'themify'),
-		'fields' => array(
-			array(
-				'id' => 'font_size',
-				'type' => 'text',
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'font_size_unit',
-				'type' => 'select',
-				'meta' => array(
-					array('value' => '', 'name' => ''),
-					array('value' => 'px', 'name' => __('px', 'themify')),
-					array('value' => 'em', 'name' => __('em', 'themify'))
-				)
-			)
-		)
-	),
-	array(
-		'id' => 'multi_line_height',
-		'type' => 'multi',
-		'label' => __('Line Height', 'themify'),
-		'fields' => array(
-			array(
-				'id' => 'line_height',
-				'type' => 'text',
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'line_height_unit',
-				'type' => 'select',
-				'meta' => array(
-					array('value' => '', 'name' => ''),
-					array('value' => 'px', 'name' => __('px', 'themify')),
-					array('value' => 'em', 'name' => __('em', 'themify')),
-					array('value' => '%', 'name' => __('%', 'themify'))
-				)
-			)
-		)
-	),
-	// Link
-	array(
-		'type' => 'separator',
-		'meta' => array('html'=>'<hr />')
-	),
-	array(
-		'id' => 'separator_link',
-		'type' => 'separator',
-		'meta' => array('html'=>'<h4>'.__('Link', 'themify').'</h4>'),
-	),
-	array(
-		'id' => 'link_color',
-		'type' => 'color',
-		'label' => __('Color', 'themify'),
-		'class' => 'small'
-	),
-	array(
-		'id' => 'text_decoration',
-		'type' => 'select',
-		'label' => __( 'Text Decoration', 'themify' ),
-		'meta'	=> array(
-			array('value' => '',   'name' => '', 'selected' => true),
-			array('value' => 'underline',   'name' => __('Underline', 'themify')),
-			array('value' => 'overline', 'name' => __('Overline', 'themify')),
-			array('value' => 'line-through',  'name' => __('Line through', 'themify')),
-			array('value' => 'none',  'name' => __('None', 'themify'))
-		)
-	),
-	// Padding
-	array(
-		'type' => 'separator',
-		'meta' => array('html'=>'<hr />')
-	),
-	array(
-		'id' => 'separator_padding',
-		'type' => 'separator',
-		'meta' => array('html'=>'<h4>'.__('Padding', 'themify').'</h4>'),
-	),
-	array(
-		'id' => 'multi_padding',
-		'type' => 'multi',
-		'label' => __('Padding', 'themify'),
-		'fields' => array(
-			array(
-				'id' => 'padding_top',
-				'type' => 'text',
-				'description' => __('top', 'themify'),
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'padding_right',
-				'type' => 'text',
-				'description' => __('right', 'themify'),
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'padding_bottom',
-				'type' => 'text',
-				'description' => __('bottom', 'themify'),
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'padding_left',
-				'type' => 'text',
-				'description' => __('left (px)', 'themify'),
-				'class' => 'xsmall'
-			)
-		)
-	),
-	// Margin
-	array(
-		'type' => 'separator',
-		'meta' => array('html'=>'<hr />')
-	),
-	array(
-		'id' => 'separator_margin',
-		'type' => 'separator',
-		'meta' => array('html'=>'<h4>'.__('Margin', 'themify').'</h4>'),
-	),
-	array(
-		'id' => 'multi_margin',
-		'type' => 'multi',
-		'label' => __('Margin', 'themify'),
-		'fields' => array(
-			array(
-				'id' => 'margin_top',
-				'type' => 'text',
-				'description' => __('top', 'themify'),
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'margin_right',
-				'type' => 'text',
-				'description' => __('right', 'themify'),
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'margin_bottom',
-				'type' => 'text',
-				'description' => __('bottom', 'themify'),
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'margin_left',
-				'type' => 'text',
-				'description' => __('left (px)', 'themify'),
-				'class' => 'xsmall'
-			)
-		)
-	),
-	// Border
-	array(
-		'type' => 'separator',
-		'meta' => array('html'=>'<hr />')
-	),
-	array(
-		'id' => 'separator_border',
-		'type' => 'separator',
-		'meta' => array('html'=>'<h4>'.__('Border', 'themify').'</h4>'),
-	),
-	array(
-		'id' => 'multi_border_top',
-		'type' => 'multi',
-		'label' => __('Border', 'themify'),
-		'fields' => array(
-			array(
-				'id' => 'border_top_color',
-				'type' => 'color',
-				'class' => 'small'
-			),
-			array(
-				'id' => 'border_top_width',
-				'type' => 'text',
-				'description' => 'px',
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'border_top_style',
-				'type' => 'select',
-				'description' => __('top', 'themify'),
-				'meta' => array(
-					array( 'value' => '', 'name' => '' ),
-					array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-					array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-					array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-					array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-				)
-			)
-		)
-	),
-	array(
-		'id' => 'multi_border_right',
-		'type' => 'multi',
-		'label' => '',
-		'fields' => array(
-			array(
-				'id' => 'border_right_color',
-				'type' => 'color',
-				'class' => 'small'
-			),
-			array(
-				'id' => 'border_right_width',
-				'type' => 'text',
-				'description' => 'px',
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'border_right_style',
-				'type' => 'select',
-				'description' => __('right', 'themify'),
-				'meta' => array(
-					array( 'value' => '', 'name' => '' ),
-					array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-					array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-					array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-					array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-				)
-			)
-		)
-	),
-	array(
-		'id' => 'multi_border_bottom',
-		'type' => 'multi',
-		'label' => '',
-		'fields' => array(
-			array(
-				'id' => 'border_bottom_color',
-				'type' => 'color',
-				'class' => 'small'
-			),
-			array(
-				'id' => 'border_bottom_width',
-				'type' => 'text',
-				'description' => 'px',
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'border_bottom_style',
-				'type' => 'select',
-				'description' => __('bottom', 'themify'),
-				'meta' => array(
-					array( 'value' => '', 'name' => '' ),
-					array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-					array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-					array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-					array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-				)
-			)
-		)
-	),
-	array(
-		'id' => 'multi_border_left',
-		'type' => 'multi',
-		'label' => '',
-		'fields' => array(
-			array(
-				'id' => 'border_left_color',
-				'type' => 'color',
-				'class' => 'small'
-			),
-			array(
-				'id' => 'border_left_width',
-				'type' => 'text',
-				'description' => 'px',
-				'class' => 'xsmall'
-			),
-			array(
-				'id' => 'border_left_style',
-				'type' => 'select',
-				'description' => __('left', 'themify'),
-				'meta' => array(
-					array( 'value' => '', 'name' => '' ),
-					array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-					array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-					array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-					array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-				)
-			)
-		)
-	),
-	// Additional CSS
-	array(
-		'type' => 'separator',
-		'meta' => array( 'html' => '<hr/>')
-	),
-	array(
-		'id' => 'custom_css_row',
-		'type' => 'text',
-		'label' => __('Additional CSS Class', 'themify'),
-		'class' => 'large exclude-from-reset-field',
-		'description' => sprintf( '<br/><small>%s</small>', __( 'Add additional CSS class(es) for custom styling', 'themify') )
-	)
-);
-?>
-
-<form id="tfb_row_settings">
-	<div class="lightbox_inner">
-		<?php foreach( $row_settings as $styling ):
-
-				echo $styling['type'] != 'separator' ? '<div class="themify_builder_field">' : '';
-				if ( isset( $styling['label'] ) ) {
-					echo '<div class="themify_builder_label">'.$styling['label'].'</div>';
-				}
-				echo $styling['type'] != 'separator' ? '<div class="themify_builder_input">' : '';
-				if ( $styling['type'] != 'multi' ) {
-					themify_builder_styling_field( $styling );
-				} else {
-					foreach( $styling['fields'] as $field ) {
-						themify_builder_styling_field( $field );
-					}
-				}
-				echo $styling['type'] != 'separator' ? '</div>' : ''; // themify_builder_input
-				echo $styling['type'] != 'separator' ? '</div>' : ''; // themify_builder_field
-			
-			endforeach; ?>
-	</div>
-	<!-- /lightbox_inner -->
-
-	<p>
-		<a href="#" class="reset-module-styling" data-reset="row">
-			<span class="themify_builder_icon delete"></span>
-			<?php _e('Reset Styling', 'themify') ?>
-		</a>
-	</p>
-
-	<p class="themify_builder_save">
-		<input class="builder_button" type="submit" name="submit" value="<?php _e('Save', 'themify') ?>" />
-	</p>	
-</form>
-
-<?php endif; ?>
+function themify_render_row_fields($fields) {
+	foreach ($fields as $field) {
+		$wrap_with_class = isset($field['wrap_with_class']) ? $field['wrap_with_class'] : '';
+		echo ( $field['type'] != 'separator' ) ? '<div class="themify_builder_field ' . esc_attr($wrap_with_class) . '">' : '';
+		if (isset($field['label'])) {
+			echo '<div class="themify_builder_label">' . esc_html($field['label']) . '</div>';
+		}
+		echo ( $field['type'] != 'separator' ) ? '<div class="themify_builder_input">' : '';
+		if ($field['type'] != 'multi') {
+			themify_builder_styling_field($field);
+		} else {
+			foreach ($field['fields'] as $item) {
+				themify_builder_styling_field($item);
+			}
+		}
+		echo ( $field['type'] != 'separator' ) ? '</div>' : ''; // themify_builder_input
+		echo ( $field['type'] != 'separator' ) ? '</div>' : ''; // themify_builder_field
+	}
+}

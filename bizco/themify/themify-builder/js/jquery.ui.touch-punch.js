@@ -1,14 +1,14 @@
 /*!
- * jQuery UI Touch Punch 0.2.2
+ * jQuery UI Touch Punch 0.2.3
  *
- * Copyright 2011, Dave Furfero
+ * Copyright 2011–2014, Dave Furfero
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
  * Depends:
  *  jquery.ui.widget.js
  *  jquery.ui.mouse.js
  */
-;(function ($) {
+(function ($) {
 
   // Detect touch support
   $.support.touch = 'ontouchend' in document;
@@ -20,6 +20,7 @@
 
   var mouseProto = $.ui.mouse.prototype,
       _mouseInit = mouseProto._mouseInit,
+      _mouseDestroy = mouseProto._mouseDestroy,
       touchHandled;
 
   /**
@@ -34,15 +35,11 @@
       return;
     }
 
+    event.preventDefault();
+
     var touch = event.originalEvent.changedTouches[0],
         simulatedEvent = document.createEvent('MouseEvents');
     
-    if (touch.target.className.match(/\btouchInput\b/)) {
-      event.stopPropagation();
-    } else {
-      event.preventDefault();
-    }
-
     // Initialize the simulated mouse event using the touch event's coordinates
     simulatedEvent.initMouseEvent(
       simulatedType,    // type
@@ -152,13 +149,32 @@
     var self = this;
 
     // Delegate the touch handlers to the widget's element
-    self.element
-      .bind('touchstart', $.proxy(self, '_touchStart'))
-      .bind('touchmove', $.proxy(self, '_touchMove'))
-      .bind('touchend', $.proxy(self, '_touchEnd'));
+    self.element.bind({
+      touchstart: $.proxy(self, '_touchStart'),
+      touchmove: $.proxy(self, '_touchMove'),
+      touchend: $.proxy(self, '_touchEnd')
+    });
 
     // Call the original $.ui.mouse init method
     _mouseInit.call(self);
+  };
+
+  /**
+   * Remove the touch event handlers
+   */
+  mouseProto._mouseDestroy = function () {
+    
+    var self = this;
+
+    // Delegate the touch handlers to the widget's element
+    self.element.unbind({
+      touchstart: $.proxy(self, '_touchStart'),
+      touchmove: $.proxy(self, '_touchMove'),
+      touchend: $.proxy(self, '_touchEnd')
+    });
+
+    // Call the original $.ui.mouse destroy method
+    _mouseDestroy.call(self);
   };
 
 })(jQuery);

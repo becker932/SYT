@@ -10,6 +10,8 @@
  *
  */
 
+'use strict';
+
 //arrays of objects to collect previous and current tab
 var previous = [];
 var current = [];
@@ -26,10 +28,10 @@ function change(block){
 	jQuery(block + ' .ilc-tab#' + current[block].reference).show();	
 		
 	//clear highlight from previous tab title
-	jQuery(block + ' .ilc-htabs a[href=#' + previous[block].reference + ']').parents('li').removeClass('select');
+	jQuery(block + ' .ilc-htabs a[href="#' + previous[block].reference + '"]').parents('li').removeClass('select');
 	
 	//highlight currenttab title
-	jQuery(block + ' .ilc-htabs a[href=#' + current[block].reference + ']').parents('li').addClass('select');
+	jQuery(block + ' .ilc-htabs a[href="#' + current[block].reference + '"]').parents('li').addClass('select');
 	
 	//hide the other tabs
 	jQuery("#" + previous[block].reference).hide();
@@ -48,7 +50,7 @@ function Tab(blockid){
 
 function Reference(reference){ this.reference = reference; }
 function ilcTabs(tobj){
-	for (key in tobj) {
+	for ( var key in tobj) {
 		
 		var params = tobj[key].split('_');
 		var block = params[0];
@@ -70,17 +72,16 @@ function ilcTabs(tobj){
 		
 		if (params[1] != undefined) {
 			//set interval to repeat - next line commented
-			interid = setInterval("tablist['" + block + "'].next()", params[1]);
 			//store in - next line commented
-			tablist[block].intervalid = interid;
+			tablist[block].intervalid = setInterval("tablist['" + block + "'].next()", params[1]);
 		}
 		
 		//handler for clicking on tabs
 		jQuery(block + " .ilc-htabs a").click(function(event){
 			
 			//store reference to clicked tab
-			target = "#"+event.target.getAttribute("href").split('#')[1];
-			tblock = "#"+jQuery(target).parent().parent().attr("id");
+			var target = "#"+event.target.getAttribute("href").split('#')[1],
+				tblock = "#"+jQuery(target).parent().parent().attr("id");
 			
 			current[tblock].reference = jQuery(this).attr("href").split('#')[1];  
 			

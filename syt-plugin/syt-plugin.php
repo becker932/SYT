@@ -279,95 +279,12 @@ function draft_mode_off($entry, $form) {
 //////////////////////////////
 // form processing  for signature approval
 
-add_filter("gform_disable_post_creation_7", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_7', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_7", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_7", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_7", "syt_form_submit_button", 10, 2);  
+add_filter("gform_disable_post_creation", "syt_sig_disable_post_creation", 10, 3);
+add_action('gform_after_submission', 'syt_sig_authorise_func', 10, 2);
+add_filter("gform_confirmation", "syt_sig_confirmation_func", 10, 4);
+add_filter("gform_disable_notification", "syt_sig_disable_notification", 10, 4);
+add_filter("gform_submit_button", "syt_form_submit_button", 10, 2);
 
-add_filter("gform_disable_post_creation_8", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_8', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_8", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_8", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_8", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_9", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_9', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_9", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_9", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_9", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_10", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_10', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_10", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_10", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_10", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_11", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_11', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_11", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_11", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_11", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_12", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_12', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_12", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_12", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_12", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_13", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_13', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_13", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_13", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_13", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_14", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_14', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_14", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_14", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_14", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_15", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_15', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_15", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_15", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_15", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_16", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_16', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_16", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_16", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_16", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_17", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_17', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_17", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_17", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_17", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_18", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_18', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_18", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_18", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_18", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_19", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_19', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_19", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_19", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_19", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_20", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_20', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_20", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_20", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_20", "syt_form_submit_button", 10, 2);  
-
-add_filter("gform_disable_post_creation_21", "syt_sig_disable_post_creation", 10, 3); 
-add_action('gform_after_submission_21', 'syt_sig_authorise_func', 10, 2);  
-add_filter("gform_confirmation_21", "syt_sig_confirmation_func", 10, 4); 
-add_filter("gform_disable_notification_21", "syt_sig_disable_notification", 10, 4);
-add_filter("gform_submit_button_21", "syt_form_submit_button", 10, 2);  
 
 /*
 When amending or editing a signature field at the bottom of a control manual page
@@ -379,7 +296,9 @@ function syt_sig_authorise_func($entry, $form) {
 
 	if((int)$form['id'] > 6 && (int)$form['id'] < 22)
 	{
-$notRO = (empty($_SESSION['SYT_READ_ONLY_USER'])  || !empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER']==false)?true:false;
+        $notRO = (empty($_SESSION['SYT_READ_ONLY_USER'])  || !empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER']==false)?true:false;
+//        error_log(print_r($entry , true));
+       // error_log("SIG AUTH FUNCTION :".((int)urldecode($entry["6"]))."   entry 4   ".$entry["4"]."     CAN I EDIT?".current_user_can('edit_post',$entry["4"])."   or   ".current_user_can('edit_post',((int)urldecode($entry["6"]))));
 		if (current_user_can('edit_post',$entry["4"]) && $notRO )
 		{
 			//error_log ("syt_sig_authorise_func >".$entry["4"].urldecode($entry["1"]));
@@ -388,29 +307,29 @@ $notRO = (empty($_SESSION['SYT_READ_ONLY_USER'])  || !empty($_SESSION['SYT_READ_
 				
 				// loop through all, change if less than our current val - urldecode($entry["6"]
 				$custom_fields = get_post_custom($entry["4"]);
-				$my_custom_field = $custom_fields['syt_sig'];			
+				$my_custom_field = $custom_fields['syt_sig'];
 				foreach ( $my_custom_field as $key => $value ) 
 				{
 					$a = explode( '|', $value );
-					error_log ("syt_sig_authorise_func DELETING: value in field ".(int)$a[3]." vs form".(int)urldecode($entry["6"]));
+//					error_log ("syt_sig_authorise_func DELETING: value in field ".(int)$a[3]." vs form".(int)urldecode($entry["6"]));
 					if((int)$a[3] == (int)urldecode($entry["6"]))
 					{
 						//delete this value key
-						error_log ("syt_sig_authorise_func DELETING ".urldecode($entry["6"]));
-						delete_post_meta($entry["4"], 'syt_sig', $value); 
+//						error_log ("syt_sig_authorise_func DELETING ".urldecode($entry["6"]));
+						delete_post_meta($entry["4"], 'syt_sig', $value);
 					}
 					else if((int)$a[3] > (int)urldecode($entry["6"]))
 					{
 						// update to be id -1
 						$newVal = urldecode($entry["1"])."|".urldecode($entry["2"])."|".urldecode($entry["3"])."|".((int)urldecode($entry["6"])-1);
-						error_log ("syt_sig_authorise_func update post meta".$entry["4"]." ".$newVal." ".urldecode($entry["5"]));
+//						error_log ("syt_sig_authorise_func update post metaafter a delete ".$entry["4"]." ".$newVal." ".urldecode($entry["5"]));
 						update_post_meta( $entry["4"], 'syt_sig', $newVal, urldecode($entry["5"]));
 					}
 				}
 			}else
 			{
-				$newVal = urldecode($entry["1"])."|".urldecode($entry["2"])."|".urldecode($entry["3"])."|".urldecode($entry["6"]);
-				error_log ("syt_sig_authorise_func update post meta".$entry["4"]." ".$newVal." ".urldecode($entry["5"]));
+				$newVal = urldecode($entry["1"])."|".urldecode($entry["2"])."|".urldecode($entry["3"])."|".((int)urldecode($entry["6"]));
+				//error_log ("syt_sig_authorise_func update post meta: ".$entry["4"]."           >>>>>>>>>>>>         ".$newVal."           >>>>>>>>>>>>        ".urldecode($entry["5"]));
 				update_post_meta( $entry["4"], 'syt_sig', $newVal, urldecode($entry["5"]));
 			}
 		}
@@ -418,20 +337,34 @@ $notRO = (empty($_SESSION['SYT_READ_ONLY_USER'])  || !empty($_SESSION['SYT_READ_
 }
 
 // if we are dealing with a signature form (which we can tell from the form id) then we do disable dbase entry, otehrwise we do not
-function syt_sig_disable_post_creation($is_disabled, $form, $entry){ 
- 	if((int)$form['id'] > 6 && (int)$form['id'] < 22) return true;  
+function syt_sig_disable_post_creation($is_disabled, $form, $entry){
+   // error_log ("syt_sig_disable_post_creation form id test ".(int)$form['id']);
+ 	if((int)$form['id'] > 6 && (int)$form['id'] < 22)
+    {
+        error_log("THIS IS A SIGNATURE SUBMISSION - DO NOT ADD DBASE RECORD FOR GFORMS");
+        return true;
+    }
+    return $is_disabled;
 }  
 
 // if we are dealing with a signature form (which we can tell from the form id) then we do disbale a notification, otehrwise we do not
 function syt_sig_disable_notification($is_disabled, $notification, $form, $entry){  
-	if((int)$form['id'] > 6 && (int)$form['id'] < 22) return true;  
+	if((int)$form['id'] > 6 && (int)$form['id'] < 22 || (int)$form['id']==1)
+    {
+        return true;
+    }
+    return $notification;
 }  
 
 // when we have completed our signature update we force a refresh on the page to ensure the user sees the result
 function syt_sig_confirmation_func($confirmation, $form, $lead, $ajax)
 { 
 	//error_log ("syt_sig_confirmation_func ".(int)$form['id']);
-	echo '<script type="text/javascript">window.parent.location = document.referrer;</script>';
+    if((int)$form['id'] > 6 && (int)$form['id'] < 22) {
+        echo '<script type="text/javascript">window.parent.location = document.referrer;</script>';
+        return true;
+    }
+    return $confirmation;
 }
 
 // add the confirm or delete buttons to the bottom of the signature forms
@@ -439,16 +372,16 @@ function syt_form_submit_button($button, $form){
 	global $SYT_custom_query;
 	//error_log ("create form submit button, try to find date value of field:");
 
-	if((int)$form['id'] > 8 && (int)$form['id'] < 22)
+	if((int)$form['id'] > 7 && (int)$form['id'] < 22)
 	{
 		 return "<div style='float:right;align:center;text-align:center;'><a href='#sigs' onclick='delsig(\"".$form["id"]."\")'><img width ='20' height='20' src='http://www.safetyyoutrust.com/wp-content/uploads/2014/10/Delete.png'><br/>Delete this signatory</a></div><button class='button' style='float:left;' id='gform_submit_button_{$form["id"]}'>Confirm and Approve</button>";  
 	}
-	else if((int)$form['id'] == 8 )
+	else if((int)$form['id'] == 7 )
 	{
 		 return "<div style='float:right;align:center;text-align:center;'></div><button class='button' style='float:left;' id='gform_submit_button_{$form["id"]}'>Confirm and Approve</button>";  
 	
 	}
-   
+    return $button;
 }  
 
 
@@ -713,10 +646,11 @@ function check_custom_authentication ($username) {
 	    error_log("USER ".$username."  ".empty($syt_linked_admin_id));
 	    if(empty($syt_linked_admin_id))
 	    {
+            error_log("set as demo user");
 	    	$_SESSION['SYT_DEMO_USER'] = true;
 	    	return;
 	    }
-
+        error_log("NOT DEMO USER");
 	    $_SESSION['SYT_READ_ONLY_USER'] = true;
 	    $_SESSION['SYT_PARENT'] = $syt_linked_admin_id ;
 	}
@@ -781,7 +715,7 @@ function syt_read_only_func( $atts, $content = null ) {
 		'ifuseris' => 'readOnly',
 	), $atts );
 
-	if($a['ifuseris'] == 'demo' && $_SESSION['SYT_DEMO_USER']  || $a['ifuseris'] == 'readOnly' && $_SESSION['SYT_READ_ONLY_USER'] || $a['ifuseris'] == 'readWrite' && empty($_SESSION['SYT_READ_ONLY_USER']) )
+	if($a['ifuseris'] == 'demo' && !empty($_SESSION['SYT_DEMO_USER']) && $_SESSION['SYT_DEMO_USER']  || $a['ifuseris'] == 'readOnly' && !empty($_SESSION['SYT_READ_ONLY_USER']) && $_SESSION['SYT_READ_ONLY_USER'] || $a['ifuseris'] == 'readWrite' && empty($_SESSION['SYT_READ_ONLY_USER']) )
 	{
 		return $content;
 	}
@@ -806,18 +740,23 @@ add_shortcode( 'visitor', 'visitor_check_shortcode' );
 function syt_docs_to_sign_func( $atts, $content = null ) {
 	//$args = array( 'meta_key' => 'syt_sig', 'category_name' => 'customised');
 	//$sig_query = new WP_Query( $args );
+//    error_log("CHECK DOCS TO SIGN");
 	$args = array( 'meta_key' => 'syt_sig','category_name' => 'customised');
 	$users_docs_query = new WP_Query( $args );
 	$toReview = array();
 	while ( $users_docs_query->have_posts() ){
+//        error_log("   Have posts ".empty(get_post_meta( get_the_ID(), 'syt-draft-mode', true)));
 		$requiresSigning = false;
 		$users_docs_query->the_post();
-		if(get_post_meta( get_the_ID(), 'syt-draft-mode', true) != 'true')
+
+		if(empty(get_post_meta( get_the_ID(), 'syt-draft-mode', true)) || get_post_meta( get_the_ID(), 'syt-draft-mode', true) != 'true')
 		{
+//            error_log("FOUND A DOC NOT IN DRAFT MODE");
 			$result =  get_post_meta(get_the_ID(),'syt_sig');
 			//check multiple sigs
 			foreach ($result as $sigStr)
 			{
+//                error_log("CHECKING SIGS",$sigStr,substr($sigStr,0,1)=="|");
 				if(substr($sigStr,0,1)=="|")
 				{
 					$requiresSigning = true;

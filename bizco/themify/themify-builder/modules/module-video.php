@@ -11,14 +11,13 @@ class TB_Video_Module extends Themify_Builder_Module {
 			'slug' => 'video'
 		));
 	}
-}
 
-///////////////////////////////////////
-// Module Options
-///////////////////////////////////////
-Themify_Builder_Model::register_module( 'TB_Video_Module',
-	apply_filters( 'themify_builder_module_video', array(
-		'options' => array(
+	public function get_title( $module ) {
+		return isset( $module['mod_settings']['title_video'] ) ? esc_html( $module['mod_settings']['title_video'] ) : '';
+	}
+
+	public function get_options() {
+		$options = array(
 			array(
 				'id' => 'mod_title_video',
 				'type' => 'text',
@@ -41,7 +40,17 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 				'type' => 'text',
 				'label' => __('Video URL', 'themify'),
 				'class' => 'fullwidth',
-				'help' => __('YouTube, Vimeo, etc. video <a href="http://themify.me/docs/video-embeds" target="_blank">embed link</a>', 'themify')
+				'help' => __('YouTube, Vimeo, etc. video <a href="https://themify.me/docs/video-embeds" target="_blank">embed link</a>', 'themify')
+			),
+			array(
+				'id' => 'autoplay_video',
+				'type' => 'radio',
+				'label' => __( 'Autoplay', 'themify' ),
+				'options' => array(
+					'no'=> __( 'No', 'themify' ),
+					'yes'=>__( 'Yes', 'themify' ),
+				),
+				'default' => 'no',
 			),
 			array(
 				'id' => 'width_video',
@@ -75,10 +84,63 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 				'type' => 'textarea',
 				'label' => __('Video Caption', 'themify'),
 				'class' => 'fullwidth'
+			),
+			// Additional CSS
+			array(
+				'type' => 'separator',
+				'meta' => array( 'html' => '<hr/>')
+			),
+			array(
+				'id' => 'css_video',
+				'type' => 'text',
+				'label' => __('Additional CSS Class', 'themify'),
+				'class' => 'large exclude-from-reset-field',
+				'help' => sprintf( '<br/><small>%s</small>', __( 'Add additional CSS class(es) for custom styling', 'themify' ) )
 			)
-		),
-		// Styling
-		'styling' => array(
+		);
+		return $options;
+	}
+
+	public function get_animation() {
+		$animation = array(
+			array(
+				'type' => 'separator',
+				'meta' => array( 'html' => '<h4>' . esc_html__( 'Appearance Animation', 'themify' ) . '</h4>')
+			),
+			array(
+				'id' => 'multi_Animation Effect',
+				'type' => 'multi',
+				'label' => __('Effect', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'animation_effect',
+						'type' => 'animation_select',
+						'label' => __( 'Effect', 'themify' )
+					),
+					array(
+						'id' => 'animation_effect_delay',
+						'type' => 'text',
+						'label' => __( 'Delay', 'themify' ),
+						'class' => 'xsmall',
+						'description' => __( 'Delay (s)', 'themify' ),
+					),
+					array(
+						'id' => 'animation_effect_repeat',
+						'type' => 'text',
+						'label' => __( 'Repeat', 'themify' ),
+						'class' => 'xsmall',
+						'description' => __( 'Repeat (x)', 'themify' ),
+					),
+				)
+			)
+		);
+
+		return $animation;
+	}
+
+	public function get_styling() {
+		$general = array(
+			// Background
 			array(
 				'id' => 'separator_image_background',
 				'title' => '',
@@ -90,7 +152,9 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 				'id' => 'background_color',
 				'type' => 'color',
 				'label' => __('Background Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'background-color',
+				'selector' => '.module-video',
 			),
 			// Font
 			array(
@@ -106,13 +170,17 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 				'id' => 'font_family',
 				'type' => 'font_select',
 				'label' => __('Font Family', 'themify'),
-				'class' => 'font-family-select'
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => array( '.module-video .video-content', '.module-video .video-title', '.module-video .video-title a' )
 			),
 			array(
 				'id' => 'font_color',
 				'type' => 'color',
 				'label' => __('Font Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'border-left-style',
+				'selector' => array( '.module-video .video-content', '.module-video .video-title', '.module-video .video-title a', '.module-video h1', '.module-video h2', '.module-video h3:not(.module-title)', '.module-video h4', '.module-video h5', '.module-video h6' ),
 			),
 			array(
 				'id' => 'multi_font_size',
@@ -122,15 +190,17 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 					array(
 						'id' => 'font_size',
 						'type' => 'text',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => '.module-video .video-content'
 					),
 					array(
 						'id' => 'font_size_unit',
 						'type' => 'select',
 						'meta' => array(
-							array('value' => '', 'name' => ''),
 							array('value' => 'px', 'name' => __('px', 'themify')),
-							array('value' => 'em', 'name' => __('em', 'themify'))
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
 						)
 					)
 				)
@@ -143,19 +213,34 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 					array(
 						'id' => 'line_height',
 						'type' => 'text',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => '.module-video .video-content'
 					),
 					array(
 						'id' => 'line_height_unit',
 						'type' => 'select',
 						'meta' => array(
-							array('value' => '', 'name' => ''),
 							array('value' => 'px', 'name' => __('px', 'themify')),
 							array('value' => 'em', 'name' => __('em', 'themify')),
-							array('value' => '%', 'name' => __('%', 'themify'))
+							array('value' => '%', 'name' => __('%', 'themify')),
 						)
 					)
 				)
+			),
+			array(
+				'id' => 'text_align',
+				'label' => __( 'Text Align', 'themify' ),
+				'type' => 'radio',
+				'meta' => array(
+					array( 'value' => '', 'name' => __( 'Default', 'themify' ), 'selected' => true ),
+					array( 'value' => 'left', 'name' => __( 'Left', 'themify' ) ),
+					array( 'value' => 'center', 'name' => __( 'Center', 'themify' ) ),
+					array( 'value' => 'right', 'name' => __( 'Right', 'themify' ) ),
+					array( 'value' => 'justify', 'name' => __( 'Justify', 'themify' ) )
+				),
+				'prop' => 'text-align',
+				'selector' => '.module-video .video-content'
 			),
 			// Link
 			array(
@@ -171,7 +256,17 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 				'id' => 'link_color',
 				'type' => 'color',
 				'label' => __('Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-video a'
+			),
+			array(
+				'id' => 'link_color_hover',
+				'type' => 'color',
+				'label' => __('Color Hover', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-video a:hover'
 			),
 			array(
 				'id' => 'text_decoration',
@@ -183,7 +278,9 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 					array('value' => 'overline', 'name' => __('Overline', 'themify')),
 					array('value' => 'line-through',  'name' => __('Line through', 'themify')),
 					array('value' => 'none',  'name' => __('None', 'themify'))
-				)
+				),
+				'prop' => 'text-decoration',
+				'selector' => '.module-video a'
 			),
 			// Padding
 			array(
@@ -196,34 +293,109 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 				'meta' => array('html'=>'<h4>'.__('Padding', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_padding',
+				'id' => 'multi_padding_top',
 				'type' => 'multi',
 				'label' => __('Padding', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'padding_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-top',
+						'selector' => '.module-video',
 					),
+					array(
+						'id' => 'padding_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-right',
+						'selector' => '.module-video',
 					),
+					array(
+						'id' => 'padding_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-bottom',
+						'selector' => '.module-video',
 					),
+					array(
+						'id' => 'padding_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-left',
+						'selector' => '.module-video',
+					),
+					array(
+						'id' => 'padding_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			// "Apply all" // apply all padding
+			array(
+				'id' => 'checkbox_padding_apply_all',
+				'class' => 'style_apply_all style_apply_all_padding',
+				'type' => 'checkbox',
+				'label' => false,
+				'options' => array(
+					array( 'name' => 'padding', 'value' => __( 'Apply to all padding', 'themify' ) )
 				)
 			),
 			// Margin
@@ -237,34 +409,109 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 				'meta' => array('html'=>'<h4>'.__('Margin', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_margin',
+				'id' => 'multi_margin_top',
 				'type' => 'multi',
 				'label' => __('Margin', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'margin_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-top',
+						'selector' => '.module-video',
 					),
+					array(
+						'id' => 'margin_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-right',
+						'selector' => '.module-video',
 					),
+					array(
+						'id' => 'margin_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-bottom',
+						'selector' => '.module-video',
 					),
+					array(
+						'id' => 'margin_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-left',
+						'selector' => '.module-video',
+					),
+					array(
+						'id' => 'margin_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			// "Apply all" // apply all margin
+			array(
+				'id' => 'checkbox_margin_apply_all',
+				'class' => 'style_apply_all style_apply_all_margin',
+				'type' => 'checkbox',
+				'label' => false,
+				'options' => array(
+					array( 'name' => 'margin', 'value' => __( 'Apply to all margin', 'themify' ) )
 				)
 			),
 			// Border
@@ -285,26 +532,26 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 					array(
 						'id' => 'border_top_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-top-color',
+						'selector' => '.module-video',
 					),
 					array(
 						'id' => 'border_top_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-top-width',
+						'selector' => '.module-video',
 					),
 					array(
 						'id' => 'border_top_style',
 						'type' => 'select',
 						'description' => __('top', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
-					)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-top-style',
+						'selector' => '.module-video',
+					),
 				)
 			),
 			array(
@@ -315,25 +562,25 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 					array(
 						'id' => 'border_right_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-right-color',
+						'selector' => '.module-video',
 					),
 					array(
 						'id' => 'border_right_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-right-width',
+						'selector' => '.module-video',
 					),
 					array(
 						'id' => 'border_right_style',
 						'type' => 'select',
 						'description' => __('right', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-right-style',
+						'selector' => '.module-video',
 					)
 				)
 			),
@@ -345,25 +592,25 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 					array(
 						'id' => 'border_bottom_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-bottom-color',
+						'selector' => '.module-video',
 					),
 					array(
 						'id' => 'border_bottom_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-bottom-width',
+						'selector' => '.module-video',
 					),
 					array(
 						'id' => 'border_bottom_style',
 						'type' => 'select',
 						'description' => __('bottom', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-bottom-style',
+						'selector' => '.module-video',
 					)
 				)
 			),
@@ -375,55 +622,220 @@ Themify_Builder_Model::register_module( 'TB_Video_Module',
 					array(
 						'id' => 'border_left_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-left-color',
+						'selector' => '.module-video',
 					),
 					array(
 						'id' => 'border_left_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-left-width',
+						'selector' => '.module-video',
 					),
 					array(
 						'id' => 'border_left_style',
 						'type' => 'select',
 						'description' => __('left', 'themify'),
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-left-style',
+						'selector' => '.module-video',
+					)
+				)
+			),
+			// "Apply all" // apply all border
+			array(
+				'id' => 'checkbox_border_apply_all',
+				'class' => 'style_apply_all style_apply_all_border',
+				'type' => 'checkbox',
+				'label' => false,
+                                'default'=>'border',
+				'options' => array(
+					array( 'name' => 'border', 'value' => __( 'Apply to all border', 'themify' ) )
+				)
+			)
+		);
+
+		$video_title = array(
+			// Font
+			array(
+				'id' => 'separator_font',
+				'type' => 'separator',
+				'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
+			),
+			array(
+				'id' => 'font_family_title',
+				'type' => 'font_select',
+				'label' => __('Font Family', 'themify'),
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => array( '.module-video .video-title', '.module-video .video-title a' )
+			),
+			array(
+				'id' => 'font_color_title',
+				'type' => 'color',
+				'label' => __('Font Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( '.module-video .video-title', '.module-video .video-title a' )
+			),
+			array(
+				'id' => 'font_color_title_hover',
+				'type' => 'color',
+				'label' => __('Color Hover', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( '.module-video .video-title:hover', '.module-video .video-title a:hover' )
+			),
+			array(
+				'id' => 'multi_font_size_title',
+				'type' => 'multi',
+				'label' => __('Font Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'font_size_title',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => '.module-video .video-title'
+					),
+					array(
+						'id' => 'font_size_title_unit',
+						'type' => 'select',
 						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
 						)
 					)
 				)
 			),
-			// Additional CSS
 			array(
+				'id' => 'multi_line_height_title',
+				'type' => 'multi',
+				'label' => __('Line Height', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'line_height_title',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => '.module-video .video-title'
+					),
+					array(
+						'id' => 'line_height_title_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+		);
+
+		$video_caption = array(
+			// Font
+			array(
+				'id' => 'separator_font',
 				'type' => 'separator',
-				'meta' => array( 'html' => '<hr/>')
+				'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'css_video',
-				'type' => 'text',
-				'label' => __('Additional CSS Class', 'themify'),
-				'class' => 'large exclude-from-reset-field',
-				'description' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
-			)
-		),
-		'styling_selector' => array(
-			'.module-video' => array(
-				'background_color', 'padding', 'margin', 'border_top', 'border_right', 'border_bottom', 'border_left'
+				'id' => 'font_family_caption',
+				'type' => 'font_select',
+				'label' => __('Font Family', 'themify'),
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => '.module-video .video-content .video-caption'
 			),
-			'.module-video .video-content' => array(
-				'font_family', 'font_size', 'line_height', 'color'
+			array(
+				'id' => 'font_color_caption',
+				'type' => 'color',
+				'label' => __('Font Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-video .video-content .video-caption'
 			),
-			'.module-video a' => array( 'link_color', 'text_decoration' ),
-			'.module-video .video-title' => array(
-				'font_family', 'color'
+			array(
+				'id' => 'multi_font_size_caption',
+				'type' => 'multi',
+				'label' => __('Font Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'font_size_caption',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => '.module-video .video-content .video-caption'
+					),
+					array(
+						'id' => 'font_size_caption_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
 			),
-			'.module-video .video-title a' => array(
-				'font_family', 'color'
-			)
-		)
-	) )
-);
+			array(
+				'id' => 'multi_line_height_caption',
+				'type' => 'multi',
+				'label' => __('Line Height', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'line_height_caption',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => '.module-video .video-content .video-caption'
+					),
+					array(
+						'id' => 'line_height_caption_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+		);
+
+		return array(
+			array(
+				'type' => 'tabs',
+				'id' => 'module-styling',
+				'tabs' => array(
+					'general' => array(
+		        	'label' => __('General', 'themify'),
+					'fields' => $general
+					),
+					'title' => array(
+						'label' => __('Video Title', 'themify'),
+						'fields' => $video_title
+					),
+					'caption' => array(
+						'label' => __('Video Caption', 'themify'),
+						'fields' => $video_caption
+					)
+				)
+			),
+		);
+
+	}
+
+	public static function autoplay_callback( $match ){
+		return str_replace( $match[1], add_query_arg( 'autoplay', 1, $match[1] ), $match[0] );
+	}
+}
+
+///////////////////////////////////////
+// Module Options
+///////////////////////////////////////
+Themify_Builder_Model::register_module( 'TB_Video_Module' );

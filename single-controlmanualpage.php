@@ -7,7 +7,7 @@ global $themify;
 
 ?>
 
-<?php 
+<?php  
 if( have_posts() ) while ( have_posts() ) : the_post(); 
 
 global $SYT_static_query;

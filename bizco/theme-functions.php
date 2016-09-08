@@ -1,4 +1,5 @@
-<?php	
+<?php
+
 
 /*
 To add custom PHP functions to the theme, create a new 'custom-functions.php' file in the theme folder. 
@@ -32,14 +33,10 @@ function themify_theme_enqueue_scripts(){
 	//Themify internal scripts
 	wp_enqueue_script( 'theme-script',	THEME_URI . '/js/themify.script.js', array('jquery'), false, true );
 
-	//Themify Gallery
-	wp_enqueue_script( 'themify-gallery', THEMIFY_URI . '/js/themify.gallery.js', array('jquery'), false, true );
-	
 	//Inject variable values in gallery script
 	wp_localize_script( 'theme-script', 'themifyScript', array(
 			'lightbox' => themify_lightbox_vars_init(),
-			'lightboxContext' => apply_filters('themify_lightbox_context', '#pagewrap'),
-			'isTouch' => themify_is_touch()? 'true': 'false',
+			'lightboxContext' => apply_filters('themify_lightbox_context', '#pagewrap')
 		)
 	);
 	
@@ -50,26 +47,6 @@ function themify_theme_enqueue_scripts(){
 add_action( 'wp_enqueue_scripts', 'themify_theme_enqueue_scripts', 11 );
 
 /**
- * Add JavaScript files if IE version is lower than 9
- * @package themify
- * @since 1.2.5
- */
-function themify_ie_enhancements(){
-	echo '
-	<!-- media-queries.js -->
-	<!--[if lt IE 9]>
-		<script src="' . THEME_URI . '/js/respond.js"></script>
-	<![endif]-->
-	
-	<!-- html5.js -->
-	<!--[if lt IE 9]>
-		<script src="'.themify_https_esc('http://html5shim.googlecode.com/svn/trunk/html5.js').'"></script>
-	<![endif]-->
-	';
-}
-add_action( 'wp_head', 'themify_ie_enhancements' );
-
-/**
  * Add viewport tag for responsive layouts
  * @package themify
  * @since 1.2.5
@@ -78,57 +55,76 @@ function themify_viewport_tag(){
 	echo "\n".'<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">'."\n";
 }
 add_action( 'wp_head', 'themify_viewport_tag' );
-	
-/* 	Custom Post Types
-/***************************************************************************/
-	
-	///////////////////////////////////////
-	// Setup Write Panel Options
-	///////////////////////////////////////
-	
-	// Slider Post Type
-	register_post_type('slider', array(
-			'label' => __('Slides', 'themify'),
-			'singular_label' => __('Slide', 'themify'),
-			'description' => "",
-			'menu_position' => 5,
-			'public' => true,
-			'show_ui' => true,
-			'capability_type' => 'post',
-			'hierarchical' => false,
-			'rewrite' => false,
-			'query_var' => false,
-			'supports' => array('title', 'editor', 'author', 'custom-fields')
-		));
-	
-	// Highlights Post Type
-	register_post_type('highlight', array(
-			'label' => __('Highlights', 'themify'),
-			'singular_label' => __('Highlights', 'themify'),
-			'description' => "",
-			'menu_position' => 5,
-			'public' => true,
-			'show_ui' => true,
-			'capability_type' => 'post',
-			'hierarchical' => false,
-			'rewrite' => false,
-			'query_var' => false,
-			'supports' => array('title', 'editor', 'author', 'custom-fields')
-		));
 
+/* Custom Post Types
+/***************************************************************************/
 
 /**
- * Make IE behave like a standards-compliant browser 
+ * Registers slider and highlight post types and slider-category taxonomy.
+ *
+ * @since 1.7.6
  */
-function themify_ie_standards_compliant() {
-	echo '
-	<!--[if lt IE 9]>
-	<script src="'.themify_https_esc('http://s3.amazonaws.com/nwapi/nwmatcher/nwmatcher-1.2.5-min.js').'"></script>
-	<script type="text/javascript" src="'.themify_https_esc('http://cdnjs.cloudflare.com/ajax/libs/selectivizr/1.0.2/selectivizr-min.js').'"></script> 
-	<![endif]-->
-	';
+function themify_theme_register_post_types_taxonomies() {
+	// Slider Post Type
+	register_post_type('slider', array(
+		'label' => __('Slides', 'themify'),
+		'singular_label' => __('Slide', 'themify'),
+		'description' => '',
+		'menu_position' => 5,
+		'public' => true,
+		'show_ui' => true,
+		'capability_type' => 'post',
+		'hierarchical' => false,
+		'rewrite' => false,
+		'query_var' => false,
+		'supports' => array('title', 'editor', 'author', 'custom-fields')
+	));
+
+	// Highlights Post Type
+	register_post_type('highlight', array(
+		'label' => __('Highlights', 'themify'),
+		'singular_label' => __('Highlights', 'themify'),
+		'description' => '',
+		'menu_position' => 5,
+		'public' => true,
+		'show_ui' => true,
+		'capability_type' => 'post',
+		'hierarchical' => false,
+		'rewrite' => false,
+		'query_var' => false,
+		'supports' => array('title', 'editor', 'author', 'custom-fields')
+	));
+
+	register_taxonomy( 'slider-category', 'slider', array(
+		'labels' => array(
+			'name' => __( 'Slider Categories', 'themify' ),
+			'singular_name' => __( 'Slider Category', 'themify' ),
+			'search_items' => __( 'Search Slider Categories', 'themify' ),
+			'popular_items' => __( 'Popular Slider Categories', 'themify' ),
+			'all_items' => __( 'All Categories', 'themify' ),
+			'parent_item' => __( 'Parent Slider Category', 'themify' ),
+			'parent_item_colon' => __( 'Parent Slider Category:', 'themify' ),
+			'edit_item' => __( 'Edit Slider Category', 'themify' ),
+			'update_item' => __( 'Update Slider Category', 'themify' ),
+			'add_new_item' => __( 'Add New Slider Category', 'themify' ),
+			'new_item_name' => __( 'New Slider Category', 'themify' ),
+			'separate_items_with_commas' => __( 'Separate Slider Categories with commas', 'themify' ),
+			'add_or_remove_items' => __( 'Add or remove Slider Categories', 'themify' ),
+			'choose_from_most_used' => __( 'Choose from the most used Slider Categories', 'themify' ),
+			'menu_name' => __( 'Slider Category', 'themify' ),
+		),
+		'public' => true,
+		'show_in_nav_menus' => false,
+		'show_ui' => true,
+		'show_admin_column' => true,
+		'show_tagcloud' => true,
+		'hierarchical' => true,
+		'rewrite' => true,
+		'query_var' => true
+	) );
 }
-add_action('wp_head', 'themify_ie_standards_compliant');
+
+add_action( 'init', 'themify_theme_register_post_types_taxonomies' );
 
 /* Custom Write Panels
 /***************************************************************************/
@@ -262,7 +258,7 @@ add_action('wp_head', 'themify_ie_standards_compliant');
 	array(
 		'name' 		=> 'video_url',
 		'title' 		=> __('Video URL', 'themify'),
-		'description' => __('Video embed URL such as YouTube or Vimeo video url (<a href="http://themify.me/docs/video-embeds">details</a>).', 'themify'),
+		'description' => __('Video embed URL such as YouTube or Vimeo video url (<a href="https://themify.me/docs/video-embeds">details</a>).', 'themify'),
 		'type' 		=> 'textbox',
 		'meta'		=> array()
 		),
@@ -270,7 +266,7 @@ add_action('wp_head', 'themify_ie_standards_compliant');
 	array(
 		  "name" 		=> "external_link",	
 		  "title" 		=> __('External Link', 'themify'), 	
-		  "description" => __('Link Featured Image to external URL', 'themify'), 				
+		  "description" => __('Link Featured Image and Post Title to external URL', 'themify'), 				
 		  "type" 		=> "textbox",			
 		  "meta"		=> array()			
 		),
@@ -329,11 +325,29 @@ add_action('wp_head', 'themify_ie_standards_compliant');
 								 array("value" => "yes", 'name' => __('Yes', 'themify')),
 								 array("value" => "no",	'name' => __('No', 'themify'))
 								 )	
-		)
+		),
+		// Custom menu for page
+        array(
+            'name' 		=> 'custom_menu',
+            'title'		=> __( 'Custom Menu', 'themify' ),
+            'description'	=> '',
+            'type'		=> 'dropdown',
+            'meta'		=> themify_get_available_menus(),
+        ),
 	);
 
 	// Query Post Meta Box Options
 	$query_post_meta_box_options = array(
+		// Notice
+		array(
+			'name' => '_query_posts_notice',
+			'title' => '',
+			'description' => '',
+			'type' => 'separator',
+			'meta' => array(
+				'html' => '<div class="themify-info-link">' . sprintf( __( '<a href="%s">Query Posts</a> allows you to query WordPress posts from any category on the page. To use it, select a Query Category.', 'themify' ), 'http://themify.me/docs/query-posts' ) . '</div>'
+			),
+		),
    // Query Category
 	array(
 		  "name" 		=> "query_category",
@@ -360,7 +374,7 @@ add_action('wp_head', 'themify_ie_standards_compliant');
 		'description'	=> '',
 		'type'		=> 'dropdown',
 		'meta'		=> array(
-			array('name' => __('Date', 'themify'), 'value' => 'content', 'selected' => true),
+			array('name' => __('Date', 'themify'), 'value' => 'date', 'selected' => true),
 			array('name' => __('Random', 'themify'), 'value' => 'rand'),
 			array('name' => __('Author', 'themify'), 'value' => 'author'),
 			array('name' => __('Post Title', 'themify'), 'value' => 'title'),
@@ -588,7 +602,7 @@ add_action('wp_head', 'themify_ie_standards_compliant');
 	array(
 		  "name" 		=> "external_link",	
 		  "title" 		=> __('External Link', 'themify'), 	
-		  "description" => __('Link Featured Image to external URL', 'themify'), 				
+		  "description" => __('Link Featured Image and Post Title to external URL', 'themify'), 				
 		  "type" 		=> "textbox",			
 		  "meta"		=> array()			
 		),
@@ -626,7 +640,7 @@ add_action('wp_head', 'themify_ie_standards_compliant');
 		array(
 			  "name" 		=> "external_link",	
 			  "title" 		=> __('External Link', 'themify'), 	
-			  "description" => __('Link Featured Image to external URL', 'themify'), 				
+			  "description" => __('Link Featured Image and Post Title to external URL', 'themify'), 				
 			  "type" 		=> "textbox",			
 			  "meta"		=> array()			
 			),
@@ -678,7 +692,6 @@ add_action('wp_head', 'themify_ie_standards_compliant');
 	// Enable WordPress feature image
 	///////////////////////////////////////
 	add_theme_support( 'post-thumbnails' );
-    remove_post_type_support( 'page', 'thumbnail' );
 
 	// Register Custom Menu Function
 	function themify_register_custom_nav() {
@@ -753,11 +766,11 @@ if( ! function_exists('themify_theme_comment') ) {
 	function themify_theme_comment($comment, $args, $depth) {
 	   $GLOBALS['comment'] = $comment; 
 	   ?>
-		<li <?php comment_class(); ?> id="comment-<?php comment_ID() ?>">
+		<li id="comment-<?php comment_ID() ?>">
 			<p class="comment-author">
 				<?php echo get_avatar($comment,$size='74'); ?>
 				<?php printf('<cite>%s</cite>', get_comment_author_link()) ?><br />
-				<small class="comment-time"><strong><?php comment_date(apply_filters('themify_comment_date', 'M d, Y')); ?></strong> @ <?php comment_time(apply_filters('themify_comment_time', 'H:i:s')); ?><?php edit_comment_link( __('Edit', 'themify'),' [',']') ?></small>
+				<small class="comment-time"><strong><?php comment_date( apply_filters( 'themify_comment_date', '' ) ); ?></strong> @ <?php comment_time( apply_filters( 'themify_comment_time', '' ) ); ?><?php edit_comment_link( __('Edit', 'themify'),' [',']') ?></small>
 			</p>
 			<div class="commententry">
 				<?php if ($comment->comment_approved == '0') : ?>
@@ -832,5 +845,3 @@ if(!function_exists('themify_theme_after_shop_content')) {
 	<?php
 	}
 }
-
-?>

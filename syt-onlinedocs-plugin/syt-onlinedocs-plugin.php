@@ -158,4 +158,54 @@ function add_tcustom_tinymce_plugin( $plugin_array ) {
     $plugin_array['syt_tc_button'] = plugins_url( 'sytsavebutton.js?chacheBuster='.((float) mt_rand() / (float) mt_getrandmax()), __FILE__ );
     return $plugin_array;
 }
+
+
+//Add an exception to document restrictions for demo content - there is only one or two things available if you are a demo user
+function checkForDemoPage($original_value, $vars = array())
+{
+	global $post;
+
+	if($post)
+	{
+		if(empty($_SESSION['SYT_DEMO_USER']))return true;
+		$demoPostIds = [2289,3160,3162,2331,2342,2365,2396,2838,3814,3854,3884,2852];
+
+		if(in_array( $post->ID, $demoPostIds) || in_array(get_post_meta($post->ID, 'syt-custom-contained-by', true), $demoPostIds) )
+		{
+			if($_SESSION['SYT_DEMO_USER']) return true;
+		}
+
+	  	return false;
+	}
+
+	return false;
+}
+
+add_filter("ws_plugin__s2member_check_post_level_access_excluded", "checkForDemoPage");
+
+//add an exception to document editing permission for demo content
+function give_permissions_for_demo( $allcaps, $cap, $args ) {
+	global $post;
+
+	//
+	if($post)
+	{
+
+		//if it is the HSW policy page or the users copy of the customisable part
+		if(empty($_SESSION['SYT_DEMO_USER']) )
+		{
+			$allcaps[$cap[0]] = true;
+			return $allcaps;
+		}
+		if($post->ID == 2289 || $post->ID != 2779 && get_post_meta($post->ID, 'syt-custom-contained-by', true) == 2289)
+		{
+			if($post->ID != 2289 && $_SESSION['SYT_DEMO_USER'])error_log("checking the contained by id of the post ".$post->ID."  ".get_post_meta($post->ID, 'syt-custom-contained-by', true)." ".$_SESSION['SYT_DEMO_USER']);
+			if($_SESSION['SYT_DEMO_USER']) $allcaps[$cap[0]] = true;
+		}
+	}
+
+  	return $allcaps;
+}
+
+add_filter( 'user_has_cap', 'give_permissions_for_demo', 0, 3 );
 ?>

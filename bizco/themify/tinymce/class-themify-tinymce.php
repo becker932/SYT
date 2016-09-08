@@ -17,9 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class Themify_TinyMCE {
 	
 	function __construct(){
+		defined( 'THEMIFY_TINYMCE_URI' ) or define( 'THEMIFY_TINYMCE_URI', THEMIFY_URI . '/tinymce/' );
+
 		if ( current_user_can( 'publish_posts' ) && get_user_option( 'rich_editing' ) == 'true' ) {
 			add_filter( 'mce_external_plugins', array( $this, 'add_plugin' ) );
 			add_filter( 'mce_buttons', array( $this, 'add_button' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'localize' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'localize' ) );
+			add_action( 'print_media_templates', array( $this, 'print_media_templates' ) );
 		}
 	}
 
@@ -42,12 +47,80 @@ class Themify_TinyMCE {
 	 */
 	function add_plugin( $mce_external_plugins ) {
 		global $wp_version;
-		if ( false !== stripos( $wp_version, '3.9' ) ) {
-			$mce_external_plugins['themifyMenu'] = THEMIFY_URI . '/tinymce/plugin.js';
-		} else {
-			$mce_external_plugins['themifyMenu'] = THEMIFY_URI . '/tinymce/tinymce.menu.js';
-		}
+		$mce_external_plugins['themifyMenu'] = THEMIFY_TINYMCE_URI . 'plugin.js';
+
 		return $mce_external_plugins;
+	}
+
+	/**
+	 * Get list of Themify shortcodes and their config
+	 *
+	 * @since 2.7.6
+	 */
+	function get_shortcodes() {
+		return apply_filters( 'themify_shortcodes', include( dirname( __FILE__ ) . '/shortcodes.php' ) );
+	}
+
+	/**
+	 * Pass strings to JS to set the labels of the WP Editor shortcode button and menu.
+	 *
+	 * @since 1.8.9
+	 */
+	function localize() {
+		wp_localize_script( 'editor', 'themifyEditor', array(
+			'nonce' => wp_create_nonce( 'themify-editor-nonce' ),
+			'shortcodes' => $this->get_shortcodes(),
+			'editor' => array(
+				'menuTooltip' => __('Shortcodes', 'themify'),
+				'menuName' => __('Shortcodes', 'themify'),
+			)
+		));
+	}
+
+	/**
+	 * Print template files that will generate the shortcode code
+	 *
+	 * @since 2.7.6
+	 */
+	function print_media_templates( $shortcodes = null ) {
+		if( $shortcodes == null ) {
+			$shortcodes = $this->get_shortcodes();
+		}
+		foreach( $shortcodes as $key => $shortcode ) {
+			if( isset( $shortcode['menu'] ) ) {
+				$this->print_media_templates( $shortcode['menu'] );
+			} else {
+				echo '<script type="text/html" id="tmpl-themify-shortcode-' . $key . '">';
+				if( isset( $shortcode['template'] ) ) {
+					echo $shortcode['template'];
+				} else {
+					// generate the shortcode template based on parameters
+					echo '[' . $key;
+					if( isset( $shortcode['fields'] ) ) {
+						foreach( $shortcode['fields'] as $field ) {
+							if( isset( $field['ignore'] ) ) {
+								continue;
+							} else if( isset( $field['append'] ) ) {
+								// combine the value of other fields with this one
+								$separator = isset( $field['separator'] ) ? $field['separator'] : ' ';
+								echo '<# if ( data.' . $field['name'] . ' = [ ';
+								foreach( $field['append'] as $_name )
+									echo 'data.' . $_name . ', ';
+								echo 'data.' . $field['name'] . '].filter( Boolean ).join( "'. $separator .'" ) ) { #> '. $field['name'] .'="{{data.' . $field['name'] . '}}"<# } #>';
+							} else {
+								echo '<# if ( data.' . $field['name'] . ' ) { #> ' . $field['name'] . '="{{data.' . $field['name'] . '}}"<# } #>';
+							}
+						}
+					}
+					echo ']';
+					if( isset( $shortcode['closing_tag'] ) && $shortcode['closing_tag'] == true ) {
+						echo '{{{data.selectedContent}}}';
+						echo '[/' . $key . ']';
+					}
+				}
+				echo '</script>';
+			}
+		}
 	}
 }
 

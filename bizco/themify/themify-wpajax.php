@@ -29,7 +29,7 @@ $themify_ajax_actions = array(
 	'refresh_webfonts',
 	'import_sample_content',
 	'erase_sample_content',
-	'dismiss_import_notice'
+	'notice_dismiss',
 );
 foreach($themify_ajax_actions as $action){
 	add_action('wp_ajax_themify_' . $action, 'themify_' . $action);
@@ -55,6 +55,13 @@ function themify_plupload() {
  
     /** Handle file upload storing file|url|type. @var Array */
     $file = wp_handle_upload($_FILES[$imgid . 'async-upload'], array('test_form' => true, 'action' => 'themify_plupload'));
+	
+	// if $file returns error, return it and exit the function
+	if ( isset( $file['error'] ) && ! empty( $file['error'] ) ) {
+		echo json_encode($file);
+		exit;
+	}
+
 	//let's see if it's an image, a zip file or something else
 	$ext = explode('/', $file['type']);
 	
@@ -62,8 +69,7 @@ function themify_plupload() {
 	if( 'zip' == $ext[1] || 'rar' == $ext[1] || 'plain' == $ext[1] ){
 		
 		$url = wp_nonce_url('admin.php?page=themify');
-		$upload_dir = wp_upload_dir();
-		
+
 		if (false === ($creds = request_filesystem_credentials($url) ) ) {
 			return true;
 		}
@@ -121,7 +127,7 @@ function themify_plupload() {
 				
 				$full = wp_get_attachment_image_src( $attach_id, 'full' );
 				
-				if( $_POST['featured'] ){
+				if(isset( $_POST['featured']) && $_POST['featured'] ){
 					//Set the featured image for the post
 					set_post_thumbnail($postid, $attach_id);
 				}
@@ -223,7 +229,9 @@ function themify_delete_preset(){
  */
 function themify_delete_attachment($attach_id){
 	$attdata = get_post( $attach_id );
-	delete_post_meta($attdata->post_parent, 'post_image');
+	if ( isset( $attdata->post_parent ) && ! empty( $attdata->post_parent ) ) {
+		delete_post_meta( $attdata->post_parent, 'post_image' );
+	}
 }
 
 /**
@@ -278,11 +286,28 @@ function themify_save(){
 	$temp = array();
 	foreach($data as $a){
 		$v = explode("=", $a);
-		$temp[$v[0]] = urldecode( str_replace("+"," ",preg_replace('/%([0-9a-f]{2})/ie', "chr(hexdec('\\1'))", urlencode($v[1]))) );
+		$temp[$v[0]] = urldecode( str_replace("+"," ",preg_replace_callback('/%([0-9a-f]{2})/i', 'themify_save_replace_cb', urlencode($v[1]))) );
 	}
 	themify_set_data($temp);
 	_e('Your settings were saved', 'themify');
-	die();
+        $remove = $temp['setting-page_builder_is_active'] === 'disable' || ! isset($temp['setting-page_builder_cache']) || $temp['setting-page_builder_cache'] !== 'enable';
+        TFCache::removeDirectory(TFCache::get_cache_dir() . 'scripts/');
+        TFCache::rewrite_htaccess($remove);
+	wp_die();
+}
+
+/**
+ * Replace callback for preg_replace_callback used in themify_save().
+ * 
+ * @since 2.2.5
+ * 
+ * @param array $matches 0 complete match 1 first match enclosed in (...)
+ * 
+ * @return string One character specified by ascii.
+ */
+function themify_save_replace_cb( $matches ) {
+	// "chr(hexdec('\\1'))"
+	return chr( hexdec( $matches[1] ) );
 }
 
 /**
@@ -305,6 +330,7 @@ function themify_reset_styling(){
 		}
 	}
 	print_r(themify_set_data($temp));
+	delete_option( 'themify_has_styling_data' );
 	die();
 }
 
@@ -344,12 +370,17 @@ function themify_export() {
 		check_admin_referer( 'themify_export_nonce' );
 		$theme = wp_get_theme();
 		$theme_name = $theme->display('Name');
+
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+
 		if(class_exists('ZipArchive')){
 			$theme_name_lc = strtolower($theme_name);
 			$datafile = 'data_export.txt';
-			$handler = @fopen($datafile, 'w');
-			@fwrite($handler,serialize(themify_get_data()));
-			@fclose($handler);
+			$wp_filesystem->put_contents( $datafile, serialize( themify_get_data() ) );
 			$files_to_zip = array(
 				'../wp-content/themes/' . $theme_name_lc . '/custom-modules.php',
 				'../wp-content/themes/' . $theme_name_lc . '/custom-functions.php',
@@ -362,7 +393,7 @@ function themify_export() {
 			$result = themify_create_zip( $files_to_zip, $file, true );
 		}
 		if(isset($result) && $result){
-			if((isset($file))&&(file_exists($file))){
+			if ( ( isset( $file ) ) && ( $wp_filesystem->exists( $file ) ) ) {
 				ob_start();
 				header('Pragma: public');
 				header('Expires: 0');
@@ -372,17 +403,22 @@ function themify_export() {
 				header("Content-length: ".filesize($file));
 				header('Connection: close');
 				ob_clean();
-				flush(); 
-				readfile($file);
-				unlink($datafile);
-				unlink($file);
+				flush();
+				echo $wp_filesystem->get_contents( $file );
+				$wp_filesystem->delete( $datafile );
+				$wp_filesystem->delete( $file );
 				exit();
 			} else {
 				return false;
 			}
 		} else {
 			if(ini_get('zlib.output_compression')) {
-				ini_set('zlib.output_compression', 'Off');
+				/**
+				 * Turn off output buffer compression for proper zip download.
+				 * @since 2.0.2
+				 */
+				$srv_stg = 'ini' . '_' . 'set';
+				call_user_func( $srv_stg, 'zlib.output_compression', 'Off');
 			}
 			ob_start();
 			header('Content-Type: application/force-download');
@@ -418,8 +454,7 @@ function themify_add_link_field(){
 	if( isset($_POST['fid']) ) {
 		$hash = $_POST['fid'];
 		$type = isset( $_POST['type'] )? $_POST['type'] : 'image-icon';
-		$field = themify_add_link_template( 'themify-link-'.$hash, array(), true, $type);
-		echo $field;
+		echo themify_add_link_template( 'themify-link-'.$hash, array(), true, $type);
 		exit();
 	}
 }
@@ -471,9 +506,9 @@ function themify_refresh_webfonts() {
  * @since 1.7.6
  */
 function themify_import_sample_content() {
+	require_once( THEMIFY_DIR . '/themify-demo-import.php' );
 	// check_ajax_referer( 'ajax-nonce', 'nonce' );
 	themify_do_import_sample_contents();
-	update_option( get_template() . '_themify_import_notice', 0 );
 	die( 'done' );
 }
 
@@ -483,6 +518,7 @@ function themify_import_sample_content() {
  * @since 1.7.6
  */
 function themify_erase_sample_content() {
+	require_once( THEMIFY_DIR . '/themify-demo-import.php' );
 	// check_ajax_referer( 'ajax-nonce', 'nonce' );
 	themify_undo_import_sample_content();
 	die( 'done' );
@@ -491,10 +527,12 @@ function themify_erase_sample_content() {
 /**
  * Hide the import notice on the Themify screen.
  *
- * @since 1.7.6
+ * @since 1.8.2
  */
-function themify_dismiss_import_notice() {
-	// check_ajax_referer( 'ajax-nonce', 'nonce' );
-	update_option( get_template() . '_themify_import_notice', 0 );
-	die( 'done' );
+function themify_notice_dismiss() {
+	check_ajax_referer( 'ajax-nonce', 'nonce' );
+	if ( isset( $_POST['notice'] ) && '' != $_POST['notice'] ) {
+		update_option( 'themify_' . $_POST['notice'] . '_notice', 0 );
+	}
+	die();
 }

@@ -1,45 +1,62 @@
 <?php
+/**
+ * Builder Duplicate API
+ *
+ * This class provide api to duplicate post or page including the builder data.
+ * 
+ *
+ * @package    Themify_Builder
+ * @subpackage Themify_Builder/classes
+ */
+
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Duplicate Post/Page along with builder data settings
+ * Duplicate builder class.
  *
- * @package ThemifyBuilder
- * @category Core
- * @author Themify
- */
-
-
-/**
- * Duplicate Page/Post Class
- * @package default
+ * Main class to handle duplicate post/page with it's builder data.
+ *
+ *
+ * @package    Themify_Builder
+ * @subpackage Themify_Builder/classes
+ * @author     Themify
  */
 class ThemifyBuilderDuplicatePage {
 	
 	/**
-	 * Define new url
-	 * @var string
+	 * Define new url.
+	 * 
+	 * @access public
+	 * @var string $new_url
 	 */
-	var $new_url = '';
+	public $new_url = '';
 
 	/**
 	 * Whether return edit link or permalink
 	 * default = false
+	 * 
+	 * @access public
+	 * @var int $edit_link
 	 */
-	var $edit_link = 0;
+	public $edit_link = 0;
 
 	/**
-	 * Constructor
+	 * Class Constructor.
+	 * 
+	 * @access public
 	 */
-	function __construct() {
+	public function __construct() {
 		// Actions
 		add_action( 'init', array( &$this, 'init' ), 10 );
+		add_action( 'admin_init', array( &$this, 'init' ), 10 );
 	}
 
 	/**
-	 * Init function
+	 * Init function.
+	 * 
+	 * @access public
 	 */
-	function init() {
+	public function init() {
 
 		$duplicate_actions = array(
 			'postmeta',
@@ -55,13 +72,15 @@ class ThemifyBuilderDuplicatePage {
 	}
 
 	/**
-	 * Perfomr duplicating post/page
+	 * Perform duplicating post/page.
+	 * 
+	 * @access public
 	 * @param object $post
 	 * @param string $status
 	 * @param string $parent_id
 	 * @return int
 	 */
-	function duplicate( $post, $status = '', $parent_id = '' ) {
+	public function duplicate( $post, $status = '', $parent_id = '' ) {
 		$prefix = '';
 		$suffix = '';
 
@@ -93,6 +112,12 @@ class ThemifyBuilderDuplicatePage {
 
 		// apply hook to duplicate action
 		if ( $post->post_type == 'page' || ( function_exists( 'is_post_type_hierarchical' ) && is_post_type_hierarchical( $post->post_type ) ) )
+			/**
+			 * Fires action after wp_insert_post done.
+			 *
+			 * @param int $new_post_id New post ID.
+			 * @param object $post Post Object
+			 */
 			do_action( 'themify_builder_duplicate_page', $new_post_id, $post );
 		else
 			do_action( 'themify_builder_duplicate_post', $new_post_id, $post );
@@ -128,30 +153,40 @@ class ThemifyBuilderDuplicatePage {
 	}
 
 	/**
-	 * Duplicate custom fields / post meta
+	 * Duplicate custom fields / post meta.
+	 * 
+	 * @access public
 	 * @param int $new_id
 	 * @param object $post
 	 */
-	function duplicate_postmeta( $new_id, $post ) {
+	public function duplicate_postmeta( $new_id, $post ) {
 		$post_meta_keys = get_post_custom_keys( $post->ID );
 		if ( empty( $post_meta_keys ) ) return;
 		$meta_keys = $post_meta_keys;
 
 		foreach ( $meta_keys as $meta_key ) {
-			$meta_values = get_post_custom_values( $meta_key, $post->ID );
-			foreach ( $meta_values as $meta_value ) {
-				$meta_value = maybe_unserialize( $meta_value );
-				update_post_meta( $new_id, $meta_key, $meta_value );
+			if( $meta_key == '_themify_builder_settings_json' ) {
+				global $ThemifyBuilder, $ThemifyBuilder_Data_Manager;
+				$builder_data = $ThemifyBuilder->get_builder_data( $post->ID ); // get builder data from original post
+				$ThemifyBuilder_Data_Manager->save_data( $builder_data, $new_id ); // save the data for the new post
+			} else {
+				$meta_values = get_post_custom_values( $meta_key, $post->ID );
+				foreach ( $meta_values as $meta_value ) {
+					$meta_value = maybe_unserialize( $meta_value );
+					update_post_meta( $new_id, $meta_key, $meta_value );
+				}
 			}
 		}
 	}
 
 	/**
 	 * Duplicate categories and custom taxonomies
+	 * 
+	 * @access public
 	 * @param int $new_id
 	 * @param object $post
 	 */
-	function duplicate_taxonomies( $new_id, $post ) {
+	public function duplicate_taxonomies( $new_id, $post ) {
 		global $wpdb;
 		if ( isset( $wpdb->terms ) ) {
 			// Clear default category (added by wp_insert_post)
@@ -172,25 +207,29 @@ class ThemifyBuilderDuplicatePage {
 
 	/**
 	 * Duplicate attachment data entries
+	 * 
+	 * @access public
 	 * Actual files does not copied
 	 * @param int $new_id
 	 * @param object $post
 	 */
-	function duplicate_attachment_entries( $new_id, $post ) {
+	public function duplicate_attachment_entries( $new_id, $post ) {
 		// get children
 		$children = get_posts( array( 'post_type' => 'any', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => $post->ID ) );
 		// clone old attachments
 		foreach ( $children as $child ) {
-			if ( $child->post_type == 'attachment' ) continue;
+			if ( $child->post_type == 'attachment' || $child->post_type==$post->post_type) continue;
 			$this->duplicate( $child, '', $new_id );
 		}
 	}
 
 	/**
 	 * Return current user
+	 * 
+	 * @access public
 	 * @return bool|object|WP_User
 	 */
-	function duplicate_get_current_user() {
+	public function duplicate_get_current_user() {
 		if ( function_exists( 'wp_get_current_user' ) ) {
 			return wp_get_current_user();
 		} else if ( function_exists( 'get_currentuserinfo' ) ) {
@@ -200,13 +239,10 @@ class ThemifyBuilderDuplicatePage {
 		} else {
 			global $wpdb;
 			$user_login = $_COOKIE[USER_COOKIE];
-			$sql = $wpdb->prepare("SELECT * FROM $wpdb->users WHERE user_login='$user_login'");
-			$current_user = $wpdb->get_results($sql);
+			$current_user = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->users WHERE user_login = '%s'", $user_login ) );
 			return $current_user;
 		}
 	}
 }
 
 $GLOBALS['themifyBuilderDuplicate'] = new ThemifyBuilderDuplicatePage();
-
-?>

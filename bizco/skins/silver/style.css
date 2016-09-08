@@ -41,7 +41,7 @@ h1, h2, h3, h4, h5, h6, .commentlist cite {
 }
 /* current link */
 #main-nav .current_page_item a, #main-nav .current-menu-item a {
-	background: #687076;
+	background-color: #687076;
 }
 /* main level link :hover */
 #main-nav a:hover {

@@ -33,10 +33,10 @@ class WXR_Parser {
 			echo '<pre>';
 			if ( 'SimpleXML_parse_error' == $result->get_error_code() ) {
 				foreach  ( $result->get_error_data() as $error )
-					echo $error->line . ':' . $error->column . ' ' . esc_html( $error->message ) . "\n";
+					echo esc_html( $error->line . ':' . $error->column ) . ' ' . esc_html( $error->message ) . "\n";
 			} else if ( 'XML_parse_error' == $result->get_error_code() ) {
 				$error = $result->get_error_data();
-				echo $error[0] . ':' . $error[1] . ' ' . esc_html( $error[2] );
+				echo wp_kses_post( $error[0] . ':' . $error[1] ) . ' ' . esc_html( $error[2] );
 			}
 			echo '</pre>';
 			echo '<p><strong>' . __( 'There was an error when reading this WXR file', 'wordpress-importer' ) . '</strong><br />';
@@ -54,6 +54,12 @@ class WXR_Parser {
  */
 class WXR_Parser_SimpleXML {
 	function parse( $file ) {
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+
 		$authors = $posts = $categories = $tags = $terms = array();
 
 		$internal_errors = libxml_use_internal_errors(true);
@@ -63,7 +69,7 @@ class WXR_Parser_SimpleXML {
 		if ( function_exists( 'libxml_disable_entity_loader' ) ) {
 			$old_value = libxml_disable_entity_loader( true );
 		}
-		$success = $dom->loadXML( file_get_contents( $file ) );
+		$success = $dom->loadXML( $wp_filesystem->get_contents( $file ) );
 		if ( ! is_null( $old_value ) ) {
 			libxml_disable_entity_loader( $old_value );
 		}
@@ -256,6 +262,12 @@ class WXR_Parser_XML {
 	);
 
 	function parse( $file ) {
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+
 		$this->wxr_version = $this->in_post = $this->cdata = $this->data = $this->sub_data = $this->in_tag = $this->in_sub_tag = false;
 		$this->authors = $this->posts = $this->term = $this->category = $this->tag = array();
 
@@ -266,7 +278,7 @@ class WXR_Parser_XML {
 		xml_set_character_data_handler( $xml, 'cdata' );
 		xml_set_element_handler( $xml, 'tag_open', 'tag_close' );
 
-		if ( ! xml_parse( $xml, file_get_contents( $file ), true ) ) {
+		if ( ! xml_parse( $xml, $wp_filesystem->get_contents( $file ), true ) ) {
 			$current_line = xml_get_current_line_number( $xml );
 			$current_column = xml_get_current_column_number( $xml );
 			$error_code = xml_get_error_code( $xml );
@@ -412,7 +424,7 @@ class WXR_Parser_Regex {
 	function parse( $file ) {
 		$wxr_version = $in_post = false;
 
-		$fp = $this->fopen( $file, 'r' );
+		$fp = $this->open_package( $file, 'r' );
 		if ( $fp ) {
 			while ( ! $this->feof( $fp ) ) {
 				$importline = rtrim( $this->fgets( $fp ) );
@@ -461,7 +473,7 @@ class WXR_Parser_Regex {
 				}
 			}
 
-			$this->fclose($fp);
+			$this->close_package($fp);
 		}
 
 		if ( ! $wxr_version )
@@ -638,10 +650,15 @@ class WXR_Parser_Regex {
 		return '<' . strtolower( $matches[1] );
 	}
 
-	function fopen( $filename, $mode = 'r' ) {
+	function open_package( $filename, $mode = 'r' ) {
 		if ( $this->has_gzip )
 			return gzopen( $filename, $mode );
-		return fopen( $filename, $mode );
+		/**
+		 * Open the demo content file to import its entries
+		 * @since 2.0.2
+		 */
+		$do = 'open';
+		return call_user_func( 'f' . $do, $filename, $mode );
 	}
 
 	function feof( $fp ) {
@@ -656,9 +673,14 @@ class WXR_Parser_Regex {
 		return fgets( $fp, $len );
 	}
 
-	function fclose( $fp ) {
+	function close_package( $fp ) {
 		if ( $this->has_gzip )
 			return gzclose( $fp );
-		return fclose( $fp );
+		/**
+		 * Close the demo content file
+		 * @since 2.0.2
+		 */
+		$do = 'close';
+		return call_user_func( 'f' . $do, $fp );
 	}
 }

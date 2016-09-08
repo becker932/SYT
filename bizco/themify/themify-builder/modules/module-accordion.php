@@ -12,14 +12,15 @@ class TB_Accordion_Module extends Themify_Builder_Module {
 			'slug' => 'accordion'
 		));
 	}
-}
 
-///////////////////////////////////////
-// Module Options
-///////////////////////////////////////
-Themify_Builder_Model::register_module( 'TB_Accordion_Module',
-	apply_filters( 'themify_builder_module_accordion', array(
-		'options' => array(
+	public function get_title( $module ) {
+		$text = isset( $module['mod_settings']['mod_title_accordion'] ) ? $module['mod_settings']['mod_title_accordion'] : '';
+		$return = wp_trim_words( $text, 100 );
+		return $return;
+	}
+
+	public function get_options() {
+		$options = array(
 			array(
 				'id' => 'mod_title_accordion',
 				'type' => 'text',
@@ -31,8 +32,8 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 				'type' => 'layout',
 				'label' => __('Accordion layout', 'themify'),
 				'options' => array(
-					array('img' => 'accordion-default.png', 'value' => 'default', 'label' => __('Plus Icon Button', 'themify')),
-					array('img' => 'accordion-separate.png', 'value' => 'separate', 'label' => __('Pipe', 'themify'))
+					array('img' => 'accordion-default.png', 'value' => 'default', 'label' => __('Contiguous Panels', 'themify')),
+					array('img' => 'accordion-separate.png', 'value' => 'separate', 'label' => __('Separated Panels', 'themify'))
 				)
 			),
 			array(
@@ -64,23 +65,39 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 					array('img' => 'color-orange.png', 'value' => 'orange', 'label' => __('orange', 'themify')),
 					array('img' => 'color-yellow.png', 'value' => 'yellow', 'label' => __('yellow', 'themify')),
 					array('img' => 'color-red.png', 'value' => 'red', 'label' => __('red', 'themify')),
-					array('img' => 'color-pink.png', 'value' => 'pink', 'label' => __('pink', 'themify'))
+					array('img' => 'color-pink.png', 'value' => 'pink', 'label' => __('pink', 'themify')),
+					array('img' => 'color-transparent.png', 'value' => 'transparent', 'label' => __('Transparent', 'themify'))
 				)
 			),
 			array(
 				'id' => 'accordion_appearance_accordion',
 				'type' => 'checkbox',
 				'label' => __('Accordion Appearance', 'themify'),
-				'default' => array(
-					'rounded', 
-					'gradient'
-				),
 				'options' => array(
 					array( 'name' => 'rounded', 'value' => __('Rounded', 'themify')),
 					array( 'name' => 'gradient', 'value' => __('Gradient', 'themify')),
 					array( 'name' => 'glossy', 'value' => __('Glossy', 'themify')),
 					array( 'name' => 'embossed', 'value' => __('Embossed', 'themify')),
 					array( 'name' => 'shadow', 'value' => __('Shadow', 'themify'))
+				)
+			),
+			array(
+				'id' => 'multi_accordion_icon',
+				'type' => 'multi',
+				'label' => __('Icon', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'icon_accordion',
+						'type' => 'icon',
+						'label' => __('Closed Accordion Icon', 'themify'),
+						'class' => 'large',
+					),
+					array(
+						'id' => 'icon_active_accordion',
+						'type' => 'icon',
+						'label' => __('Opened Accordion Icon', 'themify'),
+						'class' => 'large',
+					),
 				)
 			),
 			array(
@@ -111,10 +128,63 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 						)
 					)
 				)
+			),
+			// Additional CSS
+			array(
+				'type' => 'separator',
+				'meta' => array( 'html' => '<hr/>')
+			),
+			array(
+				'id' => 'css_accordion',
+				'type' => 'text',
+				'label' => __('Additional CSS Class', 'themify'),
+				'class' => 'large exclude-from-reset-field',
+				'help' => sprintf( '<br/><small>%s</small>', __( 'Add additional CSS class(es) for custom styling', 'themify') )
 			)
-		),
-		// Styling
-		'styling' => array(
+		);
+		return $options;
+	}
+
+	public function get_animation() {
+		$animation = array(
+			array(
+				'type' => 'separator',
+				'meta' => array( 'html' => '<h4>' . esc_html__( 'Appearance Animation', 'themify' ) . '</h4>')
+			),
+			array(
+				'id' => 'multi_Animation Effect',
+				'type' => 'multi',
+				'label' => __('Effect', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'animation_effect',
+						'type' => 'animation_select',
+						'label' => __( 'Effect', 'themify' )
+					),
+					array(
+						'id' => 'animation_effect_delay',
+						'type' => 'text',
+						'label' => __( 'Delay', 'themify' ),
+						'class' => 'xsmall',
+						'description' => __( 'Delay (s)', 'themify' ),
+					),
+					array(
+						'id' => 'animation_effect_repeat',
+						'type' => 'text',
+						'label' => __( 'Repeat', 'themify' ),
+						'class' => 'xsmall',
+						'description' => __( 'Repeat (x)', 'themify' ),
+					),
+				)
+			)
+		);
+
+		return $animation;
+	}
+
+	public function get_styling() {
+		$general = array(
+			// Background
 			array(
 				'id' => 'separator_image_background',
 				'title' => '',
@@ -126,7 +196,9 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 				'id' => 'background_color',
 				'type' => 'color',
 				'label' => __('Background Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'background-color',
+				'selector' => array( ' .ui.module-accordion .accordion-content', ' .ui.module-accordion .accordion-title a' )
 			),
 			// Font
 			array(
@@ -142,13 +214,17 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 				'id' => 'font_family',
 				'type' => 'font_select',
 				'label' => __('Font Family', 'themify'),
-				'class' => 'font-family-select'
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => ' .ui.module-accordion',
 			),
 			array(
 				'id' => 'font_color',
 				'type' => 'color',
 				'label' => __('Font Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( ' .ui.module-accordion', ' .ui.module-accordion h1', ' .ui.module-accordion h2', ' .ui.module-accordion h3', ' .ui.module-accordion h4', ' .ui.module-accordion h5', ' .ui.module-accordion h6' ),
 			),
 			array(
 				'id' => 'multi_font_size',
@@ -158,15 +234,17 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 					array(
 						'id' => 'font_size',
 						'type' => 'text',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => ' .ui.module-accordion',
 					),
 					array(
 						'id' => 'font_size_unit',
 						'type' => 'select',
 						'meta' => array(
-							array('value' => '', 'name' => ''),
 							array('value' => 'px', 'name' => __('px', 'themify')),
-							array('value' => 'em', 'name' => __('em', 'themify'))
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
 						)
 					)
 				)
@@ -179,19 +257,34 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 					array(
 						'id' => 'line_height',
 						'type' => 'text',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => ' .ui.module-accordion',
 					),
 					array(
 						'id' => 'line_height_unit',
 						'type' => 'select',
 						'meta' => array(
-							array('value' => '', 'name' => ''),
 							array('value' => 'px', 'name' => __('px', 'themify')),
 							array('value' => 'em', 'name' => __('em', 'themify')),
 							array('value' => '%', 'name' => __('%', 'themify'))
 						)
 					)
 				)
+			),
+			array(
+				'id' => 'text_align',
+				'label' => __( 'Text Align', 'themify' ),
+				'type' => 'radio',
+				'meta' => array(
+					array( 'value' => '', 'name' => __( 'Default', 'themify' ), 'selected' => true ),
+					array( 'value' => 'left', 'name' => __( 'Left', 'themify' ) ),
+					array( 'value' => 'center', 'name' => __( 'Center', 'themify' ) ),
+					array( 'value' => 'right', 'name' => __( 'Right', 'themify' ) ),
+					array( 'value' => 'justify', 'name' => __( 'Justify', 'themify' ) )
+				),
+				'prop' => 'text-align',
+				'selector' => ' .ui.module-accordion',
 			),
 			// Link
 			array(
@@ -207,7 +300,17 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 				'id' => 'link_color',
 				'type' => 'color',
 				'label' => __('Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => ' .ui.module-accordion a'
+			),
+			array(
+				'id' => 'link_color_hover',
+				'type' => 'color',
+				'label' => __('Color Hover', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => ' .ui.module-accordion a:hover'
 			),
 			array(
 				'id' => 'text_decoration',
@@ -219,7 +322,9 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 					array('value' => 'overline', 'name' => __('Overline', 'themify')),
 					array('value' => 'line-through',  'name' => __('Line through', 'themify')),
 					array('value' => 'none',  'name' => __('None', 'themify'))
-				)
+				),
+				'prop' => 'text-decoration',
+				'selector' => ' .ui.module-accordion a'
 			),
 			// Padding
 			array(
@@ -232,34 +337,109 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 				'meta' => array('html'=>'<h4>'.__('Padding', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_padding',
+				'id' => 'multi_padding_top',
 				'type' => 'multi',
 				'label' => __('Padding', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'padding_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-top',
+						'selector' => array( ' .ui.module-accordion .accordion-content', ' .ui.module-accordion .accordion-title a' )
 					),
+					array(
+						'id' => 'padding_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-right',
+						'selector' => array( ' .ui.module-accordion .accordion-content', ' .ui.module-accordion .accordion-title a' )
 					),
+					array(
+						'id' => 'padding_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-bottom',
+						'selector' => array( ' .ui.module-accordion .accordion-content', ' .ui.module-accordion .accordion-title a' )
 					),
+					array(
+						'id' => 'padding_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-left',
+						'selector' => array( ' .ui.module-accordion .accordion-content', ' .ui.module-accordion .accordion-title a' )
+					),
+					array(
+						'id' => 'padding_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			// "Apply all" // apply all padding
+			array(
+				'id' => 'checkbox_padding_apply_all',
+				'class' => 'style_apply_all style_apply_all_padding',
+				'type' => 'checkbox',
+				'label' => false,
+				'options' => array(
+					array( 'name' => 'padding', 'value' => __( 'Apply to all padding', 'themify' ) )
 				)
 			),
 			// Margin
@@ -273,33 +453,332 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 				'meta' => array('html'=>'<h4>'.__('Margin', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_margin',
+				'id' => 'multi_margin_top',
 				'type' => 'multi',
 				'label' => __('Margin', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'margin_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-top',
+						'selector' => ' .ui.module-accordion',
 					),
+					array(
+						'id' => 'margin_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-right',
+						'selector' => ' .ui.module-accordion',
 					),
+					array(
+						'id' => 'margin_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-bottom',
+						'selector' => ' .ui.module-accordion',
 					),
+					array(
+						'id' => 'margin_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-left',
+						'selector' => ' .ui.module-accordion',
+					),
+					array(
+						'id' => 'margin_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			// "Apply all" // apply all margin
+			array(
+				'id' => 'checkbox_margin_apply_all',
+				'class' => 'style_apply_all style_apply_all_margin',
+				'type' => 'checkbox',
+				'label' => false,
+				'options' => array(
+					array( 'name' => 'margin', 'value' => __( 'Apply to all margin', 'themify' ) )
+				)
+			)
+		);
+
+		$accordion_title = array(
+			// Background
+			array(
+				'id' => 'separator_image_background',
+				'title' => '',
+				'description' => '',
+				'type' => 'separator',
+				'meta' => array('html'=>'<h4>'.__('Background', 'themify').'</h4>'),
+			),
+			array(
+				'id' => 'background_color_title',
+				'type' => 'color',
+				'label' => __('Background Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'background-color',
+				'selector' => ' .ui.module-accordion .accordion-title a'
+			),
+			array(
+				'type' => 'separator',
+				'meta' => array('html'=>'<hr />')
+			),
+			// Font
+			array(
+				'id' => 'separator_font',
+				'type' => 'separator',
+				'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
+			),
+			array(
+				'id' => 'font_family_title',
+				'type' => 'font_select',
+				'label' => __('Font Family', 'themify'),
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => ' .ui.module-accordion .accordion-title',
+			),
+			array(
+				'id' => 'font_color_title',
+				'type' => 'color',
+				'label' => __('Font Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( ' .ui.module-accordion .accordion-title', '  .ui.module-accordion .accordion-title a')
+			),
+			array(
+				'id' => 'multi_font_size_title',
+				'type' => 'multi',
+				'label' => __('Font Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'font_size_title',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => ' .ui.module-accordion .accordion-title',
+					),
+					array(
+						'id' => 'font_size_title_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+			array(
+				'id' => 'multi_line_height_title',
+				'type' => 'multi',
+				'label' => __('Line Height', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'line_height_title',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => ' .ui.module-accordion .accordion-title',
+					),
+					array(
+						'id' => 'line_height_title_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+		);
+
+		$accordion_icon = array(
+			array(
+				'id' => 'icon_color',
+				'type' => 'color',
+				'label' => __('Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( ' .ui.module-accordion .accordion-title .accordion-icon' )
+			),
+			array(
+				'id' => 'icon_active_color',
+				'type' => 'color',
+				'label' => __('Closed Icon Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( ' .ui.module-accordion .accordion-title .accordion-active-icon' )
+			),
+			array(
+				'id' => 'multi_icon_size',
+				'type' => 'multi',
+				'label' => __('Icon Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'icon_size',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => array( ' .ui.module-accordion .accordion-title i' ),
+					),
+					array(
+						'id' => 'icon_size_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+		);
+
+		$accordion_content = array(
+			// Background
+			array(
+				'id' => 'separator_image_background',
+				'title' => '',
+				'description' => '',
+				'type' => 'separator',
+				'meta' => array('html'=>'<h4>'.__('Background', 'themify').'</h4>'),
+			),
+			array(
+				'id' => 'background_color_content',
+				'type' => 'color',
+				'label' => __('Background Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'background-color',
+				'selector' => ' .ui.module-accordion .accordion-content'
+			),
+			array(
+				'type' => 'separator',
+				'meta' => array('html'=>'<hr />')
+			),
+			// Font
+			array(
+				'id' => 'separator_font',
+				'type' => 'separator',
+				'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
+			),
+			array(
+				'id' => 'font_family_content',
+				'type' => 'font_select',
+				'label' => __('Font Family', 'themify'),
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => ' .ui.module-accordion .accordion-content',
+			),
+			array(
+				'id' => 'font_color_content',
+				'type' => 'color',
+				'label' => __('Font Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( ' .ui.module-accordion .accordion-content', ' .ui.module-accordion .accordion-content h1', ' .ui.module-accordion .accordion-content h2', ' .ui.module-accordion .accordion-content h3', ' .ui.module-accordion .accordion-content h4', ' .ui.module-accordion .accordion-content h5', ' .ui.module-accordion .accordion-content h6' ),
+			),
+			array(
+				'id' => 'multi_font_size_content',
+				'type' => 'multi',
+				'label' => __('Font Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'font_size_content',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => ' .ui.module-accordion .accordion-content',
+					),
+					array(
+						'id' => 'font_size_content_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+			array(
+				'id' => 'multi_line_height_content',
+				'type' => 'multi',
+				'label' => __('Line Height', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'line_height_content',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => ' .ui.module-accordion .accordion-content',
+					),
+					array(
+						'id' => 'line_height_content_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
 					)
 				)
 			),
@@ -321,25 +800,25 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 					array(
 						'id' => 'border_top_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-top-color',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					),
 					array(
 						'id' => 'border_top_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-top-width',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					),
 					array(
 						'id' => 'border_top_style',
 						'type' => 'select',
 						'description' => __('top', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-top-style',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					)
 				)
 			),
@@ -351,25 +830,25 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 					array(
 						'id' => 'border_right_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-right-color',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					),
 					array(
 						'id' => 'border_right_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-right-width',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					),
 					array(
 						'id' => 'border_right_style',
 						'type' => 'select',
 						'description' => __('right', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-right-style',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					)
 				)
 			),
@@ -381,25 +860,25 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 					array(
 						'id' => 'border_bottom_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-bottom-color',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					),
 					array(
 						'id' => 'border_bottom_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-bottom-width',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					),
 					array(
 						'id' => 'border_bottom_style',
 						'type' => 'select',
 						'description' => __('bottom', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-bottom-style',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					)
 				)
 			),
@@ -411,46 +890,70 @@ Themify_Builder_Model::register_module( 'TB_Accordion_Module',
 					array(
 						'id' => 'border_left_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-left-color',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					),
 					array(
 						'id' => 'border_left_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-left-width',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					),
 					array(
 						'id' => 'border_left_style',
 						'type' => 'select',
 						'description' => __('left', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-left-style',
+						'selector' => ' .ui.module-accordion .accordion-content'
 					)
 				)
 			),
-			// Additional CSS
+			// "Apply all" // apply all border
 			array(
-				'type' => 'separator',
-				'meta' => array( 'html' => '<hr/>')
-			),
-			array(
-				'id' => 'css_accordion',
-				'type' => 'text',
-				'label' => __('Additional CSS Class', 'themify'),
-				'class' => 'large exclude-from-reset-field',
-				'description' => sprintf( '<br/><small>%s</small>', __( 'Add additional CSS class(es) for custom styling', 'themify') )
+				'id' => 'checkbox_border_apply_all',
+				'class' => 'style_apply_all style_apply_all_border',
+				'type' => 'checkbox',
+				'label' => false,
+                                'default'=>'border',
+				'options' => array(
+					array( 'name' => 'border', 'value' => __( 'Apply to all border', 'themify' ) )
+				)
 			)
-		),
-		'styling_selector' => array(
-			' .ui.module-accordion' => array( 'font_size', 'line_height', 'font_family', 'color', 'margin' ),
-			' .ui.module-accordion a' => array( 'link_color', 'text_decoration' ), 
-			' .ui.module-accordion .accordion-title a' => array( 'background_color', 'padding' ),
-			' .ui.module-accordion .accordion-content' => array( 'background_color', 'padding', 'border_top', 'border_right', 'border_bottom', 'border_left' )
-		)
-	) )
-);
+		);
+
+		return array(
+			array(
+				'type' => 'tabs',
+				'id' => 'module-styling',
+				'tabs' => array(
+					'general' => array(
+		        	'label' => __('General', 'themify'),
+					'fields' => $general
+					),
+					'title' => array(
+						'label' => __('Accordion Title', 'themify'),
+						'fields' => $accordion_title
+					),
+					'icon' => array(
+						'label' => __('Accordion Icon', 'themify'),
+						'fields' => $accordion_icon
+					),
+					'content' => array(
+						'label' => __('Accordion Content', 'themify'),
+						'fields' => $accordion_content
+					),
+				)
+			),
+		);
+
+	}
+}
+
+///////////////////////////////////////
+// Module Options
+///////////////////////////////////////
+Themify_Builder_Model::register_module( 'TB_Accordion_Module' );

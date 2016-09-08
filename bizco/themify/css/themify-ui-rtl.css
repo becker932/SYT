@@ -29,6 +29,10 @@
 	margin-left: 5px;
 	margin-right: 0;
 }
+#themify .indent {
+	padding-left: 0;
+	padding-right: 3%;
+}
 object {
 	float: right !important;
 }
@@ -115,5 +119,25 @@ object {
 	#themify_lightbox_fa {
 		margin-left: auto;
 		margin-right: -475px;
+	}
+}
+@media (min-width: 1400px) {
+	#themify .subtabnav.themify_settings_fixed {
+		left: auto;
+		right: 1210px;
+	}
+}
+@media all and (max-width: 1399px) and (min-width: 1200px) {
+	#themify .subtabnav.themify_settings_fixed {
+		left: 20px;
+		right: auto;
+	}
+}
+@media (max-width: 1199px) {
+	#themify .subtabnav.themify_settings_fixed {
+		left: 10px;
+	}
+	#themify .pushlabel {
+		margin-right: auto;
 	}
 }

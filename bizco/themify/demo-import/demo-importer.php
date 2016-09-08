@@ -262,7 +262,7 @@ class WP_Import extends WP_Importer {
 ?>
 <form action="<?php echo admin_url( 'admin.php?import=wordpress&amp;step=2' ); ?>" method="post">
 	<?php wp_nonce_field( 'import-wordpress' ); ?>
-	<input type="hidden" name="import_id" value="<?php echo $this->id; ?>" />
+	<input type="hidden" name="import_id" value="<?php echo esc_attr( $this->id ); ?>" />
 
 <?php if ( ! empty( $this->authors ) ) : ?>
 	<h3><?php _e( 'Assign Authors', 'themify' ); ?></h3>
@@ -316,7 +316,7 @@ class WP_Import extends WP_Importer {
 				$value = esc_attr( sanitize_user( $author['author_login'], true ) );
 			}
 
-			echo ' <input type="text" name="user_new['.$n.']" value="'. $value .'" /><br />';
+			echo ' <input type="text" name="user_new[' . esc_attr( $n ) . ']" value="' . esc_attr( $value ) . '" /><br />';
 		}
 
 		if ( ! $create_users && $this->version == '1.0' )
@@ -324,7 +324,7 @@ class WP_Import extends WP_Importer {
 		else
 			_e( 'or assign posts to an existing user:', 'themify' );
 		wp_dropdown_users( array( 'name' => "user_map[$n]", 'multi' => true, 'show_option_all' => __( '- Select -', 'themify' ) ) );
-		echo '<input type="hidden" name="imported_authors['.$n.']" value="' . esc_attr( $author['author_login'] ) . '" />';
+		echo '<input type="hidden" name="imported_authors[' . esc_attr( $n ) . ']" value="' . esc_attr( $author['author_login'] ) . '" />';
 
 		if ( $this->version != '1.0' )
 			echo '</div>';
@@ -904,21 +904,33 @@ class WP_Import extends WP_Importer {
 			return new WP_Error( 'upload_dir_error', $upload['error'] );
 
 		// fetch the remote url and write it to the placeholder file
-		$headers = wp_get_http( $url, $upload['file'] );
+		$response = wp_remote_get( $url, array(
+			'stream' => true,
+			'filename' => $upload['file']
+		) );
+
+		// request failed
+		if ( is_wp_error( $response ) ) {
+			@unlink( $upload['file'] );
+			return $response;
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+
+		// make sure the fetch was successful
+		if ( $code !== 200 ) {
+			@unlink( $upload['file'] );
+			return new WP_Error( 'import_file_error', sprintf( __( 'Remote server returned error response %1$d %2$s', 'wordpress-importer' ), $code, get_status_header_desc( $code ) ) );
+		}
+
+		$filesize = filesize( $upload['file'] );
+		$headers = wp_remote_retrieve_headers( $response );
 
 		// request failed
 		if ( ! $headers ) {
 			@unlink( $upload['file'] );
 			return new WP_Error( 'import_file_error', __('Remote server did not respond', 'themify') );
 		}
-
-		// make sure the fetch was successful
-		if ( $headers['response'] != '200' ) {
-			@unlink( $upload['file'] );
-			return new WP_Error( 'import_file_error', sprintf( __('Remote server returned error response %1$d %2$s', 'themify'), esc_html($headers['response']), get_status_header_desc($headers['response']) ) );
-		}
-
-		$filesize = filesize( $upload['file'] );
 
 		if ( isset( $headers['content-length'] ) && $filesize != $headers['content-length'] ) {
 			@unlink( $upload['file'] );
@@ -1031,7 +1043,6 @@ class WP_Import extends WP_Importer {
 	// Display import page title
 	function header() {
 		echo '<div class="wrap">';
-		screen_icon();
 		echo '<h2>' . __( 'Import WordPress', 'themify' ) . '</h2>';
 
 		$updates = get_plugin_updates();

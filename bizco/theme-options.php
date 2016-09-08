@@ -33,6 +33,7 @@ class Themify {
 	public $image_setting = '';
 	
 	public $page_id = '';
+	public $page_image_width = 978;
 	public $query_category = '';
 	public $paged = '';
 	
@@ -102,6 +103,7 @@ class Themify {
 		$this->hide_image = themify_get('setting-default_post_image');
 		$this->unlink_image = themify_get('setting-default_unlink_post_image');
 		$this->auto_featured_image = !themify_check('setting-auto_featured_image')? 'field_name=post_image, image, wp_thumb&' : '';
+		$this->hide_page_image = themify_get( 'setting-hide_page_image' ) == 'yes' ? 'yes' : 'no';
 		
 		$this->hide_meta = themify_get('setting-default_post_meta');
 		$this->hide_date = themify_get('setting-default_post_date');
@@ -117,64 +119,73 @@ class Themify {
 	}
 
 	function template_redirect() {
-		
-		$post_image_width = themify_get('image_width');
-		$post_image_height = themify_get('image_height');
-		
-		if ( is_page() ) {
-			$this->page_id = get_the_ID();
-			$this->post_layout = (themify_get('layout') != "default" && themify_check('layout')) ?
-									themify_get('layout') : themify_get('setting-default_post_layout');
-			// set default post layout
-			if($this->post_layout == '')
-				$this->post_layout = 'list-post';
+		$post_image_width = $post_image_height = '';
+		if (is_page()) {
+                    if(post_password_required()){
+                        return;
+                    }
+                    $this->page_id = get_the_ID();
+                    $this->post_layout = (themify_get('layout') != "default" && themify_check('layout')) ?
+                                        themify_get('layout') : themify_get('setting-default_post_layout');
+                    // set default post layout
+                    if($this->post_layout == ''){
+                            $this->post_layout = 'list-post';
+                    }
+                    $post_image_width = themify_get('image_width');
+                    $post_image_height = themify_get('image_height');
 		}
-		
-		///////////////////////////////////////////
-		// Setting image width, height
-		///////////////////////////////////////////
-		if($this->post_layout == 'grid4'):
-		
-			$this->width = self::$grid4_width;
-			$this->height = self::$grid4_height;
-		
-		elseif($this->post_layout == 'grid3'):
-		
-			$this->width = self::$grid3_width;
-			$this->height = self::$grid3_height;
-		
-		elseif($this->post_layout == 'grid2'):
-		
-			$this->width = self::$grid2_width;
-			$this->height = self::$grid2_height;
-			
-		elseif($this->post_layout == 'list-large-image'):
-		
-			$this->width = self::$list_large_image_width;
-			$this->height = self::$list_large_image_height;
-		
-		elseif($this->post_layout == 'list-thumb-image'):
-		
-			$this->width = self::$list_thumb_image_width;
-			$this->height = self::$list_thumb_image_height;
-		
-		elseif($this->post_layout == 'grid2-thumb'):
-		
-			$this->width = self::$grid2_thumb_width;
-			$this->height = self::$grid2_thumb_height;
-			
-		elseif($this->post_layout == 'list-post'):
-		
-			$this->width = self::$list_post_width;
-			$this->height = self::$list_post_height;
-		
-		else:
-					
-			$this->width = self::$list_post_width;
-			$this->height = self::$list_post_height;
-			
-		endif;
-		
+		if(!isset($post_image_width) || $post_image_width===''){
+                    $post_image_width = themify_get('setting-image_post_width');
+		}
+		if(!isset($post_image_height) || $post_image_height===''){
+                    $post_image_height = themify_get('setting-image_post_height');
+		}
+
+		if( is_singular() ) {
+			$this->display_content = 'content';
+		}
+                if($post_image_width==='' || $post_image_height===''){
+                    ///////////////////////////////////////////
+                    // Setting image width, height
+                    ///////////////////////////////////////////
+                    switch ($this->post_layout){
+                        case 'grid4':
+                            $this->width = self::$grid4_width;
+                            $this->height = self::$grid4_height;
+                        break;
+                        case 'grid3':
+                            $this->width = self::$grid3_width;
+                            $this->height = self::$grid3_height;
+                        break;
+                        case 'grid2':
+                            $this->width = self::$grid2_width;
+                            $this->height = self::$grid2_height;
+                        break;
+                        case 'list-large-image':
+                            $this->width = self::$list_large_image_width;
+                            $this->height = self::$list_large_image_height;
+                        break;
+                        case 'list-thumb-image':
+                            $this->width = self::$list_thumb_image_width;
+                            $this->height = self::$list_thumb_image_height;
+                        break;
+                        case 'grid2-thumb':
+                            $this->width = self::$grid2_thumb_width;
+                            $this->height = self::$grid2_thumb_height;
+                        break;
+                        default :
+                            $this->width = self::$list_post_width;
+                            $this->height = self::$list_post_height;
+                        break;
+                    }
+                }
+		if ($post_image_width>=0) {
+			$this->width = $post_image_width;
+		}
+		if($post_image_height>=0){
+			$this->height = $post_image_height;
+		}
+                
 		if( is_page() ) {
 			if(get_query_var('paged')):
 				$this->paged = get_query_var('paged');
@@ -183,21 +194,24 @@ class Themify {
 			else:
 				$this->paged = 1;
 			endif;
+			global $paged;
+			$paged = $this->paged;
 			$this->query_category = themify_get('query_category');
 			
 			$this->layout = (themify_get('page_layout') != 'default' && themify_check('page_layout')) ? themify_get('page_layout') : themify_get('setting-default_page_layout');
-			if($this->layout == '')
+			if($this->layout == ''){
 				$this->layout = 'sidebar1'; 
+                        }
 			
 			$this->post_layout = (themify_get('layout') != 'default' && themify_check('layout')) ? themify_get('layout') : themify_get('setting-default_post_layout');
-			if($this->post_layout == '')
+			if($this->post_layout == ''){
 				$this->post_layout = 'list-post';
-			
+                        }
 			$this->page_title = (themify_get('hide_page_title') != 'default' && themify_check('hide_page_title')) ? themify_get('hide_page_title') : themify_get('setting-hide_page_title'); 
 			$this->hide_title = themify_get('hide_title'); 
 			$this->unlink_title = themify_get('unlink_title'); 
 			$this->hide_image = themify_get('hide_image'); 
-		    $this->unlink_image = themify_get('unlink_image'); 
+                        $this->unlink_image = themify_get('unlink_image'); 
 			$this->hide_meta = themify_get('hide_meta'); 
 			$this->hide_date = themify_get('hide_date'); 
 			$this->display_content = themify_get('display_content');
@@ -208,54 +222,43 @@ class Themify {
 			$this->order = (themify_get('order') && '' != themify_get('order')) ? themify_get('order') : (themify_check('setting-index_order') ? themify_get('setting-index_order') : 'DESC');
 			$this->orderby = (themify_get('orderby') && '' != themify_get('orderby')) ? themify_get('orderby') : (themify_check('setting-index_orderby') ? themify_get('setting-index_orderby') : 'date');
 			
-			if( '' != $post_image_height && '' != $post_image_width) {
-				$this->width = $post_image_width;
-				$this->height = $post_image_height;
-			}
-			
 		}
 
-		if( is_single() ) {
+		elseif( is_single() ) {
 			$this->hide_title = (themify_get('hide_post_title') != 'default' && themify_check('hide_post_title')) ? themify_get('hide_post_title') : themify_get('setting-default_page_post_title');
 			$this->unlink_title = (themify_get('unlink_post_title') != 'default' && themify_check('unlink_post_title')) ? themify_get('unlink_post_title') : themify_get('setting-default_page_unlink_post_title');
 			$this->hide_date = (themify_get('hide_post_date') != 'default' && themify_check('hide_post_date')) ? themify_get('hide_post_date') : themify_get('setting-default_page_post_date');
 			$this->hide_meta = (themify_get('hide_post_meta') != 'default' && themify_check('hide_post_meta')) ? themify_get('hide_post_meta') : themify_get('setting-default_page_post_meta');
 			$this->hide_image = (themify_get('hide_post_image') != 'default' && themify_check('hide_post_image')) ? themify_get('hide_post_image') : themify_get('setting-default_page_post_image');
 			$this->unlink_image = (themify_get('unlink_post_image') != 'default' && themify_check('unlink_post_image')) ? themify_get('unlink_post_image') : themify_get('setting-default_page_unlink_post_image');
-			
+			$post_image_width = themify_get('setting-image_post_single_width');
+                        $post_image_height = themify_get('setting-image_post_single_height');
 			$this->layout = (themify_get('layout') == 'sidebar-none'
 							|| themify_get('layout') == 'sidebar1'
 							|| themify_get('layout') == 'sidebar1 sidebar-left'
 							|| themify_get('layout') == 'sidebar2') ?
 								themify_get('layout') : themify_get('setting-default_page_post_layout');
 			 // set default layout
-			 if($this->layout == '')
+			 if($this->layout == ''){
 			 	$this->layout = 'sidebar1';
+                         }
 			
 			$this->display_content = '';
 			
-			$this->post_image_width = themify_get('image_width');
-			$this->post_image_height = themify_get('image_height');
-			
 			// Set Default Image Sizes for Single
+                        $this->width =  $post_image_width>=0?$post_image_width:self::$single_image_width;
+                        $this->height =  $post_image_height>=0?$post_image_height:self::$single_image_height;
 			self::$content_width = self::$single_content_width;
 			self::$sidebar1_content_width = self::$single_sidebar1_content_width;
-			
-			if( '' == $post_image_height && '' == $post_image_width){
-				$this->width  = self::$single_image_width;
-				$this->height = self::$single_image_height;
-			} else {
-				$this->width  = $post_image_width;
-				$this->height = $post_image_height;
-			}
 		}
 		
-		if($this->layout == 'sidebar1' || $this->layout == 'sidebar1 sidebar-left') {
+		if(empty($this->width) &&  empty($this->height) && $this->height!=='0'  && ($this->layout === 'sidebar1' || $this->layout === 'sidebar1 sidebar-left')) {
 			$ratio = $this->width / self::$content_width;
-			$aspect = $this->height / $this->width;
+			$aspect = $this->width == 0 ? 0 : $this->height / $this->width;
 			$this->width = round($ratio * self::$sidebar1_content_width);
-			if($this->height != '' && $this->height != 0)
-				$this->height = round($this->width * $aspect);
+			if($this->height>0 && $this->width>0){
+                            $this->height = round($this->width * $aspect);
+                        }
 		}
 		
 		if(is_single() && $this->hide_image != 'yes') {

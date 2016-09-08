@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 define('WP_MEMORY_LIMIT', '64M' /* WebSharks™ Core auto-fix. */);
 /**
  * The base configurations of the WordPress.
@@ -17,16 +17,16 @@ define('WP_MEMORY_LIMIT', '64M' /* WebSharks™ Core auto-fix. */);
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define('DB_NAME', 'bta_mysql_5119');
+define('DB_NAME', 'industry_website');
 
 /** MySQL database username */
-define('DB_USER', 'bta_mysql_5119');
+define('DB_USER', 'industry_webbie');
 
 /** MySQL database password */
-define('DB_PASSWORD', 't3mp19xd$');
+define('DB_PASSWORD', 'Uc^Eni.gc@fy');
 
 /** MySQL hostname */
-define('DB_HOST', 'sql05.bta.com');
+define('DB_HOST', 'localhost');
 
 /** Database Charset to use in creating database tables. */
 define('DB_CHARSET', 'utf8');

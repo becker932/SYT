@@ -1,89 +1,115 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH'))
+    exit; // Exit if accessed directly
 /**
  * Template Map
  * 
  * Access original fields: $mod_settings
  * @author Themify
  */
+if (TFCache::start_cache('map', self::$post_id, array('ID' => $module_ID))):
 
-$fields_default = array(
-	'mod_title_map' => '',
-	'address_map' => '',
-	'zoom_map' => 15,
-	'w_map' => '100%',
-	'unit_w' => '',
-	'h_map' => '300px',
-	'unit_h' => '',
-	'b_style_map' => '',
-	'b_width_map' => '',
-	'b_color_map' => '',
-	'type_map' => 'ROADMAP',
-	'scrollwheel_map' => 'enable',
-	'draggable_map' => 'enable',
-	'css_map' => ''
-);
+    $fields_default = array(
+        'mod_title_map' => '',
+        'address_map' => '',
+        'latlong_map' => '',
+        'zoom_map' => 15,
+        'w_map' => '100%',
+        'w_map_static' => 500,
+        'unit_w' => '',
+        'h_map' => '300px',
+        'unit_h' => '',
+        'b_style_map' => '',
+        'b_width_map' => '',
+        'b_color_map' => '',
+        'type_map' => 'ROADMAP',
+        'scrollwheel_map' => 'disable',
+        'draggable_map' => 'enable',
+        'draggable_disable_mobile_map' => 'yes',
+        'info_window_map' => '',
+        'map_display_type' => 'dynamic',
+        'css_map' => '',
+        'animation_effect' => ''
+    );
 
-if ( isset( $mod_settings['address_map'] ) ) 
-	$mod_settings['address_map'] = preg_replace( '/\s+/', ' ', trim( $mod_settings['address_map'] ) );
+    if (isset($mod_settings['address_map']))
+        $mod_settings['address_map'] = preg_replace('/\s+/', ' ', trim($mod_settings['address_map']));
 
-$fields_args = wp_parse_args( $mod_settings, $fields_default );
-extract( $fields_args, EXTR_SKIP );
+    $fields_args = wp_parse_args($mod_settings, $fields_default);
+    extract($fields_args, EXTR_SKIP);
+    $animation_effect = $this->parse_animation_effect($animation_effect, $fields_args);
+    $info_window_map = empty($info_window_map) ? sprintf('<b>%s</b><br/><p>%s</p>', __('Address', 'themify'), $address_map) : $info_window_map;
 
-$container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
-		'module', 'module-' . $mod_name, $module_ID, $css_map
-	) )
-);
-$style = '';
+// Check if draggable should be disabled on mobile devices
+    if ('enable' == $draggable_map && 'yes' == $draggable_disable_mobile_map && wp_is_mobile())
+        $draggable_map = 'disable';
+
+    $container_class = implode(' ', apply_filters('themify_builder_module_classes', array(
+        'module', 'module-' . $mod_name, $module_ID, $css_map, $animation_effect
+                    ), $mod_name, $module_ID, $fields_args)
+    );
+
+    $container_props = apply_filters( 'themify_builder_module_container_props', array(
+        'id' => $module_ID,
+        'class' => $container_class
+    ), $fields_args, $mod_name, $module_ID );
+    
+    $style = '';
 
 // specify border
-if ( isset( $mod_settings['b_width_map'] ) ) {
-	$style .= 'border: ';
-	$style .= ( isset($mod_settings['b_style_map'] ) ) ? $mod_settings['b_style_map'] : '';
-	$style .= ( isset($mod_settings['b_width_map'] ) ) ? ' '.$mod_settings['b_width_map'].'px' : '';
-	$style .= ( isset($mod_settings['b_color_map'] ) ) ? ' #'.$mod_settings['b_color_map'] : '';
-	$style .= ';';
-}
+    if (isset($mod_settings['b_width_map'])) {
+        $style .= 'border: ';
+        $style .= ( isset($mod_settings['b_style_map']) ) ? $mod_settings['b_style_map'] : '';
+        $style .= ( isset($mod_settings['b_width_map']) ) ? ' ' . $mod_settings['b_width_map'] . 'px' : '';
+        $style .= ( isset($mod_settings['b_color_map']) ) ? ' ' . $this->get_rgba_color($mod_settings['b_color_map']) : '';
+        $style .= ';';
+    }
+    ?>
+    <!-- module map -->
+    <div<?php echo $this->get_element_attributes( $container_props ); ?>>
 
-$style .= 'width:';
-$style .= ( isset( $mod_settings['w_map'] ) ) ? $mod_settings['w_map'].$mod_settings['unit_w'] : '100%';
-$style .= ';';
-$style .= 'height:';
-$style .= ( isset( $mod_settings['h_map'] ) ) ? $mod_settings['h_map'].$mod_settings['unit_h'] : '300px';
-$style .= ';';
-?>
-<!-- module map -->
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
-	<?php if( $mod_title_map != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_map; ?></h3>
-	<?php endif; ?>
-	<?php 
-	if ( ! empty( $address_map ) ) {
-		// enqueue map script
-		if ( ! wp_script_is( 'themify-builder-map-script' ) ) {
-			wp_enqueue_script('themify-builder-map-script');
-		}
-	?>
-	<?php $num = rand(0,10000); ?>
-		<script type="text/javascript"> 
-			function themify_builder_create_map() {
-				ThemifyBuilderModuleJs.initialize("<?php echo $address_map; ?>", <?php echo $num; ?>, <?php echo $zoom_map; ?>, "<?php echo $type_map; ?>", <?php echo $scrollwheel_map != 'enable' ? 'false' : 'true' ; ?>, <?php echo $draggable_map != 'enable' ? 'false' : 'true' ; ?>);
-			}
-			jQuery(document).ready(function() {
-				if( typeof google === 'undefined' ) {
-					var script = document.createElement("script");
-					script.type = "text/javascript";
-					script.src = "http://maps.google.com/maps/api/js?sensor=false&callback=themify_builder_create_map";
-					document.body.appendChild(script);
-				} else {
-					ThemifyBuilderModuleJs.initialize("<?php echo $address_map; ?>", <?php echo $num; ?>, <?php echo $zoom_map; ?>, "<?php echo $type_map; ?>", <?php echo $scrollwheel_map != 'enable' ? 'false' : 'true' ; ?>, <?php echo $draggable_map != 'enable' ? 'false' : 'true' ; ?>);
-				}
-			});
-		</script>
-		<div id="themify_map_canvas_<?php echo $num; ?>" style="<?php echo $style; ?>" class="map-container">&nbsp;</div>
-	<?php
-	}
-	?>
-</div>
-<!-- /module map -->
+        <?php if ($mod_title_map != ''): ?>
+            <?php echo $mod_settings['before_title'] . wp_kses_post(apply_filters('themify_builder_module_title', $mod_title_map, $fields_args)) . $mod_settings['after_title']; ?>
+        <?php endif; ?>
+
+        <?php if ($map_display_type == 'static') : ?>
+            <?php
+            $args = '';
+            if (!empty($address_map)) {
+                $args .= 'center=' . $address_map;
+            } elseif (!empty($latlong_map)) {
+                $args .= 'center=' . $latlong_map;
+            }
+            $args .= '&zoom=' . $zoom_map;
+            $args .= '&maptype=' . strtolower($type_map);
+            $args .= '&size=' . preg_replace("/[^0-9]/", "", $w_map_static) . 'x' . preg_replace("/[^0-9]/", "", $h_map);
+            ?>
+            <img style="<?php echo esc_attr($style); ?>" src="//maps.googleapis.com/maps/api/staticmap?<?php echo $args; ?>" />
+
+        <?php else : ?>
+            <?php
+            $style .= 'width:';
+            $style .= ( isset($mod_settings['w_map']) ) ? $mod_settings['w_map'] . $mod_settings['unit_w'] : '100%';
+            $style .= ';';
+            $style .= 'height:';
+            $style .= ( isset($mod_settings['h_map']) ) ? $mod_settings['h_map'] . $mod_settings['unit_h'] : '300px';
+            $style .= ';';
+
+            if (!empty($address_map) || !empty($latlong_map)) {
+                $geo_address = !empty($address_map) ? $address_map : $latlong_map;
+                ?>
+                <?php
+                $data['address'] = $geo_address;
+                $data['zoom'] = $zoom_map;
+                $data['type'] = $type_map;
+                $data['scroll'] = $scrollwheel_map == 'enable';
+                $data['drag'] = 'enable' == $draggable_map;
+                ?>
+                <div data-map="<?php esc_attr_e(base64_encode(json_encode($data))) ?>" class="themify_map map-container"  style="<?php echo esc_attr($style); ?>"  data-info-window="<?php echo esc_attr($info_window_map); ?>" data-reverse-geocoding="<?php echo ( empty($address_map) && !empty($latlong_map) ) ? true : false; ?>"></div>
+            <?php } ?>
+        <?php endif; ?>
+
+    </div>
+    <!-- /module map -->
+<?php endif; ?>
+<?php TFCache::end_cache(); ?>

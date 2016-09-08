@@ -12,6 +12,8 @@
  *
  ***************************************************************************/
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 function themify_editor_menu() {
 	check_ajax_referer( 'themify-editor-nonce', 'nonce' );
 
@@ -20,9 +22,11 @@ function themify_editor_menu() {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title><?php echo $_GET['title'] . ' ' . __('Shortcode Options', 'themify'); ?></title>
+		<title><?php printf( esc_html__('%s Shortcode Options', 'themify'), $_GET['title'] ); ?></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		
+		<link rel="stylesheet" href="<?php echo esc_url( THEMIFY_URI . '/css/themify-ui.css' ); ?>"/>
+		<link rel="stylesheet" href="<?php echo esc_url( THEMIFY_URI . '/fontawesome/css/font-awesome.min.css' ); ?>"/>
+		<link rel="stylesheet" href="<?php echo esc_url( THEMIFY_URI . '/themify-icons/themify-icons.css' ); ?>"/>
 		<style type="text/css">
 		body#wp-admin {
 			margin: 10px 17px;
@@ -74,6 +78,22 @@ function themify_editor_menu() {
 			text-decoration: none;
 			text-shadow: 0 1px 0 rgba(0,0,0,0.1);
 		}
+		.themify-admin-lightbox {
+			top: 20px !important;
+			height: 400px;
+			padding: 20px 3%;
+			width: 88%;
+			left: 3%;
+		}
+		#themify_lightbox_fa .lightbox_container {
+			max-height: 330px;
+		}
+		.themify_fa_toggle {
+			text-decoration: none;
+		}
+		#themify_lightbox_fa .lightbox_container a {
+			width: 172px;
+		}
 		</style>
 		<script src="<?php	echo includes_url( '/js/jquery/jquery.js'); ?>"	language="javascript" type="text/javascript" ></script>
 		<script src="<?php	echo includes_url( '/js/tinymce/tiny_mce_popup.js');   ?>"	language="javascript" type="text/javascript" ></script>
@@ -95,13 +115,19 @@ function themify_editor_menu() {
 				tinyMCEPopup.close();
 			}
 		}
+                if(!themifyIconPicker){
+                //<![CDATA[ 
+                    var themifyIconPicker = {"icons_list":'<?php echo THEMIFY_URI?>'+'/fontawesome/list.html'};
+                    //]]>
+                }
 		</script>
+		<script src="<?php echo esc_url( THEMIFY_URI . '/js/themify.font-icons-select.js' ); ?>"  type="text/javascript" ></script>
 		<base target="_self" />
 	</head>
 	<body id="wp-admin" onload="tinyMCEPopup.executeOnLoad('init();');document.body.style.display='';" style="display: none">
 		
 		<script language="javascript" type="text/javascript">
-		var shortcode_type = '<?php echo $_GET['shortcode'] ?>';
+		var shortcode_type = '<?php echo esc_js( $_GET['shortcode'] ); ?>';
 		<?php
 		if( isset($_GET['selection']) )
 			echo "var selection = '{$_GET['selection']}'; \n";
@@ -123,10 +149,6 @@ function themify_editor_menu() {
 			switch(type){
 				case 'video':
 					sc_content = '[themify_' + type + ' ' + themify_scparams(['src', 'width', 'height'], type) + ']';
-				break;
-				
-				case 'img':
-					sc_content = '[themify_' + type + ' ' + themify_scparams(['src', 'w', 'h'], type) + ']';
 				break;
 				
 				case 'button':
@@ -169,6 +191,10 @@ function themify_editor_menu() {
 				case 'slider':
 					sc_content = '[themify_' + type + ' ' + themify_scparams(['visible', 'scroll', 'auto', 'wrap', 'speed', 'slider_nav', 'class'], type, true) + ']' + selection + '[/themify_' + type + ']';
 				break;
+
+				case 'icon':
+					sc_content = '[themify_' + type + ' ' + themify_scparams(['icon', 'label', 'link', 'style', 'icon_bg', 'icon_color'], type, true) + ']';
+				break;
 			}
 			
 			themifyRepaint( '<p>' + sc_content + '</p>');
@@ -201,28 +227,6 @@ function themify_editor_menu() {
 							'type' => 'text',
 							'label' => __('Video Height (in px or %):', 'themify'),
 							'help' => __('Example: 400px or 94%.', 'themify')
-						)
-					);
-					break;
-				case 'img':
-					$fields = array(
-						array(
-							'id' => 'src_img',
-							'type' => 'text',
-							'value' => 'http://',
-							'label' => __('Original Image URL:', 'themify')
-						),
-						array(
-							'id' => 'w_img',
-							'type' => 'text',
-							'label' => __('Image Width (in px):', 'themify'),
-							'help' => __('Example: 300px.', 'themify')
-						),
-						array(
-							'id' => 'h_img',
-							'type' => 'text',
-							'label' => __('Image Height (in px):', 'themify'),
-							'help' => __('Example: 300px.', 'themify')
 						)
 					);
 					break;
@@ -524,7 +528,7 @@ function themify_editor_menu() {
 								__('Original', 'themify') => 'full'
 							),
 							'label' => __('Post Image Size:', 'themify'),
-							'help' => __('Use this if you have disabled img.php', 'themify')
+							'help' => __('Use this if you have disabled the image script', 'themify')
 						),
 						array(
 							'id' => 'title_post_slider',
@@ -696,7 +700,7 @@ function themify_editor_menu() {
 								__('Original', 'themify') => 'full'
 							),
 							'label' => __('Post Image Size:', 'themify'),
-							'help' => __('Use this if you have disabled img.php', 'themify')
+							'help' => __('Use this if you have disabled the image script', 'themify')
 						),
 						array(
 							'id' => 'title_list_posts',
@@ -844,51 +848,94 @@ function themify_editor_menu() {
 						)
 					);
 					break;
+				case 'icon':
+					$fields = array(
+						array(
+							'id'    => 'icon_icon',
+							'type'  => 'icon',
+							'label' => __( 'Icon:', 'themify' )
+						),
+						array(
+							'id'    => 'label_icon',
+							'type'  => 'text',
+							'label' => __( 'Label:', 'themify' )
+						),
+						array(
+							'id'    => 'link_icon',
+							'type'  => 'text',
+							'value' => 'http://',
+							'label' => __( 'Link:', 'themify' )
+						),
+						array(
+							'id'    => 'style_icon',
+							'type'  => 'text',
+							'label' => __( 'Style:', 'themify' ),
+							'help'  => __( 'Combine rounded, squared, small and large.', 'themify' ),
+						),
+						array(
+							'id'    => 'icon_color_icon',
+							'type'  => 'text',
+							'label' => __( 'Icon Color:', 'themify' ),
+							'help'  => __( 'Enter color in hexadecimal format. For example, #ddd.', 'themify' )
+						),
+						array(
+							'id'    => 'icon_bg_icon',
+							'type'  => 'text',
+							'label' => __( 'Background Color:', 'themify' ),
+							'help'  => __( 'Enter color in hexadecimal format. For example, #ddd.', 'themify' )
+						),
+					);
+					break;
 			}
 			
 			foreach ($fields as $field) { ?>
 				<p>
 					<?php if(isset($field['id']) && isset($field['label'])){ ?>
-						<label for="<?php echo $field['id'] ?>"><span class="label-inner"><?php echo $field['label']; ?></span>
+						<label for="<?php echo esc_attr( $field['id'] ); ?>"><span class="label-inner"><?php echo esc_html( $field['label'] ); ?></span>
 					<?php }	?>
 						<?php
 						if('text' == $field['type']){
 						?>
-							<input type="text" id="<?php echo $field['id'] ?>" name="<?php echo $field['id'] ?>" placeholder="<?php if(isset($field['value'])) echo $field['value']; ?>" />
+							<input type="text" id="<?php echo esc_attr( $field['id'] ); ?>" name="<?php echo esc_attr( $field['id'] ); ?>" placeholder="<?php if(isset($field['value'])) echo esc_attr( $field['value'] ); ?>" />
 						<?php
 						} elseif('select' == $field['type']){
 						?>
-							<select id="<?php echo $field['id'] ?>" name="<?php echo $field['id'] ?>" >
+							<select id="<?php echo esc_attr( $field['id'] ); ?>" name="<?php echo esc_attr( $field['id'] ); ?>" >
+								<option value=""></option>
 								<?php
-								echo '<option value=""></option>';
 								foreach ($field['options'] as $key => $value) {
-									echo '<option value="' . $value . '">' . $key . '</option>';
+									echo '<option value="' . esc_attr( $value ) . '">' . esc_html( $key ) . '</option>';
 								}
 								?>
 							</select>
 						<?php
 						} elseif('selectbasic' == $field['type']){
 						?>
-							<select id="<?php echo $field['id'] ?>" name="<?php echo $field['id'] ?>" >
+							<select id="<?php echo esc_attr( $field['id'] ); ?>" name="<?php echo esc_attr( $field['id'] ); ?>" >
+								<option value=""></option>
 								<?php
-								echo '<option value=""></option>';
 								foreach ($field['options'] as $value) {
-									echo '<option value="' . $value . '">' . $value . '</option>';
+									echo '<option value="' . esc_attr( $value ) . '">' . esc_html( $value ) . '</option>';
 								}
 								?>
 							</select>
 						<?php
 						} elseif ('info' == $field['type']){
 						?>
-							<p><?php if(isset($field['info'])) echo $field['info']; ?></p>
+							<p><?php if(isset($field['info'])) echo wp_kses_post( $field['info'] ); ?></p>
 						<?php
+						} elseif ( 'icon' == $field['type'] ) {
+							printf('<input type="text" id="%s" name="%s" size="55" class="themify_input_field themify_fa %s" /> <a class="button button-secondary hide-if-no-js themify_fa_toggle" href="#" data-target="#%s">%s</a>',
+							esc_attr( $field['id'] ), esc_attr( $field['id'] ), 'small', esc_attr( $field['id'] ), __( 'Insert Icon', 'themify' ) );
 						}
 						?>
 					<?php if(isset($field['id']) && isset($field['label'])){ ?>
 					</label>
 					<?php } ?>
 				</p>
-				<div class="description"><?php if(isset($field['help'])) echo $field['help']; ?></div>
+				<?php if ( isset( $field['help'] ) ) : ?>
+					<div class="description"><?php echo wp_kses_post( $field['help'] ); ?></div>
+				<?php endif; ?>
 			<?php
 			}
 			
@@ -896,16 +943,18 @@ function themify_editor_menu() {
 			</div><!--/panel current-->
 			<div class="mceActionPanel submitbox" style="border-top: 1px solid #CCC;padding-top: 5px;">
 				<div id="delete-action" style="float: left;">
-					<a class="submitdelete deletion" onclick="tinyMCEPopup.close();" style="text-decoration: underline;cursor:pointer;padding: 0 2px;"><?php _e('Cancel', 'themify'); ?></a>
+					<a class="submitdelete deletion" onclick="<?php echo esc_js( 'tinyMCEPopup.close();' ); ?>" style="text-decoration: underline;cursor:pointer;padding: 0 2px;"><?php _e('Cancel', 'themify'); ?></a>
 				</div>
 		
 				<div id="wp-link-update" style="float: right;">
-					<input class="button button-primary button-large" type="submit" id="wp-link-submit" name="insert" value="<?php _e('Insert', 'themify'); ?>" onclick="themify_insert_shortcode(shortcode_type);" />
+					<input class="button button-primary button-large" type="submit" id="wp-link-submit" name="insert" value="<?php _e('Insert', 'themify'); ?>" onclick="<?php echo esc_js( 'themify_insert_shortcode(shortcode_type);' ); ?>" />
 				</div>
 			</div>
 			
 		</form>
-		
+		<?php
+		// Add markup for icons dialog
+		themify_font_icons_dialog(); ?>
 	</body>
 </html>	
 <?php

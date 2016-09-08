@@ -1,4 +1,7 @@
 function themify_create_pluploader(obj) {
+
+	'use strict';
+
 	var $this = obj,
 		id1 = $this.attr("id"),
 		imgId = id1.replace("plupload-upload-ui", ""),
@@ -8,7 +11,7 @@ function themify_create_pluploader(obj) {
 		topost = false,
 		$j = jQuery;
 	
-	pconfig = JSON.parse(JSON.stringify(global_plupload_init));
+	var pconfig = JSON.parse(JSON.stringify(global_plupload_init));
 	pconfig["browse_button"] = imgId + pconfig["browse_button"];
 	pconfig["container"] = imgId + pconfig["container"];
 	pconfig["drop_element"] = imgId + pconfig["drop_element"];
@@ -62,8 +65,8 @@ function themify_create_pluploader(obj) {
 		$j('.prompt-box .show-error').show();
 		
 		if( -600 == error.code ){
-			errorMessage = themify_lang.filesize_error;
-			errorMessageFix = themify_lang.filesize_error_fix;
+			var errorMessage = themify_lang.filesize_error,
+				errorMessageFix = themify_lang.filesize_error_fix;
 		}
 		
 		if($j('.prompt-box .show-error').length > 0){
@@ -77,7 +80,8 @@ function themify_create_pluploader(obj) {
 	});
 	
 	uploader.bind('FileUploaded', function(up, file, response) {
-		var json = JSON.parse(response['response']);
+		var json = JSON.parse(response['response']),
+			status = '';
 		
 		if('200' == response['status'] && !json.error) {
 			status = 'done';
@@ -142,9 +146,13 @@ function themify_create_pluploader(obj) {
 }
 
 jQuery(document).ready(function($) {
-	
-	if($('.plupload-upload-uic').length > 0) {
-		$('.plupload-upload-uic').each(function(){
+
+	'use strict';
+
+	var $pluploadUIC = $('.plupload-upload-uic');
+
+	if ( $pluploadUIC.length > 0 ) {
+		$pluploadUIC.each(function() {
 			themify_create_pluploader($(this));
 		});
 	}

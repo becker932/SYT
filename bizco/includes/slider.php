@@ -1,5 +1,23 @@
-<?php query_posts("post_type=slider&showposts=-1"); ?>	
-<?php if (have_posts()) : ?>
+<?php
+$args = array(
+	'post_type' => 'slider',
+	'posts_per_page' => '-1'
+);
+if(themify_get('setting-slider_posts_category') != 0) {
+	$args['tax_query'] = array(
+		array(
+			'taxonomy' => 'slider-category',
+			'field' => 'id',
+			'terms' => themify_get('setting-slider_posts_category')
+		)
+	);
+}
+if(themify_check('setting-slider_posts_slides')) {
+	$args['posts_per_page'] = themify_get('setting-slider_posts_slides');
+}
+$slides = new WP_Query( apply_filters( 'themify_slider_query_vars', $args ) );
+
+if ( $slides->have_posts() ) : ?>
  
 <div id="sliderwrap" class="clearfix">
 
@@ -8,9 +26,9 @@
         <?php themify_slider_start(); //hook ?>
 		<ul class="slides">
 			
-			<?php while (have_posts()) : the_post(); ?>
+			<?php while ( $slides->have_posts()) : $slides->the_post(); ?>
 				 
-				<li id="slider-<?php the_ID(); ?>" <?php post_class(themify_get('layout')); ?>> 
+				<li id="slider-<?php echo esc_attr( $slides->post->ID ); ?>" <?php post_class(themify_get('layout')); ?>> 
 				
 				<?php $link = themify_get_featured_image_link('no_permalink=true'); ?>
 
@@ -63,5 +81,5 @@
 </div>
 <!--/sliderwrap -->
 <?php endif; ?>
-<?php wp_reset_query(); ?>
+<?php wp_reset_postdata(); ?>
 

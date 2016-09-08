@@ -1,4 +1,7 @@
 (function($){
+
+	'use strict';
+
 	var themifyGalleryShortcode = {
 		init: function(){
 			this.galleryShortcode();
@@ -7,7 +10,7 @@
 		galleryShortcode: function(){
 			var clone = wp.media.gallery.shortcode, wpgallery = wp.media.gallery, file_frame, frame;
 
-			$('.themify-gallery-shortcode-btn').live('click', function(event) {
+			$('.themify-gallery-shortcode-btn').on('click', function(event) {
 				var shortcode_val = $(this).closest('.themify_field').find('.themify-gallery-shortcode-input');
 		
 				if (file_frame) {
@@ -55,7 +58,7 @@
 							delete attrs[key];
 					});
 		
-					shortcode = new wp.shortcode({
+					var shortcode = new wp.shortcode({
 						tag : 'gallery',
 						attrs : attrs,
 						type : 'single'

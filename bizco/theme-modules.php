@@ -22,7 +22,14 @@ They will be added to the theme automatically.
 		 * HTML for settings panel
 		 * @var string
 		 */
-		$output = '<p>
+		$output = '';
+
+		$output .= '<p><span class="label">' . __('Slider Category', 'themify') . '</span>';
+		$output .= wp_dropdown_categories(array("taxonomy" => "slider-category", "show_option_all" => __('All Categories', 'themify'), "hide_empty" => 0, "echo" => 0, "name" => "setting-slider_posts_category", "selected" => themify_get( 'setting-slider_posts_category' )));
+		$output .= '<input type="text" name="setting-slider_posts_slides" value="' . themify_get( 'setting-slider_posts_slides' ) . '" class="width2" /> ' . __('number of slides', 'themify') . ' 
+					</p>';
+
+		$output .= '<p>
 						<span class="label">' . __('Effect', 'themify') . '</span>
 						<select name="setting-feature_box_effect">';
 						foreach($effect_options as $name => $val){
@@ -112,11 +119,6 @@ They will be added to the theme automatically.
 	}
 	add_action('wp_footer', 'themify_homepage_featurebox_action');
 
-
-
-	
-		
-
 	///////////////////////////////////////////
 	// Default Page Layout Module - Action
 	///////////////////////////////////////////
@@ -170,6 +172,15 @@ They will be added to the theme automatically.
 						
 		$output .=	'</select>
 					</p>';
+		/**
+		 * Hide Feauted images in All Pages
+		 */
+		$output .= '<p>
+                    <span class="label">' . __('Hide Featured Image', 'themify') . '</span>
+                    <select name="setting-hide_page_image">' .
+                        themify_options_module($default_options, 'setting-hide_page_image') . '
+                    </select>
+                </p>';
 		if ( isset( $data['setting-comments_pages'] ) && $data['setting-comments_pages'] ) {
 			$pages_checked = "checked='checked'";	
 		}
@@ -218,10 +229,14 @@ They will be added to the theme automatically.
 						 
 		$val = isset( $data['setting-default_layout'] ) ? $data['setting-default_layout'] : '';
 		
-		$output = '';
+		/**
+		 * HTML for settings panel
+		 * @var string
+		 */
+		$output = '<div class="themify-info-link">' . __( 'Here you can set the <a href="https://themify.me/docs/default-layouts">Default Layouts</a> for WordPress archive post layout (category, search, archive, tag pages, etc.), single post layout (single post page), and the static Page layout. The default single post and page layout can be override individually on the post/page > edit > Themify Custom Panel.', 'themify' ) . '</div>';
 		
 		$output .= '<p>
-						<span class="label">' . __('Index Sidebar Option', 'themify') . '</span>';
+						<span class="label">' . __('Archive Sidebar Option', 'themify') . '</span>';
 		foreach ( $options as $option ) {
 			if ( ( '' == $val || ! $val || ! isset( $val ) ) && ( isset( $option['selected'] ) && $option['selected'] ) ) { 
 				$val = $option['value'];
@@ -378,23 +393,9 @@ They will be added to the theme automatically.
 		$output .= '<p>
 						<span class="label">' . __('Image Size', 'themify') . '</span>  
 						<input type="text" class="width2" name="setting-image_post_width" value="' . themify_get( 'setting-image_post_width' ) . '" /> ' . __('width', 'themify') . ' <small>(px)</small>  
-						<input type="text" class="width2" name="setting-image_post_height" value="' . themify_get( 'setting-image_post_height' ) . '" /> ' . __('height', 'themify') . ' <small>(px)</small>
-						<br /><span class="pushlabel"><small>' . __('Enter height = 0 to disable vertical cropping with img.php enabled', 'themify') . '</small></span>
-					</p>
-					<p>
-						<span class="label">' . __('Featured Image Alignment', 'themify') . '</span>
-						<select name="setting-image_post_align">
-							<option></option>';
-		foreach ( $options as $option ) {
-			if ( isset( $data['setting-image_post_align'] ) && ( $option == $data['setting-image_post_align'] ) ) {
-				$output .= '<option value="'.$option.'" selected="selected">'.$option.'</option>';
-			} else {
-				$output .= '<option value="'.$option.'">'.$option.'</option>';
-			}
-		}
-		$output .=	'</select>
-					</p>
-					';
+						<input type="text" class="width2 show_if_enabled_img_php" name="setting-image_post_height" value="' . themify_get( 'setting-image_post_height' ) . '" /> <span class="show_if_enabled_img_php">' . __('height', 'themify') . ' <small>(px)</small></span>
+						<br /><span class="pushlabel show_if_enabled_img_php"><small>' . __('Enter height = 0 to disable vertical cropping with img.php enabled', 'themify') . '</small></span>
+					</p>';
 		return $output;
 	}
 	
@@ -520,22 +521,8 @@ They will be added to the theme automatically.
 		$output .= '<p>
 				<span class="label">' . __('Image Size', 'themify') . '</span>  
 						<input type="text" class="width2" name="setting-image_post_single_width" value="' . themify_get( 'setting-image_post_single_width' ) . '" /> ' . __('width', 'themify') . ' <small>(px)</small>  
-						<input type="text" class="width2" name="setting-image_post_single_height" value="' . themify_get( 'setting-image_post_single_height' ) . '" /> ' . __('height', 'themify') . ' <small>(px)</small>
-						<br /><span class="pushlabel"><small>' . __('Enter height = 0 to disable vertical cropping with img.php enabled', 'themify') . '</small></span>
-					</p>
-					<p>
-						<span class="label">' . __('Featured Image Alignment', 'themify') . '</span>
-						<select name="setting-image_post_single_align">
-							<option></option>';
-		$options = array( 'left', 'right' );
-		foreach ( $options as $option ) {
-			if ( isset( $data['setting-image_post_single_align'] ) && ( $option == $data['setting-image_post_single_align'] ) ) {
-				$output .= '<option value="'.$option.'" selected="selected">'.$option.'</option>';
-			} else {
-				$output .= '<option value="'.$option.'">'.$option.'</option>';
-			}
-		}
-		$output .=	'</select>
+						<input type="text" class="width2 show_if_enabled_img_php" name="setting-image_post_single_height" value="' . themify_get( 'setting-image_post_single_height' ) . '" /> <span class="show_if_enabled_img_php">' . __('height', 'themify') . ' <small>(px)</small></span>
+						<br /><span class="pushlabel show_if_enabled_img_php"><small>' . __('Enter height = 0 to disable vertical cropping with img.php enabled', 'themify') . '</small></span>
 					</p>';
 		if ( themify_check( 'setting-comments_posts' ) ) {
 			$comments_posts_checked = "checked='checked'";	

@@ -3,7 +3,7 @@
  * Pro Login Widget.
  *
  * Copyright: © 2009-2011
- * {@link http://www.websharks-inc.com/ WebSharks, Inc.}
+ * {@link http://websharks-inc.com/ WebSharks, Inc.}
  * (coded in the USA)
  *
  * This WordPress plugin (s2Member Pro) is comprised of two parts:
@@ -16,21 +16,21 @@
  * o (2) All other parts of (s2Member Pro); including, but not limited to:
  *   the CSS code, some JavaScript code, images, and design;
  *   are licensed according to the license purchased.
- *   See: {@link http://www.s2member.com/prices/}
+ *   See: {@link http://s2member.com/prices/}
  *
  * Unless you have our prior written consent, you must NOT directly or indirectly license,
- * sub-license, sell, resell, or provide for free; part (2) of the s2Member Pro Module;
+ * sub-license, sell, resell, or provide for free; part (2) of the s2Member Pro Add-on;
  * or make an offer to do any of these things. All of these things are strictly
- * prohibited with part (2) of the s2Member Pro Module.
+ * prohibited with part (2) of the s2Member Pro Add-on.
  *
  * Your purchase of s2Member Pro includes free lifetime upgrades via s2Member.com
- * (i.e. new features, bug fixes, updates, improvements); along with full access
- * to our video tutorial library: {@link http://www.s2member.com/videos/}
+ * (i.e., new features, bug fixes, updates, improvements); along with full access
+ * to our video tutorial library: {@link http://s2member.com/videos/}
  *
  * @package s2Member\Widgets
  * @since 1.5
  */
-if(realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME']))
+if(!defined('WPINC')) // MUST have WordPress.
 	exit('Do not access this file directly.');
 
 if(!class_exists('c_ws_plugin__s2member_pro_login_widget'))
@@ -50,17 +50,17 @@ if(!class_exists('c_ws_plugin__s2member_pro_login_widget'))
 		 * @package s2Member\Widgets
 		 * @since 1.5
 		 */
-		public function c_ws_plugin__s2member_pro_login_widget()
+		public function __construct()
 		{
 			$widget_ops  = array('classname'   => 'colors', // Default widget options.
-			                     'description' => 'Displays a Login Form if NOT logged in. Or a Profile Summary when a User/Member is logged in.');
+			                     'description' => 'Displays a Login Form if not logged in. Or a Profile Summary when a User/Member is logged in.');
 			$control_ops = array('width' => 400, 'id_base' => 'ws_plugin__s2member_pro_login_widget');
 
 			foreach(array_keys(get_defined_vars()) as $__v) $__refs[$__v] =& $$__v;
 			do_action('ws_plugin__s2member_pro_login_widget_before_construction', get_defined_vars(), $this);
 			unset($__refs, $__v); // Housekeeping.
 
-			$this->WP_Widget($control_ops['id_base'], 's2Member Pro (Login Widget)', $widget_ops, $control_ops);
+			parent::__construct($control_ops['id_base'], 's2Member Pro (Login Widget)', $widget_ops, $control_ops);
 
 			do_action('ws_plugin__s2member_pro_login_widget_after_construction', get_defined_vars(), $this);
 		}

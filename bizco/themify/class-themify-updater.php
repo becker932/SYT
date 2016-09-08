@@ -40,7 +40,7 @@ class Themify_Upgrader_Skin extends WP_Upgrader_Skin {
 		parent::__construct($args);
 	}
 
-	function request_filesystem_credentials($error = false) {
+	function request_filesystem_credentials( $error = false, $context = false, $allow_relaxed_file_ownership = false ) {
 		$url = 'admin.php?page=themify&action=upgrade&type='. $this->type .'&login=false';
 		if ( !empty($this->options['nonce']) )
 			$url = wp_nonce_url($url, $this->options['nonce']);
@@ -61,14 +61,14 @@ class Themify_Upgrader_Skin extends WP_Upgrader_Skin {
 			$preview_link = htmlspecialchars( add_query_arg( array('preview' => 1, 'template' => $template, 'stylesheet' => $stylesheet, 'TB_iframe' => 'true' ), trailingslashit(esc_url(home_url())) ) );
 			$activate_link = wp_nonce_url("themes.php?action=activate&amp;template=" . urlencode($template) . "&amp;stylesheet=" . urlencode($stylesheet), 'switch-theme_' . $template);
 
-			$update_actions['preview'] = '<a href="' . $preview_link . '" class="thickbox thickbox-preview" title="' . esc_attr(sprintf(__('Preview &#8220;%s&#8221;', 'themify'), $name)) . '">' . __('Preview', 'themify') . '</a>';
-			$update_actions['activate'] = '<a href="' . $activate_link .  '" class="activatelink" title="' . esc_attr( sprintf( __('Activate &#8220;%s&#8221;', 'themify'), $name ) ) . '">' . __('Activate', 'themify') . '</a>';
+			$update_actions['preview']  = '<a href="' . esc_url( $preview_link ) . '" class="thickbox thickbox-preview" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'themify' ), $name ) ) . '">' . __( 'Preview', 'themify' ) . '</a>';
+			$update_actions['activate'] = '<a href="' . esc_url( $activate_link ) . '" class="activatelink" title="' . esc_attr( sprintf( __( 'Activate &#8220;%s&#8221;', 'themify' ), $name ) ) . '">' . __( 'Activate', 'themify' ) . '</a>';
 
 			if ( ( ! $this->result || is_wp_error($this->result) ) || $stylesheet == get_stylesheet() )
 				unset($update_actions['preview'], $update_actions['activate']);
 		}
 
-		$update_actions['themes_page'] = '<a href="' . self_admin_url('admin.php?page=themify') . '" title="' . __('Return to Themify Panel', 'themify') . '" target="_parent">' . __('Return to Themify Panel', 'themify') . '</a>';
+		$update_actions['themes_page'] = '<a href="' . esc_url( self_admin_url( 'admin.php?page=themify' ) ) . '" title="' . __( 'Return to Themify Panel', 'themify' ) . '" target="_parent">' . __( 'Return to Themify Panel', 'themify' ) . '</a>';
 
 		$update_actions = apply_filters('update_theme_complete_actions', $update_actions, $this->theme);
 		if ( ! empty($update_actions) )
@@ -79,8 +79,7 @@ class Themify_Upgrader_Skin extends WP_Upgrader_Skin {
 			return;
 		$this->done_header = true;
 		echo '<div class="wrap">';
-		echo screen_icon('tools');
-		echo '<h2>' . $this->options['title'] . '</h2>';
+		echo '<h2>' . esc_html( $this->options['title'] ) . '</h2>';
 	}
 }
 
@@ -111,10 +110,10 @@ class Themify_Upgrader extends WP_Upgrader {
 		foreach ( (array) $dirlist as $filename => $fileinfo ) {
 
 			if ( in_array( $filename, $skip_list ) ){
-				echo '<p><strong>' . sprintf(__('Skipping %s', 'themify'), $filename) .  '</strong></p>';
+				echo '<p><strong>' . sprintf( esc_html__( 'Skipping %s', 'themify' ), $filename ) . '</strong></p>';
 				continue;
 			} elseif ( $wp_filesystem->exists($to . $filename) && 'f' == $fileinfo['type'] ) {
-				echo '<p>' . sprintf(__('Deleting %s', 'themify'), $filename) . '</p>';
+				echo '<p>' . sprintf( esc_html__( 'Deleting %s', 'themify' ), $filename ) . '</p>';
 				$removed = $wp_filesystem->delete($to . $filename, true);
 				if ( is_wp_error($removed) ) {
 					return $removed;
@@ -198,14 +197,6 @@ class Themify_Upgrader extends WP_Upgrader {
 		$skip_list = array(
 			'cache',
 		);
-		$framework_folder = $wp_filesystem->find_folder(THEMIFY_DIR);
-		$img_php = trailingslashit( $framework_folder ) . 'img.php';
-
-		if ( ! $wp_filesystem->exists( $img_php ) ) {
-			$skip_list[] = 'themify/img.php';
-			$skip_list[] = $img_php;
-			$skip_list[] = 'img.php';
-		}
 
 		//Create destination if needed
 		if ( !$wp_filesystem->exists($remote_destination) ) {
@@ -214,8 +205,8 @@ class Themify_Upgrader extends WP_Upgrader {
 			}
 		}
 
-		echo '<h3>' . __('Details', 'themify') . ':</h3>';
-		echo '<div style="height: 200px; overflow: scroll; width: 285px; overflow-x: hidden; overflow-y: scroll; border: 1px solid #EEE; padding: 0 10px; background: #F6F6F6; font-size: 11px; line-height: 120%;">';
+		echo '<h3>' . __( 'Details:', 'themify' ) . '</h3>';
+		echo '<div style="height: 200px; width: 285px; overflow-x: hidden; overflow-y: scroll; border: 1px solid #EEE; padding: 0 10px; background: #F6F6F6; font-size: 11px; line-height: 120%;">';
 
 		// Copy new version of item into place.
 		// We don't need to change this for Themify Framework since none of the files have the same name
@@ -233,14 +224,14 @@ class Themify_Upgrader extends WP_Upgrader {
 		$this->result = compact('local_source', 'source', 'source_name', 'source_files', 'destination', 'destination_name', 'local_destination', 'remote_destination', 'clear_destination', 'delete_source_dir');
 
 		$res = apply_filters('upgrader_post_install', true, $hook_extra, $this->result);
-		
+
 		/**
-		 * Fires after the updater finished the updating process.
-		 * 
-		 * @since 1.7.6
+		 * Set flag stating there was an update.
+		 *
+		 * @since 1.8.2
 		 */
-		do_action( 'themify_updater_post_install' );
-		
+		update_option( 'themify_update_ok_flag', 'update_ok' );
+
 		if ( is_wp_error($res) ) {
 			$this->result = $res;
 			return $res;
@@ -293,7 +284,7 @@ class Themify_Upgrader extends WP_Upgrader {
 		if ( $theme != get_stylesheet() ) //If not current
 			return $return;
 		//Change to maintenance mode now.
-		if ( ! $this->bulk )
+		if ( ! isset( $this->bulk ) || ! $this->bulk )
 			$this->maintenance_mode(true);
 
 		return $return;
@@ -308,7 +299,7 @@ class Themify_Upgrader extends WP_Upgrader {
 			return $return;
 
 		//Time to remove maintenance mode
-		if ( ! $this->bulk )
+		if ( ! isset( $this->bulk ) || ! $this->bulk )
 			$this->maintenance_mode(false);
 		return $return;
 	}
@@ -385,15 +376,19 @@ class Themify_Upgrader extends WP_Upgrader {
 		} else {
 			//Install Suceeded
 			$this->skin->feedback('process_success');
-			echo 'Deleting transient for ' . $hook_extra['type'];
+			printf( esc_html__( 'Deleting transient for %s', 'themify' ), $hook_extra['type'] );
 			if($hook_extra['type'] == 'framework'){
-				delete_transient('themify_new_framework');
+				delete_transient( 'themify_new_framework' );
 				themify_set_update_cookie('framework');
 			}
 			else{
-				delete_transient('themify_new_theme');
+				$theme = wp_get_theme();
+				$theme_name = $theme->get_template();
+				$theme_hash = md5( $theme_name );
+				delete_transient( 'themify_new_theme' . $theme_hash );
 				themify_set_update_cookie('theme');
 			}
+                        TFCache::removeDirectory(TFCache::get_cache_dir());
 		}
 		$this->skin->after();
 

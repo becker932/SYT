@@ -27,13 +27,15 @@
  * 		list_posts
  * 		box
  * 		author-box
+ *		icon
  * 
  * Functions:
+ *		themify_shortcode_list
  * 		themify_shortcodes_js_css
  * 		themify_shortcode
  * 		themify_shortcode_list_posts
  * 		themify_shortcode_flickr
- *  	themify_shortcode_twitter
+ *		themify_shortcode_twitter
  *		themify_shortcode_instagram
  * 		themify_shortcode_slide
  * 		themify_shortcode_slider
@@ -41,66 +43,68 @@
  * 		themify_shortcode_author_box
  * 		themify_shortcode_box
  *		themify_fix_shortcode_empty_paragraph
- * 		themify_change_excerpt_brackets
  * 
  ***************************************************************************/
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+if ( ! function_exists( 'themify_shortcode_list' ) ) {
+	/**
+	 * Return list of Themify shortcodes.
+	 *
+	 * @since 1.9.4
+	 *
+	 * @return array Collection of shortcodes as keys and callbacks as values.
+	 */
+	function themify_shortcode_list() {
+		return array(
+			'is_logged_in' => 'themify_shortcode',
+			'is_guest'     => 'themify_shortcode',
+			'button'       => 'themify_shortcode',
+			'quote'        => 'themify_shortcode',
+			'col'          => 'themify_shortcode',
+			'sub_col'      => 'themify_shortcode',
+			'img'          => 'themify_shortcode',
+			'hr'           => 'themify_shortcode',
+			'map'          => 'themify_shortcode',
+			'list_posts'   => 'themify_shortcode_list_posts',
+			'flickr'       => 'themify_shortcode_flickr',
+			'twitter'      => 'themify_shortcode_twitter',
+			'box'          => 'themify_shortcode_box',
+			'post_slider'  => 'themify_shortcode_post_slider',
+			'slider'       => 'themify_shortcode_slider',
+			'slide'        => 'themify_shortcode_slide',
+			'author_box'   => 'themify_shortcode_author_box',
+			'icon'         => 'themify_shortcode_icon',
+		);
+	}
+}
+
 /**
  * Enqueues JS, CSS and writes inline scripts
  */
-add_action('wp_enqueue_scripts', 'themify_shortcodes_js_css');
+add_action( 'wp_enqueue_scripts', 'themify_shortcodes_js_css' );
 
 /**
- * Add Themify Shortcodes
+ * Add Themify Shortcodes, an unprefixed version and a prefixed version.
  */
-add_shortcode( 'is_logged_in',	'themify_shortcode' );
-add_shortcode( 'is_guest',		'themify_shortcode' );
-add_shortcode( 'button',		'themify_shortcode' );
-add_shortcode( 'quote',			'themify_shortcode' );
-add_shortcode( 'col',			'themify_shortcode' );
-add_shortcode( 'sub_col',		'themify_shortcode' );
-add_shortcode( 'img',			'themify_shortcode' );
-add_shortcode( 'hr',			'themify_shortcode' );
-add_shortcode( 'map',			'themify_shortcode' );
-add_shortcode( 'list_posts',	'themify_shortcode_list_posts' );
-add_shortcode( 'flickr',		'themify_shortcode_flickr' );
-add_shortcode( 'twitter',		'themify_shortcode_twitter' );
-add_shortcode( 'box',			'themify_shortcode_box' );
-add_shortcode( 'post_slider',	'themify_shortcode_post_slider' );
-add_shortcode( 'slider',		'themify_shortcode_slider' );
-add_shortcode( 'slide',			'themify_shortcode_slide' );
-add_shortcode( 'author_box',	'themify_shortcode_author_box' );
-
-add_shortcode( 'themify_is_logged_in',	'themify_shortcode' );
-add_shortcode( 'themify_is_guest',		'themify_shortcode' );
-add_shortcode( 'themify_button',		'themify_shortcode' );
-add_shortcode( 'themify_quote',			'themify_shortcode' );
-add_shortcode( 'themify_col',			'themify_shortcode' );
-add_shortcode( 'themify_sub_col',		'themify_shortcode' );
-add_shortcode( 'themify_img',			'themify_shortcode' );
-add_shortcode( 'themify_hr',			'themify_shortcode' );
-add_shortcode( 'themify_map',			'themify_shortcode' );
-add_shortcode( 'themify_list_posts',	'themify_shortcode_list_posts' );
-add_shortcode( 'themify_video', 		'themify_shortcode' );
-add_shortcode( 'themify_flickr',		'themify_shortcode_flickr' );
-add_shortcode( 'themify_twitter',		'themify_shortcode_twitter' );
-add_shortcode( 'themify-twitter', 		'themify_shortcode_twitter' );
-add_shortcode( 'themify_box',			'themify_shortcode_box' );
-add_shortcode( 'themify_post_slider',	'themify_shortcode_post_slider' );
-add_shortcode( 'themify_slider',		'themify_shortcode_slider' );
-add_shortcode( 'themify_slide',			'themify_shortcode_slide' );
-add_shortcode( 'themify_author_box',	'themify_shortcode_author_box' );
+foreach( themify_shortcode_list() as $themify_sc => $themify_sc_callback) {
+	add_shortcode( $themify_sc, $themify_sc_callback );
+	add_shortcode( 'themify_' . $themify_sc, $themify_sc_callback );
+}
+// Backwards compatibility
+add_shortcode( 'themify_video', 'wp_video_shortcode' );
 
 /**
  * Fix empty auto paragraph in shortcodes
  */
-add_filter('the_content', 'themify_fix_shortcode_empty_paragraph');
-add_filter('the_excerpt', 'themify_fix_shortcode_empty_paragraph');
-add_filter('widget_text', 'themify_fix_shortcode_empty_paragraph');
-// and change excerpt brackets to avoid conflict with empty paragraphs
-add_filter('excerpt_more', 'themify_change_excerpt_brackets');
+add_filter( 'the_content', 'themify_fix_shortcode_empty_paragraph' );
+
+/**
+ * Enable shortcodes in footer text areas
+ */
+add_filter( 'themify_the_footer_text_left', 'do_shortcode' );
+add_filter( 'themify_the_footer_text_right', 'do_shortcode' );
 
 /**
  * Enable shortcode in excerpt
@@ -126,24 +130,21 @@ add_action( 'save_post', 'themify_twitter_flush_transient' );
 function themify_shortcodes_js_css() {
 	global $themify_twitter_instance;
 	$themify_twitter_instance = 0;
-	//Use expanded versions for development or minified versions for production
-	$min = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
-	
-	//Enqueue general shortcodes style
+		
+		//Enqueue main js that will load others needed js
+		if(!wp_script_is('themify-main-script')){
+			wp_register_script('themify-main-script', THEMIFY_URI.'/js/main.js', array('jquery'), THEMIFY_VERSION, true);
+			wp_localize_script('themify-main-script', 'themify_vars',array(
+				'version'=>THEMIFY_VERSION, 
+                                'url' => THEMIFY_URI,
+                                'map_key'=>themify_get( 'setting-google_map_key' )
+			));
+			wp_enqueue_script('themify-main-script');
+		}
+		//Enqueue general shortcodes style
 	wp_enqueue_style( 'themify-framework', THEMIFY_URI . '/css/themify.framework.css', array(), THEMIFY_VERSION);
-	
-	//Enqueue general shortcodes script
-	wp_register_script('themify-shortcodes-js', THEMIFY_URI . "/js/themify.shortcodes.js", array('jquery'), THEMIFY_VERSION, true );
-
 	//Register carousel script
-	wp_register_script('themify-carousel-js', THEMIFY_URI . "/js/carousel$min.js", '', THEMIFY_VERSION, true);
-	
-	//Register map scripts
-	wp_register_script('themify-map-script', themify_https_esc('http://maps.google.com/maps/api/js').'?sensor=false', array(), THEMIFY_VERSION, true);
-	wp_register_script('themify-map-shortcode', THEMIFY_URI . '/js/themify.map.js', array(), THEMIFY_VERSION, true);
-	
-	//Register video script
-	wp_register_script('themify-video-script', THEMIFY_URI.'/js/flowplayer-3.2.4.min.js', array(), THEMIFY_VERSION, true);
+	wp_register_script('themify-carousel-js', THEMIFY_URI . "/js/carousel.js", '', THEMIFY_VERSION, true);
 
 }
 
@@ -176,50 +177,61 @@ function themify_shortcode( $atts, $content = null, $code = '' ) {
 				'style'	=> '',
 				'link' 	=> '#',
 				'target'=> '',
+				'onclick'=> '',
 				'text'	=> ''
-			), $atts ) );
-			if($color != ''){
+			), $atts, 'themify_button' ) );
+			if($color){
 				$color = "background-color: $color;";
 			}
-			if($text != ''){
+			if( $text ) {
 				$text = "color: $text;";	
 			}
-			return '<a href="'.$link.'" class="shortcode button '.$style.' '.$size.'" style="'.$color.$text.'" target="'.$target.'">'.do_shortcode($content).'</a>';
+			$html = '<a href="' . esc_url( $link ) . '" class="shortcode button '. esc_attr( $style.' '.$size ) . '"';
+			if( $color || $text ) {
+				$html.=' style="'.esc_attr( $color.$text ).'"';
+			}
+			if( $target ) {
+				$html.=' target="'.esc_attr( $target ).'"';
+			}
+			if( $onclick ) {
+				$html.=' onclick="' . esc_attr( $onclick ) . '"';
+			}
+			$html.='>'.do_shortcode( $content ).'</a>';
+			return $html;
 		break;
 		case 'quote':
 		case 'themify_quote':
-			return '<blockquote class="shortcode quote">' . do_shortcode( $content ) . '</blockquote>';
+			return '<blockquote class="shortcode quote">' . do_shortcode( preg_replace( array( '#<p>\s*+(<br\s*/*>)?\s*</p>#i', '~\s?<p>(\s|&nbsp;)+</p>\s?~' ), '', force_balance_tags( $content ) ) ) . '</blockquote>';
 		break;
 		case 'col':
 		case 'themify_col':
-			wp_enqueue_script('themify-shortcodes-js');
-			extract( shortcode_atts( array( 'grid' => '' ), $atts ) );
-			return "<div class='shortcode col$grid'>" . do_shortcode( $content ) . '</div>';
+			extract( shortcode_atts( array( 'grid' => '' ), $atts, 'themify_col' ) );
+			return '<div class="shortcode col' . esc_attr( $grid ) . '">' . do_shortcode( preg_replace( array( '#<p>\s*+(<br\s*/*>)?\s*</p>#i', '~\s?<p>(\s|&nbsp;)+</p>\s?~' ), '', force_balance_tags( $content ) ) ) . '</div>';
 		break;
 		case 'sub_col':
 		case 'themify_sub_col':
-			wp_enqueue_script('themify-shortcodes-js');
-			extract( shortcode_atts( array( 'grid' => '' ), $atts ) );
-			return "<div class='shortcode col$grid'>" . do_shortcode( $content ) . "</div>";
+			extract( shortcode_atts( array( 'grid' => '' ), $atts, 'themify_sub_col' ) );
+			return '<div class="shortcode col' . esc_attr( $grid ) . '">' . do_shortcode( preg_replace( array( '#<p>\s*+(<br\s*/*>)?\s*</p>#i', '~\s?<p>(\s|&nbsp;)+</p>\s?~' ), '', force_balance_tags( $content ) ) ) . "</div>";
 		break;
 		case 'img':
 		case 'themify_img':
-			extract( shortcode_atts( array(	'class' => '',
-											'src' 	=> '',
-											'id'	=> '',
-											'h'		=> '',
-											'w'		=> '',
-											'crop'	=> true
-											), $atts ) );	
-			return themify_get_image("class=$class&src=$src&id=$id&h=$h&w=$w&crop=$crop");
+			extract( shortcode_atts( array(
+				'class' => '',
+				'src' 	=> '',
+				'id'	=> '',
+				'h'		=> '',
+				'w'		=> '',
+				'crop'	=> true,
+				), $atts, 'themify_img' ) );
+			return themify_get_image("class=$class&src=$src&id=$id&h=$h&w=$w&crop=$crop&ignore=true");
 		break;
 		case 'hr':
 		case 'themify_hr':
-			extract( shortcode_atts( array( 'color' => '',
-											'width' => '',
-											'border_width' => ''
-			), $atts));
-			$hr = '<hr class="shortcode hr '.$color.'" ';
+			extract( shortcode_atts( array(
+				'color' => '',
+				'width' => '',
+				'border_width' => ''
+			), $atts, 'themify_hr' ));
 			if( '' != $width || '' != $border_width  ){
 				$hrstyle = 'style="';
 				if( '' != $width  ){
@@ -231,14 +243,14 @@ function themify_shortcode( $atts, $content = null, $code = '' ) {
 					}
 					$hrstyle .= 'border-width:' . $border_width . ';';
 				}
-				$hr .= $hrstyle . '"';
+				$hrstyle .= '"';
+			} else {
+				$hrstyle = '';
 			}
-			return $hr . ' />';
+			return '<hr class="shortcode hr ' . esc_attr( $color ) . '" ' . $hrstyle . ' />';
 		break;
 		case 'map':
 		case 'themify_map':
-			wp_enqueue_script('themify-map-script');
-			wp_enqueue_script('themify-map-shortcode');
 			extract( shortcode_atts(
 				array(
 					'address' => '99 Blue Jays Way, Toronto, Ontario, Canada',
@@ -247,36 +259,52 @@ function themify_shortcode( $atts, $content = null, $code = '' ) {
 					'zoom' => 15,
 					'type' => 'ROADMAP',
 					'scroll_wheel' => 'yes',
+					'draggable_disable_mobile_map' => 'yes',
+					'draggable' => 'yes',
 				),
-				$atts
+				$atts,
+				'themify_map'
 			));
+
+			/* if no unit is provided for width and height, use "px" */
+			if( ! preg_match( '/[px|%]$/', $width ) ) {
+				$width = $width . 'px';
+			}
+			if( ! preg_match( '/[px|%]$/', $height ) ) {
+				$height = $height . 'px';
+			}
+
+			if ('yes' == $draggable && 'yes' == $draggable_disable_mobile_map && wp_is_mobile()){
+				$draggable = 'disable';
+			}
 			$num = rand(0,10000);
-			return '<script type="text/javascript">	
-						jQuery(document).ready(function() {
-					  		ThemifyMap.initialize("'.$address.'", '.$num.', '.$zoom.', "'.$type.'", "'.$scroll_wheel.'");
-						});
-					</script>
-					<div class="shortcode map">
-						<div id="themify_map_canvas_'.$num.'" style="display: block;width:'.$width.';height:'.$height.';" class="map-container">&nbsp;</div>
-					</div>';
+			$data['address'] = $address;
+			$data['zoom'] = $zoom;
+			$data['type'] = $type;
+			$data['scroll'] =  $scroll_wheel =='yes';
+			$data['drag'] =  $draggable=='yes';
+			return '
+			<div class="shortcode map">
+				<div data-map="'.esc_attr(base64_encode(json_encode($data))).'" id="themify_map_canvas_' . esc_attr( $num ) . '" style="display: block;width:' . esc_attr( $width ) . ';height:' . esc_attr( $height ) . ';" class="map-container themify_map"></div>
+			</div>';
 		break;
 		case 'video':
 		case 'themify_video':
-			wp_enqueue_script('themify-video-script');
 			extract( shortcode_atts(
 				array(
 					'width' => '500px',
 					'height' => '300px',
 					'src' => '#'
 				),
-				$atts
+				$atts,
+				'themify_video'
 			));
 			$num = rand(0,10000);
 			if( stripos($_SERVER['HTTP_USER_AGENT'], 'iPod') || stripos($_SERVER['HTTP_USER_AGENT'], 'iPhone') ||
 				stripos($_SERVER['HTTP_USER_AGENT'], 'iPad') ||	stripos($_SERVER['HTTP_USER_AGENT'], 'Android') ) {
-				return '<div class="shortcode video"><video src="'.$src.'"></video></div>';
+				return '<div class="shortcode video"><video src="' . esc_url( $src ) . '"></video></div>';
 			} else {
-				return '<div class="shortcode video"><a href="'.$src.'" style="display:block;width:'.$width.';height:'.$height.'" id="themify_player_'.$num.'"></a></div><script type="text/javascript">jQuery(document).ready(function(){ flowplayer("themify_player_'.$num.'", "' . THEMIFY_URI . '/js/flowplayer-3.2.5.swf", { clip: { autoPlay:false } }); });</script>';
+				return '<div class="shortcode video themify_video_desktop"><a href="' . esc_url( $src ) . '" style="display:block;width:' . esc_attr( $width ) . ';height:' . esc_attr( $height ) . '" id="themify_player_' . esc_attr( $num ) . '"></a></div>';
 			}
 		break;
 	}
@@ -291,42 +319,81 @@ function themify_shortcode( $atts, $content = null, $code = '' ) {
  */
 function themify_shortcode_list_posts( $atts, $content = null ) {
 	global $themify;
-	wp_enqueue_script('themify-shortcodes-js');
+	
+	// Set defaults for featured image in different layouts
+	$default_size = array(
+		'image_w' => 1160,
+		'image_h' => 665
+	);
+	
+	if ( isset( $atts['style'] ) ) {
+		switch ( $atts['style'] ) {
+			case 'grid4':
+				$default_size['image_w'] = 260;
+				$default_size['image_h'] = 150;
+			break;
+			case 'grid3':
+				$default_size['image_w'] = 360;
+				$default_size['image_h'] = 205;
+			break;
+			case 'grid2':
+				$default_size['image_w'] = 561;
+				$default_size['image_h'] = 321;
+			break;
+			case 'list-thumb-image':
+				$default_size['image_w'] = 260;
+				$default_size['image_h'] = 150;
+			break;
+			case 'grid2-thumb':
+				$default_size['image_w'] = 160;
+				$default_size['image_h'] = 95;
+			break;
+			case 'list-post':
+			default:
+				$default_size['image_w'] = 1160;
+				$default_size['image_h'] = 665;
+			break;
+		}
+	}
+
 	extract(shortcode_atts(array(
 		'title' => 'yes',
 		'category' => '0',
 		'limit' => '5',
+		'offset' => '0',
 		'more_text' => __('More...', 'themify'),
 		'excerpt_length' => '',
 		'image' => 'yes',
-		'image_w' => '220',
-		'image_h' => '150',
+		'image_w' => $default_size['image_w'],
+		'image_h' => $default_size['image_h'],
 		'display' => 'none',
 		'style' => 'list-post',
 		'post_date' => 'no',
 		'post_meta' => 'no',
 		'unlink_title' => 'no',
 		'unlink_image' => 'no',
-		'image_size' => 'thumbnail',
+		'image_size' => 'medium',
 		'post_type' => 'post',
 		'taxonomy' => 'category',
 		'order' => 'DESC',
 		'orderby' => 'date'
-	), $atts));
+	), $atts, 'themify_list_posts' ));
 
 	if ( 'post' != $post_type && 'category' == $taxonomy ) {
 		$taxonomy = $post_type . '-category';
 	}
 
 	$query_args = array(
-		'numberposts' => $limit,
+		'posts_per_page' => $limit,
+		'offset' => $offset,
 		'post_type' => $post_type,
 		'taxonomy' => $taxonomy,
 		'order' => $order,
 		'orderby' => $orderby,
 		'suppress_filters' => false,
-		'post__not_in' => array(get_the_ID())
+		'post__not_in' => !is_home()?array(get_the_ID()):array()
 	);
+
 	if ('0' != $category) {
 		$tax_query_terms = explode(',', $category);
 		if(preg_match('#[a-z]#', $category)){
@@ -336,15 +403,26 @@ function themify_shortcode_list_posts( $atts, $content = null ) {
 				'terms' => $tax_query_terms
 			));
 		} else {
-			$query_args['tax_query'] = array( array(
-				'taxonomy' => $taxonomy,
-				'field' => 'id',
-				'terms' => $tax_query_terms
-			));
+			$exclude = array_filter( $tax_query_terms, 'themify_is_negative_number' );
+			$query_args['tax_query'] = array(
+				'relation' => 'AND',
+				array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'id',
+					'terms'    => array_filter( $tax_query_terms, 'themify_is_positive_number' ),
+				),
+				array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'id',
+					'terms'    => array_map( 'themify_make_absolute_number', $exclude ),
+					'operator' => 'NOT IN',
+				),
+			);
 		}
 	}
-	$posts = get_posts($query_args);
-	
+
+	$the_query = new WP_Query( );
+	$posts = $the_query->query( apply_filters( 'themify_list_posts_shortcode_query_args', $query_args, $atts ));
 	// save a copy
 	$themify_save = clone $themify;
 
@@ -360,17 +438,21 @@ function themify_shortcode_list_posts( $atts, $content = null ) {
 	$themify->hide_date = 'yes' == $post_date? 'no' : 'yes';
 	$themify->hide_meta = 'yes' == $post_meta? 'no' : 'yes';
 	$themify->post_layout = $style;
+	$themify->is_shortcode = true;
+	$themify->image_size = $image_size;
 
 	$out = '';
-	if ($posts) {
-		$out = '<!-- shortcode list_posts --><div class="loops-wrapper shortcode clearfix list-posts layout ' . $style . ' ">';
+	if ($posts){
+		$out = '<!-- shortcode list_posts -->';
+		$out.='<div class="loops-wrapper shortcode clearfix list-posts layout ' . esc_attr( $style ) . ' ">';
 		$out .= themify_get_shortcode_template( $posts, 'includes/loop', $post_type );
-		$out .= '</div><!-- /shortcode list_posts -->';
+		$out .= '</div>';
+		$out.='<!-- /shortcode list_posts -->';
 	}
-	
+
 	// revert to original $themify state
 	$themify = clone $themify_save;
-	
+	wp_reset_postdata();
 	return $out;
 }
 
@@ -388,22 +470,25 @@ function themify_shortcode_flickr( $atts, $content = null ) {
 		'limit' => '8',
 		'size' => 's',
 		'display' => 'latest'
-	), $atts));
+	), $atts, 'themify_flickr' ));
 	$flickrstr = '';
-	if($user) {
-		$flickrstr = '<!-- shortcode Flickr --> <div class="shortcode clearfix flickr"><script type="text/javascript" src="'.themify_https_esc('http://www.flickr.com/badge_code_v2.gne').'?count='.$limit.'&amp;display='.$display.'&amp;size='.$size.'&amp;layout=x&amp;source=user&amp;user='.$user.'"></script></div>';
+        $url = themify_https_esc( '//www.flickr.com/badge_code_v2.gne' ) . '?count=' . $limit . '&amp;display=' . $display . '&amp;size=' . $size . '&amp;layout=x&amp;';
+	if ( $user ) {
+                $url.='source=user&amp;user=' . $user;
 	}
-	
-	if($set) {
-		if('' == $flickrstr) {
-		$flickrstr = '<div class="shortcode clearfix flickr"><script type="text/javascript" src="'.themify_https_esc('http://www.flickr.com/badge_code_v2.gne').'?count='.$limit.'&amp;display='.$display.'&amp;size='.$size.'&amp;layout=x&amp;source=user_set&amp;set='.$set.'"></script></div>';
-		}
+	elseif ( $set) {
+                $url.='source=user_set&amp;set=' . $set;
 	}
-	if($group) {
-		if($flickrstr == '') {
-			$flickrstr = '<div class="shortcode clearfix flickr"><script type="text/javascript" src="'.themify_https_esc('http://www.flickr.com/badge_code_v2.gne').'?count='.$limit.'&amp;display='.$display.'&amp;size='.$size.'&amp;layout=x&amp;source=group&amp;group='.$group.'"></script></div> <!-- /shortcode Flickr -->';
-		}
+	elseif ( $group ) {
+                $url.='source=group&amp;group=' . $group;
 	}
+        else{
+            $url = false;
+        }
+        if($url){
+            $url = esc_url($url);
+            $flickrstr='<!-- shortcode Flickr --><div  class="shortcode clearfix flickr"><script type="text/javascript" src="'.$url.'"></script></div> <!-- /shortcode Flickr -->';
+        }
 	return $flickrstr;
 }
 /**
@@ -425,7 +510,7 @@ function themify_shortcode_slide( $atts, $content = null ) {
  * @return String
  */
 function themify_shortcode_slider( $atts, $content = null ){
-	wp_enqueue_script('themify-carousel-js');
+
 	extract(shortcode_atts(array(
 		'wrap' => 'yes',
 		'visible' => '1',
@@ -436,87 +521,40 @@ function themify_shortcode_slider( $atts, $content = null ){
 		'slider_nav' => 'yes',
 		'pager' => 'yes',
 		'effect' => 'scroll',
-		'class' => ''
-	), $atts));
+		'class' => '',
+		'height' => 'auto', // [auto / variable]
+	), $atts, 'themify_slider' ));
 	$numsldrtemp = rand( 0, 10000 );
 	$content = do_shortcode( shortcode_unautop( $content ) );
-
-	if( '0' == $auto )
-		$play = 'false';
-	else
-		$play = 'true';
+		
+	$class .= ' effect-' . $effect;
 	switch ( $speed ) {
 		case 'fast':
-			$speed = '.5';
+				$speed = '.5';
 		break;
 		case 'normal':
-			$speed = '1';
+				$speed = '1';
 		break;
 		case 'slow':
-			$speed = '4';
+				$speed = '4';
 		break;
 	}
-	
-	$wrapvar = 'false';
-	if ( 'yes' == $wrap ) {
-		$wrapvar = 'true';
-	}
-	$pause_hover = ( $pause_hover == 'yes' ) ? 'true' : 'false';
-	
-	$class .= ' effect-' . $effect;
-	
-	$strsldr = '<!-- shortcode slider --><div id="slider-' . $numsldrtemp . '" class="shortcode clearfix slider ' . $class . '">
-	
-	<ul class="slides">' . $content . '</ul>';
-	
-	$strsldr .= '</div><script type="text/javascript">
-		
-		jQuery(window).load(function() {
-		
-		jQuery("#slider-'.$numsldrtemp.' .slides").carouFredSel({
-			responsive: true,';
-				
-		if ( 'yes' == $slider_nav ) {
-			$strsldr .= '
-				prev: "#slider-'.$numsldrtemp.' .carousel-prev",
-				next: "#slider-'.$numsldrtemp.' .carousel-next",';
-		}
-		if( 'yes' == $pager ){
-			$strsldr .= '
-				pagination: "#slider-'.$numsldrtemp.' .carousel-pager",';
-		}
-		$strsldr .= '
-			circular: '.$wrapvar.',
-			infinite: '.$wrapvar.',
-			auto: {
-				play : '.$play.',
-				pauseDuration: '.$auto.'*1000,
-				duration: '.$speed.'*1000,
-				pauseOnHover: '. $pause_hover .'
-			},
-			scroll: {
-				items: '.$scroll.',
-				duration: '.$speed.'*1000,
-				wipe: true,
-				fx: "'.$effect.'"
-			},
-			items: {
-				visible: {
-					min: 1,
-					max: '.$visible.'
-				},
-				width: 120
-			},
-			onCreate : function (){
-				jQuery(".slider").css( {
-					"height": "auto",
-					"visibility" : "visible"
-				});
-			}
-		});
-			
-	});
-	</script> <!-- /shortcode slider -->';
+	$js_data['slider_nav'] = $slider_nav=='yes'?1:0;
+	$js_data['pager'] = $pager=='yes'?1:0;
+	$js_data['wrapvar'] = $wrap == 'yes'?1:0;
+	$js_data['auto'] =  intval( $auto );
+	$js_data['pause_hover'] = $pause_hover == 'yes'?1:0;
+	$js_data['speed'] = $speed;
+	$js_data['scroll'] = $scroll;
+	$js_data['effect'] = $effect;
+	$js_data['visible'] = intval( $visible );
+	$js_data['numsldr'] = rand( 0, 1011 ).uniqid();
+	$js_data['height'] = $height;
+
+	$strsldr = '<!-- shortcode slider --><div id="slider-' . esc_attr( $js_data['numsldr'] ) . '" class="shortcode clearfix slider ' . esc_attr( $class ) . '">
+	<ul data-slider="'.esc_attr(base64_encode( json_encode( $js_data ) ) ). '" class="slides">' . $content . '</ul>';	
+	$strsldr .= '</div>
+		<!-- /shortcode slider -->';
 	return $strsldr;
 }
 
@@ -526,10 +564,7 @@ function themify_shortcode_slider( $atts, $content = null ){
  * @param String $content
  * @return String
  */
-
-
 function themify_shortcode_post_slider( $atts, $content = null ) {
-	wp_enqueue_script( 'themify-carousel-js' );
 	extract(shortcode_atts(array(
 		'visible' => '1',
 		'scroll' => '1',
@@ -541,6 +576,7 @@ function themify_shortcode_post_slider( $atts, $content = null ) {
 		'slider_nav' => 'yes',
 		'pager' => 'yes',
 		'limit' => '5',
+		'offset' => '0',
 		'category' => '',
 		'image' => 'yes',
 		'image_w' => '240px',
@@ -550,52 +586,29 @@ function themify_shortcode_post_slider( $atts, $content = null ) {
 		'display' => 'none',
 		'post_meta' => 'no',
 		'post_date' => 'no',
-		'width' => '',
-		'height' => '',
+		'width' => '100%',
+		'height' => 'auto',
 		'class' => '',
 		'unlink_title' => 'no',
 		'unlink_image' => 'no',
-		'image_size' => 'thumbnail',
+		'image_size' => 'medium',
 		'post_type' => 'post',
 		'taxonomy' => 'category',
 		'order' => 'DESC',
 		'orderby' => 'date',
 		'effect' => 'scroll'
-	), $atts));
-	
-	$wrapvar = 'false';
-	if ( 'yes' == $wrap ) {
-		$wrapvar = 'true';
-	}
-	if ( '0' == $auto )
-		$play = 'false';
-	else
-		$play = 'true';
-	
-	switch ( $speed ) {
-		case 'fast':
-			$speed = '.5';
-		break;
-		case 'normal':
-			$speed = '1';
-		break;
-		case 'slow':
-			$speed = '4';
-		break;
-	}
-	$pause_hover = ( $pause_hover == 'yes' ) ? 'true' : 'false';
-	
-	$numsldr = rand( 0, 10000 );
+	), $atts, 'themify_post_slider' ));
+
 	$postsliderstr = '';
 	global $post;
-
 	$query_args = array(
 		'numberposts' => $limit,
+		'offset' => $offset,
 		'post_type' => $post_type,
 		'order' => $order,
 		'orderby' => $orderby,
 		'suppress_filters' => false,
-		'post__not_in' => array(get_the_ID())
+		'post__not_in' => !is_home()?array(get_the_ID()):array()
 	);
 	if ('' != $category) {
 		$tax_query_terms = explode(',', $category);
@@ -606,33 +619,60 @@ function themify_shortcode_post_slider( $atts, $content = null ) {
 				'terms' => $tax_query_terms
 			));
 		} else {
-			$query_args['tax_query'] = array( array(
-				'taxonomy' => $taxonomy,
-				'field' => 'id',
-				'terms' => $tax_query_terms
-			));
+			$exclude = array_filter( $tax_query_terms, 'themify_is_negative_number' );
+			$query_args['tax_query'] = array(
+				'relation' => 'AND',
+				array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'id',
+					'terms'    => array_filter( $tax_query_terms, 'themify_is_positive_number' ),
+				),
+				array(
+					'taxonomy' => $taxonomy,
+					'field'    => 'id',
+					'terms'    => array_map( 'themify_make_absolute_number', $exclude ),
+					'operator' => 'NOT IN',
+				),
+			);
 		}
 	}
-	$posts = get_posts($query_args);
-	
-	$class .= ' effect-' . $effect;
-	
+	$posts = get_posts( apply_filters( 'themify_post_slider_shortcode_query_args', $query_args, $atts ) );
 	if ($posts) {
-		$postsliderstr = '<!-- shortcode post_slider --> <div id="post-slider-' . $numsldr . '" style="width: ' . $width . '; height: ' . $height . ';" class="shortcode clearfix post-slider ' . $class . '">
-		<ul class="slides">';
+		switch ( $speed ) {
+			case 'fast':
+				$speed = '.5';
+			break;
+			case 'normal':
+				$speed = '1';
+			break;
+			case 'slow':
+				$speed = '4';
+			break;
+		}
+		$class .= ' effect-' . $effect;
+		$js_data['slider_nav'] = $slider_nav == 'yes' ? 1 : 0;
+		$js_data['pager'] = $pager == 'yes' ? 1 : 0;
+		$js_data['wrapvar'] = $wrap == 'yes' ? 1 : 0;
+		$js_data['auto'] =  intval($auto);
+		$js_data['pause_hover'] = $pause_hover == 'yes' ? 1 : 0;
+		$js_data['speed'] = $speed;
+		$js_data['scroll'] = $scroll;
+		$js_data['effect'] = $effect;
+		$js_data['visible'] = intval($visible);
+		$js_data['height'] = $height;
+		$js_data['numsldr'] = rand(0,1011).uniqid();
+		$postsliderstr = '<!-- shortcode post_slider --> <div id="slider-' . esc_attr(  $js_data['numsldr'] ) . '" style="width: ' . esc_attr( $width ) . ';" class="shortcode clearfix post-slider ' . $class . '">
+		<ul class="slides" data-slider="'.esc_attr(base64_encode(json_encode($js_data))).'">';
+		unset($js_data);
 		foreach ($posts as $post):
 			setup_postdata($post);
 			global $more;
 			$more       = 0;
 			$post_class = '';
-			if ( themify_get('external_link') != '')
-				$thislink = themify_get('external_link');
-			else
-				$thislink = get_permalink();
 			foreach (get_post_class() as $postclass) {
 				$post_class .= " " . $postclass;
 			} //get_post_class() as $postclass
-			$postsliderstr .= '<li><div  class="slide-wrap ' . $post_class . '">';
+			$postsliderstr .= '<li><div  class="slide-wrap ' . esc_attr( $post_class ) . '">';
 
 			if ( 'yes' == $image ) {
 				$video_url = themify_get( 'video_url' );
@@ -643,16 +683,32 @@ function themify_shortcode_post_slider( $atts, $content = null ) {
 					$postsliderstr .= '</div>';
 				} else {
 					if( 'no' == $unlink_image ) {
-						$postsliderstr .= themify_get_image('image_size='.$image_size.'&ignore=true&w=' . $image_w . '&h=' . $image_h . '&alt=' . get_the_title() . '&before=<p class="post-image"><a href="' . $thislink . '">&after=</a></p>');
+						$postsliderstr .= themify_get_image( array(
+							'image_size=' => $image_size,
+							'ignore' => true,
+							'w' => $image_w,
+							'h' => $image_h,
+							'alt' => get_the_title(),
+							'before' => '<p class="post-image"><a href="' . themify_get_featured_image_link() . '">',
+							'after' => '</a></p>'
+						) );
 					} else {
-						$postsliderstr .= themify_get_image('image_size='.$image_size.'&ignore=true&w=' . $image_w . '&h=' . $image_h . '&alt=' . get_the_title() . '&before=<p class="post-image">&after=</p>');
+						$postsliderstr .= themify_get_image( array(
+							'image_size' => $image_size,
+							'ignore' => true,
+							'w' => $image_w,
+							'h' => $image_h,
+							'alt' => get_the_title(),
+							'before' => '<p class="post-image">',
+							'after' => '</p>'
+						) );
 					}
 				}
 			} //'yes' == $image
 
 			if ( 'yes' == $title ) {
 				if( 'no' == $unlink_title ){
-					$postsliderstr .= '<h3 class="post-title"><a href="' . get_permalink() . '">' . get_the_title() . '</a></h3>';
+					$postsliderstr .= '<h3 class="post-title"><a href="' . themify_get_featured_image_link() . '">' . get_the_title() . '</a></h3>';
 				}
 				else{
 					$postsliderstr .= '<h3 class="post-title">' . get_the_title() . '</h3>';
@@ -682,66 +738,15 @@ function themify_shortcode_post_slider( $atts, $content = null ) {
 				$postsliderstr .= '</p>';
 			} //$post_meta == "yes"
 			if ( 'content' == $display ) {
-				$postsliderstr .= '<div class="post-content">' . themify_get_content($more_text) . '</div></div></li>
-';
+				$postsliderstr .= '<div class="post-content">' . wp_kses_post( themify_get_content($more_text) ) . '</div></div></li>';
 			} //$display == "content"
 			if ( 'excerpt' == $display ) {
-				
-				$postsliderstr .= '<div class="post-content">' . themify_excerpt($excerpt_length) . '</div></div></li>
-';
-		
+				$postsliderstr .= '<div class="post-content">' . wp_kses_post( themify_excerpt($excerpt_length) ) . '</div></div></li>';
 			} //$display == "excerpt"
 		endforeach;
 		$postsliderstr .= '</ul>';
-
-		$postsliderstr .= '</div><script type="text/javascript">
-		
-		jQuery(window).load(function() {
-		
-		jQuery("#post-slider-'.$numsldr.' .slides").carouFredSel({
-			responsive: true,';
-				
-		if ( 'yes' == $slider_nav ) {
-			$postsliderstr .= '
-				prev: "#post-slider-'.$numsldr.' .carousel-prev",
-				next: "#post-slider-'.$numsldr.' .carousel-next",';
-		}
-		if( 'yes' == $pager ){
-			$postsliderstr .= '
-				pagination: "#post-slider-'.$numsldr.' .carousel-pager",';
-		}
-		$postsliderstr .= '
-			circular: '.$wrapvar.',
-			infinite: '.$wrapvar.',
-			auto: {
-				play : '.$play.',
-				pauseDuration: '.$auto.'*1000,
-				duration: '.$speed.'*1000,
-				pauseOnHover: '. $pause_hover .'
-			},
-			scroll: {
-				items: '.$scroll.',
-				duration: '.$speed.'*1000,
-				wipe: true,
-				fx: "'.$effect.'"
-			},
-			items: {
-				visible: {
-					min: 1,
-					max: '.$visible.'
-				},
-				width: 120
-			},
-			onCreate : function (){
-				jQuery(".post-slider").css( {
-					"height": "auto",
-					"visibility" : "visible"
-				});
-			}
-		});
-			
-	});
-	</script> <!-- /shortcode post_slider -->';
+		$postsliderstr .= '</div>
+		<!-- /shortcode post_slider -->';
 		wp_reset_postdata();
 	} //$posts
 	return $postsliderstr;
@@ -760,18 +765,18 @@ function themify_shortcode_author_box( $atts, $content = null ) {
 		'avatar_size' => '48',
 		'style' => '',
 		'author_link' => 'no'
-	), $atts));
+	), $atts, 'themify_author_box' ));
 	/** 
 	 * Filtered name of author
 	 * @var String */
 	$nicename = get_the_author_meta( 'nicename' );
-	$authorboxstr = "<!-- shortcode author_box --> <div class=\"shortcode clearfix author-box $style $nicename \">";
+	$authorboxstr = '<!-- shortcode author_box --> <div class="shortcode clearfix author-box ' . esc_attr( $style . ' ' . $nicename ) . ' ">';
 	if ( 'yes' == $avatar ) {
 		$authorboxstr .= '<p class="author-avatar">' . get_avatar( get_the_author_meta( 'user_email' ), $avatar_size, '' ) . '</p>';
 	}
 	if ( get_the_author_meta( 'user_url' ) ) {
 		$authorboxstr .= '<div class="author-bio">
-			<h4 class="author-name"><a href="' . get_the_author_meta( 'user_url' ) . '">' . get_the_author_meta( 'display_name' ) . '</a></h4>
+			<h4 class="author-name"><a href="' . esc_url( get_the_author_meta( 'user_url' ) ) . '">' . get_the_author_meta( 'display_name' ) . '</a></h4>
 		' . get_the_author_meta( 'description' );
 	} else {
 		$authorboxstr .= '<div class="author-bio">
@@ -799,43 +804,33 @@ function themify_shortcode_author_box( $atts, $content = null ) {
 function themify_shortcode_box( $atts, $content = null ) {
 	extract(shortcode_atts(array(
 		'style' => ''
-	), $atts));
-	$boxstr = '<!-- shortcode box --> <div class="shortcode clearfix box '.$style.'">'.do_shortcode($content).'</div> <!-- /shortcode box -->';
+	), $atts, 'themify_box' ));
+	$boxstr = '<!-- shortcode box --> <div class="shortcode clearfix box ' . esc_attr( $style ) . '">' . do_shortcode( preg_replace( array( '#<p>\s*+(<br\s*/*>)?\s*</p>#i', '~\s?<p>(\s|&nbsp;)+</p>\s?~' ), '', force_balance_tags( $content ) ) ) . '</div> <!-- /shortcode box -->';
 	return $boxstr;
 }
 
 /**
- * Fix empty auto paragraph in shortcodes
- * @param String $content
- * @return String
+ * Remove paragraphs wrapping shortcodes
+ *
+ * @param string $content
+ *
+ * @since 1.9.4
+ *
+ * @return string
  */
 function themify_fix_shortcode_empty_paragraph( $content ) {
-   $array = array (
-	  '<p>[' => '[', 
-	  ']</p>' => ']', 
-	  ']<br />' => ']'
-   );
-   $content = strtr($content, $array);
-   return $content;
-}
-
-/**
- * Change square brackets to round brackets so they don't conflict with empty paragraphs
- * @param String $more
- * @return String
- */
-function themify_change_excerpt_brackets( $more ) {
-	return '(...)';
+	$block = join( '|', array_keys( themify_shortcode_list() ) ) . '|themify_' . join( '|themify_', array_keys( themify_shortcode_list() ) );
+	return preg_replace( array( "/(<p>)?\[($block)(\s[^\]]+)?\](<\/p>|<br \/>)?/", "/(<p>)?\[\/($block)](<\/p>|<br \/>)?/" ), array( '[$2$3]', '[/$2]' ), $content );
 }
 
 /**
  * Display tweets by user
- * @param Object $atts
+ * @param array $atts
  * @param String $content
  * @return String
  */
 function themify_shortcode_twitter( $atts, $content = null ) {
-	global $themify_twitter_instance, $post;
+	global $themify_twitter_instance;
 	$themify_twitter_instance++;
 
 	extract(shortcode_atts(array(
@@ -848,10 +843,10 @@ function themify_shortcode_twitter( $atts, $content = null ) {
 		'exclude_replies' => 'false',
 		'is_widget' => 'false',
 		'widget_id' => ''
-	), $atts));
+	), $atts, 'themify_twitter' ));
 	
 	$is_shortcode = '';
-	$transient_id = $themify_twitter_instance . '_' . $post->ID;
+	$transient_id = $themify_twitter_instance . '_' . get_the_ID();
 	if ( 'false' == $is_widget ) {
 		$is_shortcode = 'shortcode';
 	}
@@ -868,6 +863,9 @@ function themify_shortcode_twitter( $atts, $content = null ) {
 	);
 
 	$tweets = themify_twitter_get_data( $transient_id, $args );
+	if( is_array( $tweets ) && isset( $tweets['error_message'] ) ) {
+		return $tweets['error_message'];
+	}
 
 	$out = '<div class="twitter-list '.$is_shortcode.'">
 			<div id="twitter-block-'.$themify_twitter_instance.'">';
@@ -876,39 +874,45 @@ function themify_shortcode_twitter( $atts, $content = null ) {
 		$out .= '<ul class="twitter-list">';
 
 		foreach( $tweets as $tweet ) {
-			$text = $tweet->text; 
+			$text = $tweet->text;
 			foreach ( $tweet->entities as $type => $entity ) {
 				if( 'urls' == $type ) {
 					foreach($entity as $j => $url) {
-						$update_with = '<a href="' . $url->url . '" target="_blank" title="' . $url->expanded_url . '" class="twitter-user">' . $url->display_url . '</a>';
+						$update_with = '<a href="' . esc_url( $url->url ) . '" target="_blank" title="' . esc_attr( $url->expanded_url ) . '" class="twitter-user">' . $url->display_url . '</a>';
 						$text = str_replace($url->url, $update_with, $text);
 					}
-				} else if( 'hashtags' == $type ) {
+				} elseif ( 'hashtags' == $type ) {
 					foreach($entity as $j => $hashtag) {
-						$update_with = '<a href="https://twitter.com/search?q=%23' . $hashtag->text . '&src=hash" target="_blank" title="' . $hashtag->text . '" class="twitter-user">#' . $hashtag->text . '</a>';
+						$update_with = '<a href="' . esc_url( '//twitter.com/search?q=%23' . $hashtag->text . '&src=hash' ) . '" target="_blank" title="' . esc_attr( $hashtag->text ) . '" class="twitter-user">#' . $hashtag->text . '</a>';
 						$text = str_replace('#'.$hashtag->text, $update_with, $text);
 					}
-				} else if( 'user_mentions' == $type ) {
+				} elseif ( 'user_mentions' == $type ) {
 					foreach($entity as $j => $user) {
-						$update_with = '<a href="https://twitter.com/' . $user->screen_name . '" target="_blank" title="' . $user->name . '" class="twitter-user">@' . $user->screen_name . '</a>';
+						$user->screen_name = str_replace( '@', '', $user->screen_name );
+						$update_with = '<a href="' . esc_url( '//twitter.com/' . $user->screen_name ) . '" target="_blank" title="' . esc_attr( $user->name ) . '" class="twitter-user">@' . $user->screen_name . '</a>';
 						$text = str_replace('@'.$user->screen_name, $update_with, $text);
 					}
-				}					
+				} elseif ( 'media' == $type ) {
+					foreach ( $entity as $j => $media ) {
+						$update_with = '<a href="' . esc_url( $media->url ) . '" target="_blank" title="' . esc_attr( $media->expanded_url ) . '" class="twitter-media">' . $media->display_url . '</a>';
+						$text = str_replace( $media->url, $update_with, $text );
+					}
+				}
 			}
 			$out .= '<li class="twitter-item">'.$text;
 			if ( 'false' != $show_timestamp ) {
 				// hour ago time format
-				$time = sprintf( __('%s ago', 'themify'), human_time_diff( strtotime( $tweet->created_at ), current_time( 'timestamp' ) ) );
-				$out .= '<br /><em class="twitter-timestamp"><small>'.$time.'</small></em>';
+				$time = sprintf( __('%s ago', 'themify'), human_time_diff( strtotime( $tweet->created_at ) ) );
+				$out .= '<br /><em class="twitter-timestamp"><small>' . wp_kses_post( $time ) . '</small></em>';
 			}
 			$out .= '</li>';
 		}
 		$out .= '</ul>';
 	}
 	$out .= '</div>';
-		if ( 'false' != $show_follow ) {
-			$out .= '<div class="follow-user"><a href="http://twitter.com/' . $username . '">' . $follow_text . '</a></div>';
-		}
+	if ( 'false' != $show_follow ) {
+		$out .= '<div class="follow-user"><a href="' . esc_url( '//twitter.com/' . $username ) . '">' . $follow_text . '</a></div>';
+	}
 
 	$out .= '</div>';
 
@@ -923,20 +927,21 @@ function themify_shortcode_twitter( $atts, $content = null ) {
  */
 function themify_twitter_get_data ( $transient_id, $args ) {
 	$data = array();
-	$transient_key = $transient_id . '_themify_twitter_feeds_transient';
+	$transient_key = $transient_id . '_themify_tweets';
 
 	$transient = get_transient( $transient_key );
 	
 	if ( false === $transient ) {
 		$response = themify_request_tweets( $args );
 
-		if ( ! is_wp_error( $response ) && is_array( $response ) && isset( $response[0]->user->id ) ) {
+		if ( ! is_wp_error( $response ) && is_array( $response ) && ( isset( $response[0]->user->id ) || isset( $response['error_message'] ) ) ) {
 			$data = $response;
 			set_transient( $transient_key, $data, 10 * 60 ); // 10 min cache
 		}
 	} else {
 		$data = $transient;
 	}
+
 	return $data;
 }
 
@@ -949,7 +954,7 @@ function themify_request_tweets($args) {
 	$data = themify_get_data();
 	$prefix = 'setting-twitter_settings_';
 	
-	$screen_name = urlencode(strip_tags( sanitize_user( $args['username'] ) ));
+	$screen_name = urlencode(strip_tags( sanitize_user( str_replace( '@', '', $args['username'] ) ) ));
 	
 	if ( $args['limit'] != '' ) {
 		$count = intval( $args['limit'] );
@@ -968,11 +973,11 @@ function themify_request_tweets($args) {
 		// Require twitter oauth class
 		require 'twitteroauth/class-wp-twitter-api.php';
 	}
-	$credentials = array(
+	$credentials = apply_filters( 'themify_twitter_credentials', array(
 		'consumer_key' => $consumer_key,
 		'consumer_secret' => $consumer_secret
-	);
-	
+	) );
+
 	$query = 'screen_name='.$screen_name.'&count='.$count.'&include_rts='.$include_rts.'&exclude_replies='.$exclude_replies.'&include_entities=true';
 	
 	$twitterConnection = new Wp_Twitter_Api( $credentials );
@@ -999,8 +1004,72 @@ function themify_twitter_flush_transient( $post_id ) {
 		if ( $shortcode_count > 0 ) {
 			// delete transients
 			for ($i=1; $i <= $shortcode_count; $i++) { 
-				delete_transient( $i.'_'.$post_id.'_themify_twitter_feeds_transient' );
+				delete_transient( $i.'_'.$post_id.'_themify_tweets' );
 			}
 		}
 	}
+}
+
+/**
+ * Renders a font icon.
+ *
+ * @since 1.9.1
+ *
+ * @param array $atts
+ * @param null $content
+ * @return string
+ */
+function themify_shortcode_icon( $atts, $content = null ) {
+	$atts = shortcode_atts( array(
+		'icon'       => '',
+		'label'      => '',
+		'link'       => '',
+		'style'      => '',
+		'icon_bg'    => '',
+		'icon_color' => '',
+		'target'     => '',
+	), $atts );
+
+	if ( 0 === stripos( $atts['icon'], 'fa-' ) ) {
+		// Add only .fa class if icon entered begins with fa-
+		$atts['icon'] = 'fa ' . $atts['icon'];
+	} else {
+		// Otherwise add .fa and prepend .fa-
+		$atts['icon'] = 'fa fa-' . $atts['icon'];
+	}
+
+	// Set front and background colors.
+	$colors = '';
+	$style_attr = '';
+	if ( ! empty( $atts['icon_bg'] ) ) {
+		$colors .= "background-color: {$atts['icon_bg']};";
+	}
+	if ( ! empty( $atts['icon_color'] ) ) {
+		$colors .= "color: {$atts['icon_color']};";
+	}
+	if ( ! empty( $colors ) ) {
+		$style_attr = 'style="' . esc_attr( $colors ) . '"';
+	}
+
+	// Begin building markup for icon.
+	$out = '';
+
+	// Build icon
+	if ( ! empty( $atts['icon'] ) ) {
+		$out .= '<i class="themify-icon-icon ' . esc_attr( $atts['icon'] ) . '" ' . $style_attr . '></i>';
+	}
+
+	// Build label
+	if ( ! empty( $atts['label'] ) ) {
+		$out .= '<span class="themify-icon-label">' . $atts['label'] . '</span>';
+	}
+
+	// Sanitize link
+	$link = $atts['link'];
+	if ( '' != $link && '' != $out ) {
+		$target = !empty( $atts['target'] )? ' target="' . esc_attr( $atts['target'] ) . '"' : '';
+		$out = '<a href="' . esc_url( $link ) . '" class="themify-icon-link"' . $target . '>' . $out . '</a>';
+	}
+
+	return '<span class="shortcode themify-icon ' . esc_attr( $atts['style'] ) . '">' . $out . '</span>';
 }

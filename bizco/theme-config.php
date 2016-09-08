@@ -35,6 +35,10 @@ $themify_theme_config['panel']['settings']['tab']['general'] = array(
 			'function' => 'search_settings'
 		),
 		array(
+			'title' => __('Error 404 Page', 'themify'),
+			'function' => 'page_404_settings'
+		),
+		array(
 			'title' => __('Feed Settings', 'themify'),
 			'function' => 'feed_settings'
 		),
@@ -47,7 +51,7 @@ $themify_theme_config['panel']['settings']['tab']['default_layouts'] = array(
 	'id' => 'default_layouts',
 	'custom-module' => array(
 		array(
-			'title' => __('Default Index Layout (archive, category, search, tag pages, etc.)', 'themify'),
+			'title' => __('Default Archive Post Layout', 'themify'),
 			'function' => 'default_layout'
 		),
 		array(
@@ -66,11 +70,15 @@ $themify_theme_config['panel']['settings']['tab']['theme_settings'] = array(
 	'id' => 'theme_settings',
 	'custom-module' => array(
 		array(
+			'title' => __('Responsive Design', 'themify'),
+			'function' => 'disable_responsive_design_option'
+		),
+		array(
 			'title' => __('WordPress Gallery Lightbox', 'themify'),
 			'function' => 'gallery_plugins'
 		),
 		array(
-			'title' => __('Standard Navigation', 'themify'),
+			'title' => __('Page Navigation', 'themify'),
 			'function' => 'entries_navigation'
 			),
 		array(
@@ -109,7 +117,7 @@ $themify_theme_config['panel']['settings']['tab']['image_script'] = array(
 	'id' => 'image_script',
 	'custom-module' => array(
 		array(
-			'title' => __('Image Script (img.php) Settings', 'themify'),
+			'title' => __('Image Script Settings', 'themify'),
 			'function' => 'img_settings'
 		)
 	)

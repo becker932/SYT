@@ -11,15 +11,40 @@ class TB_Post_Module extends Themify_Builder_Module {
 			'slug' => 'post'
 		));
 	}
-}
 
-///////////////////////////////////////
-// Module Options
-///////////////////////////////////////
-$image_sizes = themify_get_image_sizes_list( false );
-Themify_Builder_Model::register_module( 'TB_Post_Module',
-	apply_filters( 'themify_builder_module_post', array(
-		'options' => array(
+	public function get_title( $module ) {
+		$type = isset( $module['mod_settings']['type_query_post'] ) ? $module['mod_settings']['type_query_post'] : 'category';
+		$category = isset( $module['mod_settings']['category_post'] ) ? $module['mod_settings']['category_post'] : '';
+		$slug_query = isset( $module['mod_settings']['query_slug_post'] ) ? $module['mod_settings']['query_slug_post'] : '';
+
+		if ( 'category' == $type ) {
+			return sprintf( '%s : %s', __('Category', 'themify'), $category );
+		} else {
+			return sprintf( '%s : %s', __('Slugs', 'themify'), $slug_query );
+		}
+	}
+
+	public function get_options() {
+		global $ThemifyBuilder;
+		$image_sizes = themify_get_image_sizes_list( false );
+
+		$taxonomies = $ThemifyBuilder->get_public_taxonomies();
+		$term_options = array();
+
+		foreach( $taxonomies as $key => $label ) {
+			$term_options[] = array(
+				'id' => "{$key}_post",
+				'label' => $label,
+				'type' => 'query_category',
+				'options' => array( 'taxonomy' => $key ),
+				'wrap_with_class' => "tf-group-element tf-group-element-{$key}"
+			);
+		}
+
+		/* allow query posts by slug */
+		$taxonomies['post_slug'] = __('Slug', 'themify');
+
+		$options = array(
 			array(
 				'id' => 'mod_title_post',
 				'type' => 'text',
@@ -40,11 +65,30 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				)
 			),
 			array(
-				'id' => 'category_post',
-				'type' => 'query_category',
-				'label' => __('Category', 'themify'),
-				'options' => array(),
-				'help' => sprintf(__('Add more <a href="%s" target="_blank">blog posts</a>', 'themify'), admin_url('post-new.php'))
+				'id' => 'post_type_post',
+				'type' => 'select',
+				'label' => __('Post Type', 'themify'),
+				'options' => $ThemifyBuilder->get_public_post_types(),
+			),
+			array(
+				'id' => 'type_query_post',
+				'type' => 'radio',
+				'label' => __('Query by', 'themify'),
+				'options' => $taxonomies,
+				'default' => 'category',
+				'option_js' => true,
+			),
+			array(
+				'type' => 'group',
+				'fields' => $term_options
+			),
+			array(
+				'id' => 'query_slug_post',
+				'type' => 'text',
+				'label' => __('Post Slugs', 'themify'),
+				'class' => 'large',
+				'wrap_with_class' => 'tf-group-element tf-group-element-post_slug',
+				'help' => '<br/>' . __( 'Insert post slug. Multiple slug should be separated by comma (,)', 'themify')
 			),
 			array(
 				'id' => 'post_per_page_post',
@@ -81,7 +125,7 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					'title' => __('Title', 'themify'),
 					'name' => __('Name', 'themify'),
 					'modified' => __('Modified', 'themify'),
-					'rand' => __('Rand', 'themify'),
+					'rand' => __('Random', 'themify'),
 					'comment_count' => __('Comment Count', 'themify')
 				)
 			),
@@ -111,12 +155,12 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 			array(
 				'id' => 'image_size_post',
 				'type' => 'select',
-				'label' => $this->is_img_php_disabled() ? __('Image Size', 'themify') : false,
+				'label' => Themify_Builder_Model::is_img_php_disabled() ? __('Image Size', 'themify') : false,
 				'empty' => array(
 					'val' => '',
 					'label' => ''
 				),
-				'hide' => $this->is_img_php_disabled() ? false : true,
+				'hide' => Themify_Builder_Model::is_img_php_disabled() ? false : true,
 				'options' => $image_sizes
 			),
 			array(
@@ -209,34 +253,63 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					'no' => __('No', 'themify')
 				),
 				'default' => 'Yes'
+			),
+			// Additional CSS
+			array(
+				'type' => 'separator',
+				'meta' => array( 'html' => '<hr/>')
+			),
+			array(
+				'id' => 'css_post',
+				'type' => 'text',
+				'label' => __('Additional CSS Class', 'themify'),
+				'class' => 'large exclude-from-reset-field',
+				'help' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
 			)
-		),
-		// Styling
-		'styling' => array(
-			// Animation
+		);
+		return $options;
+	}
+
+	public function get_animation() {
+		$animation = array(
 			array(
-				'id' => 'separator_animation',
-				'title' => '',
-				'description' => '',
 				'type' => 'separator',
-				'meta' => array('html'=>'<h4>'.__('Animation', 'themify').'</h4>'),
+				'meta' => array( 'html' => '<h4>' . esc_html__( 'Appearance Animation', 'themify' ) . '</h4>')
 			),
 			array(
-				'id' => 'animation_effect',
-				'type' => 'select',
-				'label' => __( 'Effect', 'themify' ),
-				'meta'	=> array(
-					array('value' => '',   'name' => '', 'selected' => true),
-					array('value' => 'fly-in',   'name' => __('Fly In', 'themify')),
-					array('value' => 'fade-in', 'name' => __('Fade In', 'themify')),
-					array('value' => 'slide-up',  'name' => __('Slide Up', 'themify'))
+				'id' => 'multi_Animation Effect',
+				'type' => 'multi',
+				'label' => __('Effect', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'animation_effect',
+						'type' => 'animation_select',
+						'label' => __( 'Effect', 'themify' )
+					),
+					array(
+						'id' => 'animation_effect_delay',
+						'type' => 'text',
+						'label' => __( 'Delay', 'themify' ),
+						'class' => 'xsmall',
+						'description' => __( 'Delay (s)', 'themify' ),
+					),
+					array(
+						'id' => 'animation_effect_repeat',
+						'type' => 'text',
+						'label' => __( 'Repeat', 'themify' ),
+						'class' => 'xsmall',
+						'description' => __( 'Repeat (x)', 'themify' ),
+					),
 				)
-			),
+			)
+		);
+
+		return $animation;
+	}
+
+	public function get_styling() {
+		$general = array(
 			// Background
-			array(
-				'type' => 'separator',
-				'meta' => array('html'=>'<hr />')
-			),
 			array(
 				'id' => 'separator_image_background',
 				'title' => '',
@@ -248,7 +321,9 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'id' => 'background_color',
 				'type' => 'color',
 				'label' => __('Background Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'background-color',
+				'selector' => array( '.module-post .post' )
 			),
 			// Font
 			array(
@@ -264,13 +339,17 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'id' => 'font_family',
 				'type' => 'font_select',
 				'label' => __('Font Family', 'themify'),
-				'class' => 'font-family-select'
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => array( '.module-post .post-title', '.module-post .post-title a' ),
 			),
 			array(
 				'id' => 'font_color',
 				'type' => 'color',
 				'label' => __('Font Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( '.module-post .post', '.module-post h1', '.module-post h2', '.module-post h3:not(.module-title)', '.module-post h4', '.module-post h5', '.module-post h6', '.module-post .post-title', '.module-post .post-title a' ),
 			),
 			array(
 				'id' => 'multi_font_size',
@@ -280,15 +359,17 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'font_size',
 						'type' => 'text',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => array( '.module-post .post' ),
 					),
 					array(
 						'id' => 'font_size_unit',
 						'type' => 'select',
 						'meta' => array(
-							array('value' => '', 'name' => ''),
 							array('value' => 'px', 'name' => __('px', 'themify')),
-							array('value' => 'em', 'name' => __('em', 'themify'))
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
 						)
 					)
 				)
@@ -301,19 +382,34 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'line_height',
 						'type' => 'text',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => array( '.module-post .post' ),
 					),
 					array(
 						'id' => 'line_height_unit',
 						'type' => 'select',
 						'meta' => array(
-							array('value' => '', 'name' => ''),
 							array('value' => 'px', 'name' => __('px', 'themify')),
 							array('value' => 'em', 'name' => __('em', 'themify')),
-							array('value' => '%', 'name' => __('%', 'themify'))
+							array('value' => '%', 'name' => __('%', 'themify')),
 						)
 					)
 				)
+			),
+			array(
+				'id' => 'text_align',
+				'label' => __( 'Text Align', 'themify' ),
+				'type' => 'radio',
+				'meta' => array(
+					array( 'value' => '', 'name' => __( 'Default', 'themify' ), 'selected' => true ),
+					array( 'value' => 'left', 'name' => __( 'Left', 'themify' ) ),
+					array( 'value' => 'center', 'name' => __( 'Center', 'themify' ) ),
+					array( 'value' => 'right', 'name' => __( 'Right', 'themify' ) ),
+					array( 'value' => 'justify', 'name' => __( 'Justify', 'themify' ) )
+				),
+				'prop' => 'text-align',
+				'selector' => '.module-post .post',
 			),
 			// Link
 			array(
@@ -329,7 +425,17 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'id' => 'link_color',
 				'type' => 'color',
 				'label' => __('Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-post a'
+			),
+			array(
+				'id' => 'link_color_hover',
+				'type' => 'color',
+				'label' => __('Color Hover', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-post a:hover'
 			),
 			array(
 				'id' => 'text_decoration',
@@ -341,7 +447,9 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array('value' => 'overline', 'name' => __('Overline', 'themify')),
 					array('value' => 'line-through',  'name' => __('Line through', 'themify')),
 					array('value' => 'none',  'name' => __('None', 'themify'))
-				)
+				),
+				'prop' => 'text-decoration',
+				'selector' => '.module-post a'
 			),
 			// Padding
 			array(
@@ -354,34 +462,109 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'meta' => array('html'=>'<h4>'.__('Padding', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_padding',
+				'id' => 'multi_padding_top',
 				'type' => 'multi',
 				'label' => __('Padding', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'padding_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-top',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'padding_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-right',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'padding_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-bottom',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'padding_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'style_padding style_field xsmall',
+						'prop' => 'padding-left',
+						'selector' => '.module-post .post',
+					),
+					array(
+						'id' => 'padding_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			// "Apply all" // apply all padding
+			array(
+				'id' => 'checkbox_padding_apply_all',
+				'class' => 'style_apply_all style_apply_all_padding',
+				'type' => 'checkbox',
+				'label' => false,
+				'options' => array(
+					array( 'name' => 'padding', 'value' => __( 'Apply to all padding', 'themify' ) )
 				)
 			),
 			// Margin
@@ -395,34 +578,109 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'meta' => array('html'=>'<h4>'.__('Margin', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_margin',
+				'id' => 'multi_margin_top',
 				'type' => 'multi',
 				'label' => __('Margin', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'margin_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-top',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'margin_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-right',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'margin_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-bottom',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'margin_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'style_margin style_field xsmall',
+						'prop' => 'margin-left',
+						'selector' => '.module-post .post',
+					),
+					array(
+						'id' => 'margin_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+                                                        array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			// "Apply all" // apply all margin
+			array(
+				'id' => 'checkbox_margin_apply_all',
+				'class' => 'style_apply_all style_apply_all_margin',
+				'type' => 'checkbox',
+				'label' => false,
+				'options' => array(
+					array( 'name' => 'margin', 'value' => __( 'Apply to all margin', 'themify' ) )
 				)
 			),
 			// Border
@@ -443,26 +701,26 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'border_top_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-top-color',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_top_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-top-width',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_top_style',
 						'type' => 'select',
 						'description' => __('top', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
-					)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-top-style',
+						'selector' => '.module-post .post',
+					),
 				)
 			),
 			array(
@@ -473,25 +731,25 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'border_right_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-right-color',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_right_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-right-width',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_right_style',
 						'type' => 'select',
 						'description' => __('right', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-right-style',
+						'selector' => '.module-post .post',
 					)
 				)
 			),
@@ -503,25 +761,25 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'border_bottom_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-bottom-color',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_bottom_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-bottom-width',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_bottom_style',
 						'type' => 'select',
 						'description' => __('bottom', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-bottom-style',
+						'selector' => '.module-post .post',
 					)
 				)
 			),
@@ -533,52 +791,382 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'border_left_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-left-color',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_left_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'style_border style_field xsmall',
+						'prop' => 'border-left-width',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_left_style',
 						'type' => 'select',
 						'description' => __('left', 'themify'),
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-left-style',
+						'selector' => '.module-post .post',
+					)
+				)
+			),
+			// "Apply all" // apply all border
+			array(
+				'id' => 'checkbox_border_apply_all',
+				'class' => 'style_apply_all style_apply_all_border',
+				'type' => 'checkbox',
+				'label' => false,
+                                'default'=>'border',
+				'options' => array(
+					array( 'name' => 'border', 'value' => __( 'Apply to all border', 'themify' ) )
+				)
+			)
+		);
+
+		$post_title = array(
+			// Font
+			array(
+				'id' => 'separator_font',
+				'type' => 'separator',
+				'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
+			),
+			array(
+				'id' => 'font_family_title',
+				'type' => 'font_select',
+				'label' => __('Font Family', 'themify'),
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => array( '.module-post .post-title', '.module-post .post-title a' )
+			),
+			array(
+				'id' => 'font_color_title',
+				'type' => 'color',
+				'label' => __('Font Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( '.module-post .post-title', '.module-post .post-title a' )
+			),
+			array(
+				'id' => 'font_color_title_hover',
+				'type' => 'color',
+				'label' => __('Color Hover', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( '.module-post .post-title:hover', '.module-post .post-title a:hover' )
+			),
+			array(
+				'id' => 'multi_font_size_title',
+				'type' => 'multi',
+				'label' => __('Font Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'font_size_title',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => '.module-post .post-title'
+					),
+					array(
+						'id' => 'font_size_title_unit',
+						'type' => 'select',
 						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
 						)
 					)
 				)
 			),
-			// Additional CSS
 			array(
+				'id' => 'multi_line_height_title',
+				'type' => 'multi',
+				'label' => __('Line Height', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'line_height_title',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => '.module-post .post-title'
+					),
+					array(
+						'id' => 'line_height_title_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+		);
+
+		$post_meta = array(
+			// Font
+			array(
+				'id' => 'separator_font',
 				'type' => 'separator',
-				'meta' => array( 'html' => '<hr/>')
+				'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'css_post',
-				'type' => 'text',
-				'label' => __('Additional CSS Class', 'themify'),
-				'class' => 'large exclude-from-reset-field',
-				'description' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
-			)
-		),
-		'styling_selector' => array(
-			'.module-post .post' => array(
-				'background_color', 'font_family', 'font_size', 'line_height', 'color', 'padding', 'margin', 'border_top', 'border_right', 'border_bottom', 'border_left'
+				'id' => 'font_family_meta',
+				'type' => 'font_select',
+				'label' => __('Font Family', 'themify'),
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => array('.module-post .post-content .post-meta', '.module-post .post-content .post-meta a')
 			),
-			'.module-post a' => array( 'link_color', 'text_decoration' ),
-			'.module-post .post-title' => array(
-				'font_family', 'color'
+			array(
+				'id' => 'font_color_meta',
+				'type' => 'color',
+				'label' => __('Font Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array('.module-post .post-content .post-meta', '.module-post .post-content .post-meta a')
 			),
-			'.module-post .post-title a' => array(
-				'font_family', 'color'
-			)
-		)
-	) )
-);
+			array(
+				'id' => 'font_color_meta_hover',
+				'type' => 'color',
+				'label' => __('Color Hover', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array('.module-post .post-content .post-meta:hover', '.module-post .post-content .post-meta a:hover')
+			),
+			array(
+				'id' => 'multi_font_size_meta',
+				'type' => 'multi',
+				'label' => __('Font Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'font_size_meta',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => '.module-post .post-content .post-meta'
+					),
+					array(
+						'id' => 'font_size_meta_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+			array(
+				'id' => 'multi_line_height_meta',
+				'type' => 'multi',
+				'label' => __('Line Height', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'line_height_meta',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => '.module-post .post-content .post-meta'
+					),
+					array(
+						'id' => 'line_height_meta_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+		);
+
+		$post_date = array(
+			// Font
+			array(
+				'id' => 'separator_font',
+				'type' => 'separator',
+				'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
+			),
+			array(
+				'id' => 'font_family_date',
+				'type' => 'font_select',
+				'label' => __('Font Family', 'themify'),
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => array('.module-post .post .post-date', '.module-post .post .post-date a')
+			),
+			array(
+				'id' => 'font_color_date',
+				'type' => 'color',
+				'label' => __('Font Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array('.module-post .post .post-date', '.module-post .post .post-date a')
+			),
+			array(
+				'id' => 'font_color_date_hover',
+				'type' => 'color',
+				'label' => __('Color Hover', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array('.module-post .post .post-date:hover', '.module-post .post .post-date a:hover')
+			),
+			array(
+				'id' => 'multi_font_size_date',
+				'type' => 'multi',
+				'label' => __('Font Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'font_size_date',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => '.module-post .post .post-date'
+					),
+					array(
+						'id' => 'font_size_date_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+			array(
+				'id' => 'multi_line_height_date',
+				'type' => 'multi',
+				'label' => __('Line Height', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'line_height_date',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => '.module-post .post .post-date'
+					),
+					array(
+						'id' => 'line_height_date_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+		);
+
+		$post_content = array(
+			// Font
+			array(
+				'id' => 'separator_font',
+				'type' => 'separator',
+				'meta' => array('html'=>'<h4>'.__('Font', 'themify').'</h4>'),
+			),
+			array(
+				'id' => 'font_family_content',
+				'type' => 'font_select',
+				'label' => __('Font Family', 'themify'),
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => '.module-post .post-content .entry-content'
+			),
+			array(
+				'id' => 'font_color_content',
+				'type' => 'color',
+				'label' => __('Font Color', 'themify'),
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-post .post-content .entry-content'
+			),
+			array(
+				'id' => 'multi_font_size_content',
+				'type' => 'multi',
+				'label' => __('Font Size', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'font_size_content',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => '.module-post .post-content .entry-content'
+					),
+					array(
+						'id' => 'font_size_content_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+			array(
+				'id' => 'multi_line_height_content',
+				'type' => 'multi',
+				'label' => __('Line Height', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'line_height_content',
+						'type' => 'text',
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => '.module-post .post-content .entry-content'
+					),
+					array(
+						'id' => 'line_height_content_unit',
+						'type' => 'select',
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => 'em', 'name' => __('em', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify')),
+						)
+					)
+				)
+			),
+		);
+
+		return array(
+			array(
+				'type' => 'tabs',
+				'id' => 'module-styling',
+				'tabs' => array(
+					'general' => array(
+		        	'label' => __('General', 'themify'),
+					'fields' => $general
+					),
+					'title' => array(
+						'label' => __('Post Title', 'themify'),
+						'fields' => $post_title
+					),
+					'meta' => array(
+						'label' => __('Post Meta', 'themify'),
+						'fields' => $post_meta
+					),
+					'date' => array(
+						'label' => __('Post Date', 'themify'),
+						'fields' => $post_date
+					),
+					'content' => array(
+						'label' => __('Post Content', 'themify'),
+						'fields' => $post_content
+					)
+				)
+			),
+		);
+
+	}
+}
+
+///////////////////////////////////////
+// Module Options
+///////////////////////////////////////
+Themify_Builder_Model::register_module( 'TB_Post_Module' );

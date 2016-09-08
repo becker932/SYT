@@ -39,7 +39,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 /* current link */
 #main-nav .current_page_item a, #main-nav .current-menu-item a {
-	background: #362d21;
+	background-color: #362d21;
 }
 
 /* slider */

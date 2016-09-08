@@ -13,11 +13,14 @@ $fields_default = array(
 	'slider_category_slider' => '',
 	'posts_per_page_slider' => '',
 	'offset_slider' => '',
+	'order_slider' => 'desc',
+	'orderby_slider' => 'date',
 	'display_slider' => 'content',
 	'hide_post_title_slider' => 'no',
 	'unlink_post_title_slider' => 'no',
 	'hide_feat_img_slider' => '',
 	'unlink_feat_img_slider' => '',
+	'open_link_new_tab_slider' => 'no',
 	'layout_slider' => '',
 	'image_size_slider' => '',
 	'img_w_slider' => '',
@@ -31,9 +34,12 @@ $fields_default = array(
 	'wrap_slider' => 'yes',
 	'show_nav_slider' => 'yes',
 	'show_arrow_slider' => 'yes',
+        'show_arrow_buttons_vertical'=>'',
 	'left_margin_slider' => '',
 	'right_margin_slider' => '',
-	'css_slider' => ''
+	'css_slider' => '',
+	'animation_effect' => '',
+	'height_slider' => 'variable'
 );
 
 if ( isset( $settings['slider_category_slider'] ) )	
@@ -44,13 +50,19 @@ if ( isset( $settings['auto_scroll_opt_slider'] ) )
 
 $fields_args = wp_parse_args( $settings, $fields_default );
 extract( $fields_args, EXTR_SKIP );
-
+$animation_effect = $this->parse_animation_effect( $animation_effect, $fields_args );
+$arrow_vertical=$show_arrow_slider==='yes' && $show_arrow_buttons_vertical==='vertical'?'themify_builder_slider_vertical':'';
 $class = $css_slider . ' ' . $layout_slider . ' module-' . $mod_name;
 $container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
-		'module', 'module-' . $mod_name, $module_ID, 'themify_builder_slider_wrap', 'clearfix', $css_slider, $layout_slider
-	) )
+	apply_filters( 'themify_builder_module_classes', array(
+		'module', 'module-' . $mod_name, $module_ID, 'themify_builder_slider_wrap', 'clearfix', $css_slider, $layout_slider, $animation_effect,$arrow_vertical
+	), $mod_name, $module_ID, $fields_args )
 );
+$container_props = apply_filters( 'themify_builder_module_container_props', array(
+    'id' => $module_ID,
+    'class' => $container_class
+), $fields_args, $mod_name, $module_ID );
+
 $visible = $visible_opt_slider;
 $scroll = $scroll_opt_slider;
 $auto_scroll = $auto_scroll_opt_slider;
@@ -58,7 +70,6 @@ $arrow = $show_arrow_slider;
 $pagination = $show_nav_slider;
 $left_margin = ! empty( $left_margin_slider ) ? $left_margin_slider .'px' : '';
 $right_margin = ! empty( $right_margin_slider ) ? $right_margin_slider .'px' : '';
-$wrapper = $wrap_slider;
 $effect = $effect_slider;
 
 switch ( $speed_opt_slider ) {
@@ -76,11 +87,11 @@ switch ( $speed_opt_slider ) {
 }
 ?>
 <!-- module slider -->
-<div id="<?php echo $module_ID; ?>-loader" class="themify_builder_slider_loader" style="<?php echo !empty($img_h_slider) ? 'height:'.$img_h_slider.'px;' : 'height:50px;'; ?>"></div>
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
+<div id="<?php echo esc_attr( $module_ID ); ?>-loader" class="themify_builder_slider_loader" style="<?php echo !empty($img_h_slider) ? 'height:'.$img_h_slider.'px;' : 'height:50px;'; ?>"></div>
+<div<?php echo $this->get_element_attributes( $container_props ); ?>>
 
 	<?php if ( $mod_title_slider != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_slider; ?></h3>
+		<?php echo $settings['before_title'] . wp_kses_post( apply_filters( 'themify_builder_module_title', $mod_title_slider, $fields_args ) ) . $settings['after_title']; ?>
 	<?php endif; ?>
 	
 	<ul class="themify_builder_slider" 
@@ -89,10 +100,11 @@ switch ( $speed_opt_slider ) {
 		data-scroll="<?php echo esc_attr( $scroll ); ?>" 
 		data-auto-scroll="<?php echo esc_attr( $auto_scroll ); ?>"
 		data-speed="<?php echo esc_attr( $speed ); ?>"
-		data-wrapper="<?php echo esc_attr( $wrapper ); ?>"
+		data-wrap="<?php echo esc_attr( $wrap_slider ); ?>"
 		data-arrow="<?php echo esc_attr( $arrow ); ?>"
 		data-pagination="<?php echo esc_attr( $pagination ); ?>"
 		data-effect="<?php echo esc_attr( $effect ); ?>" 
+		data-height="<?php echo esc_attr( $height_slider ); ?>" 
 		data-pause-on-hover="<?php echo esc_attr( $pause_on_hover_slider ); ?>" >
 		
 		<?php
@@ -115,8 +127,8 @@ switch ( $speed_opt_slider ) {
 		$args = array(
 			'post_type' => 'slider',
 			'post_status' => 'publish',
-			'order' => 'DESC',
-			'orderby' => 'date',
+			'order' => $order_slider,
+			'orderby' => $orderby_slider,
 			'suppress_filters' => false
 		);
 
@@ -139,9 +151,11 @@ switch ( $speed_opt_slider ) {
 			$args['offset'] = $offset_slider;
 
 		$args = apply_filters( 'themify_builder_slider_query_args', $args );
-		$the_query = new WP_Query( $args );
-			while ( $the_query->have_posts() ) :
-				$the_query->the_post();
+		global $post;
+		$temp_post = $post;
+		$posts = get_posts( $args );
+		if ( count( $posts ) > 0 ):
+			foreach( $posts as $post ): setup_postdata( $post );
 		?>
 
 		<li style="<?php echo !empty($left_margin) ? 'margin-left:'.$left_margin.';' : ''; ?> <?php echo !empty($right_margin) ? 'margin-right:'.$right_margin.';' : ''; ?>">
@@ -154,11 +168,14 @@ switch ( $speed_opt_slider ) {
 					$param_image .= $image_size_slider != '' ? '&image_size=' . $image_size_slider : '';
 
 				if ( themify_get('external_link') != '' ):
-					$ext_link = themify_get("external_link");
+					$ext_link = themify_get( 'external_link' );
+					$ext_link_type = 'external';
 				elseif ( themify_get('lightbox_link') != '' ):
-					$ext_link = themify_get("lightbox_link").'" class="lightbox" rel="prettyPhoto[slider]';
+					$ext_link = themify_get( 'lightbox_link' );
+					$ext_link_type = 'lightbox';
 				else:
-					$ext_link = get_permalink();
+					$ext_link = false;
+					$ext_link_type = '';
 				endif;
 
 			if ( $hide_feat_img_slider == '' || $hide_feat_img_slider == 'no' ) {   
@@ -172,11 +189,11 @@ switch ( $speed_opt_slider ) {
 					?>
 					<?php themify_before_post_image(); // Hook ?>
 					<figure class="slide-image">
-						<?php if ( $unlink_feat ): ?>
-							<?php echo $post_image; ?>
+						<?php if ( $unlink_feat || ! $ext_link ): ?>
+							<?php echo wp_kses_post( $post_image ); ?>
 						<?php else: ?>
-							<a href="<?php echo $ext_link; ?>" title="<?php echo the_title_attribute('echo=0'); ?>">
-								<?php echo $post_image; ?>
+							<a href="<?php echo esc_url( $ext_link ); ?>" <?php if ( 'lightbox' == $ext_link_type ) : echo 'class="themify_lightbox" rel="prettyPhoto[slider]"'; endif; ?> title="<?php echo the_title_attribute('echo=0'); ?>" <?php if ( 'yes' == $open_link_new_tab_slider ) : echo 'target="_blank"'; endif; ?>>
+								<?php echo wp_kses_post( $post_image ); ?>
 							</a>
 						<?php endif; ?>
 					</figure>
@@ -187,10 +204,10 @@ switch ( $speed_opt_slider ) {
 			<?php if ( $hide_post_title_slider != 'yes' || $display_slider != 'none' ): ?>
 			<div class="slide-content">
 				<?php if ( $hide_post_title_slider == '' || $hide_post_title_slider == 'no' ): ?>
-					<?php if ( $unlink_post_title_slider == 'yes' ): ?>
+					<?php if ( $unlink_post_title_slider == 'yes' || ! $ext_link ): ?>
 						<h3 class="slide-title"><?php the_title(); ?></h3>
 					<?php else: ?>
-						<h3 class="slide-title"><a href="<?php echo $ext_link; ?>" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a></h3>
+						<h3 class="slide-title"><a href="<?php echo esc_url( $ext_link ); ?>" <?php if ( 'lightbox' == $ext_link_type ) : echo 'class="themify_lightbox" rel="prettyPhoto[slider]"'; endif; ?> title="<?php the_title_attribute(); ?>" <?php if ( 'yes' == $open_link_new_tab_slider ) : echo 'target="_blank"'; endif; ?>><?php the_title(); ?></a></h3>
 					<?php endif; //unlink post title ?>
 				<?php endif; // hide post title ?>
 				
@@ -211,9 +228,10 @@ switch ( $speed_opt_slider ) {
 			<!-- /slide-content -->
 			<?php endif; ?>
 		</li>
-		<?php endwhile; wp_reset_postdata(); ?>
-
-		<?php do_action( 'themify_builder_after_template_content_render' ); ?>
+		<?php endforeach; wp_reset_postdata(); $post = $temp_post; ?>
+		<?php endif; ?>
+		
+		<?php do_action( 'themify_builder_after_template_content_render' );  ?>
 
 	</ul>
 	<!-- /themify_builder_slider -->

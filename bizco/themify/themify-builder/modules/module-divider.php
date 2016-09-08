@@ -11,14 +11,9 @@ class TB_Divider_Module extends Themify_Builder_Module {
 			'slug' => 'divider'
 		));
 	}
-}
 
-///////////////////////////////////////
-// Module Options
-///////////////////////////////////////
-Themify_Builder_Model::register_module( 'TB_Divider_Module', 
-	apply_filters( 'themify_builder_module_divider', array(
-		'options' => array(
+	public function get_options() {
+		$options = array(
 			array(
 				'id' => 'mod_title_divider',
 				'type' => 'text',
@@ -41,14 +36,16 @@ Themify_Builder_Model::register_module( 'TB_Divider_Module',
 				'type' => 'text',
 				'label' => __('Stroke Thickness', 'themify'),
 				'class' => 'xsmall',
-				'help' => 'px'
+				'help' => 'px',
+                                'value'=>1
 			),
 			array(
 				'id' => 'color_divider',
 				'type' => 'text',
 				'label' => __('Divider Color', 'themify'),
 				'class' => 'small',
-				'colorpicker' => true
+				'colorpicker' => true,
+                                'value'=>'000'
 			),
 			array(
 				'id' => 'top_margin_divider',
@@ -63,17 +60,98 @@ Themify_Builder_Model::register_module( 'TB_Divider_Module',
 				'label' => __('Bottom Margin', 'themify'),
 				'class' => 'xsmall',
 				'help' => 'px'
-			)
-		),
-		'styling' => array(
+			),
+			array(
+				'id' => 'divider_type',
+				'type' => 'radio',
+				'label' => __('Divider Width', 'themify'),
+				'options' => array(
+					'fullwidth' => __('Fullwidth ', 'themify'),
+					'custom' => __('Custom', 'themify'),
+				),
+				'default' => 'fullwidth',
+				'option_js' => true,
+			),
+			array(
+				'id' => 'divider_width',
+				'type' => 'text',
+				'label' => __('Width', 'themify'),
+				'class' => 'xsmall',
+				'help' => 'px',
+				'value' => '200',
+				'wrap_with_class' => 'tf-group-element tf-group-element-custom'
+			),
+			array(
+				'id' => 'divider_align',
+				'type' => 'select',
+				'label' =>__('Alignment', 'themify'),
+				'options' => array(
+					'left' => __('Left ', 'themify'),
+					'center' => __('Center', 'themify'),
+					'right' => __('Right', 'themify'),
+				),
+				'default' => 'left',
+				'wrap_with_class' => 'tf-group-element tf-group-element-custom'
+			),
 			// Additional CSS
+            array(
+				'type' => 'separator',
+				'meta' => array( 'html' => '<hr/>')
+			),
 			array(
 				'id' => 'css_divider',
 				'type' => 'text',
 				'label' => __('Additional CSS Class', 'themify'),
 				'class' => 'large exclude-from-reset-field',
-				'description' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
+				'help' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
 			)
-		)
-	) )
-);
+		);
+		return $options;
+	}
+        
+        public function get_animation() {
+		$animation = array(
+			array(
+				'type' => 'separator',
+				'meta' => array( 'html' => '<h4>' . esc_html__( 'Appearance Animation', 'themify' ) . '</h4>')
+			),
+			array(
+				'id' => 'multi_Animation Effect',
+				'type' => 'multi',
+				'label' => __('Effect', 'themify'),
+				'fields' => array(
+					array(
+						'id' => 'animation_effect',
+						'type' => 'animation_select',
+						'label' => __( 'Effect', 'themify' )
+					),
+					array(
+						'id' => 'animation_effect_delay',
+						'type' => 'text',
+						'label' => __( 'Delay', 'themify' ),
+						'class' => 'xsmall',
+						'description' => __( 'Delay (s)', 'themify' ),
+					),
+					array(
+						'id' => 'animation_effect_repeat',
+						'type' => 'text',
+						'label' => __( 'Repeat', 'themify' ),
+						'class' => 'xsmall',
+						'description' => __( 'Repeat (x)', 'themify' ),
+					),
+				)
+			)
+		);
+
+		return $animation;
+	}
+
+	public function get_styling() {
+		return array();
+	}
+}
+
+///////////////////////////////////////
+// Module Options
+///////////////////////////////////////
+Themify_Builder_Model::register_module( 'TB_Divider_Module' );

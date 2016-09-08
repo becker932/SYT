@@ -10,38 +10,49 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	<div class="themify_builder_module_panel clearfix">
 		
 		<?php foreach( Themify_Builder_Model::$modules as $module ): ?>
-		<?php $class = "themify_builder_module module-{$module->slug}"; ?>
+		<?php $class = "themify_builder_module module-type-{$module->slug}"; ?>
 
-		<div class="<?php echo esc_attr($class); ?>" data-module-name="<?php echo esc_attr( $module->slug ); ?>">
+		<div class="<?php echo esc_attr($class); ?>" data-module-slug="<?php echo esc_attr( $module->slug ); ?>" data-module-name="<?php echo esc_attr( $module->name ); ?>">
 			<strong class="module_name"><?php echo esc_html( $module->name ); ?></strong>
 			<a href="#" class="add_module" data-module-name="<?php echo esc_attr( $module->slug ); ?>"><?php _e('Add', 'themify') ?></a>
 		</div>
 		<!-- /module -->
 		<?php endforeach; ?>
 	</div>
+        <div id="themify_builder_module_tmp"></div>
 	<!-- /themify_builder_module_panel -->
 
 	<div class="themify_builder_row_panel clearfix">
 
-		<div id="themify_builder_row_wrapper" class="themify_builder_row_js_wrapper">
+		<div id="themify_builder_row_wrapper" class="themify_builder_row_js_wrapper themify_builder_editor_wrapper">
 
 		<?php if( ! empty( $builder_data ) && is_array( $builder_data ) ): ?>
 		<!-- from database -->
-		<?php foreach( $builder_data as $rows => $row ): ?>
-		<div class="themify_builder_row clearfix">
-			
+		<?php foreach( $builder_data as $rows => $row ):
+			$row_gutter_class = isset( $row['gutter'] ) && ! empty( $row['gutter'] ) ? $row['gutter'] : 'gutter-default';
+			$row_column_equal_height = isset( $row['equal_column_height'] ) && ! empty( $row['equal_column_height'] ) ? $row['equal_column_height'] : '';
+			$row_column_alignment = isset( $row['column_alignment'] ) && ! empty( $row['column_alignment'] ) ? $row['column_alignment'] : '';
+		?>
+		<div data-gutter="<?php echo esc_attr( $row_gutter_class ); ?>" class="themify_builder_row clearfix <?php echo esc_attr( $row_column_equal_height ); ?>"
+			 data-equal-column-height="<?php echo esc_attr( $row_column_equal_height ); ?>"
+			 data-column-alignment="<?php echo esc_attr( $row_column_alignment ); ?>">
+
 			<div class="themify_builder_row_top">
-				<div class="row_menu">
-					<div class="menu_icon">
-					</div>
-					<ul class="themify_builder_dropdown">
-						<li><a href="#" class="themify_builder_option_row"><?php _e('Options', 'themify') ?></a></li>
-						<li><a href="#" class="themify_builder_duplicate_row"><?php _e('Duplicate', 'themify') ?></a></li>
-						<li><a href="#" class="themify_builder_delete_row"><?php _e('Delete', 'themify') ?></a></li>
-					</ul>
-				</div>
-				<!-- /row_menu -->
-				<div class="toggle_row"></div><!-- /toggle_row -->
+				<?php themify_builder_grid_lists( 'row', $row_gutter_class, $row_column_equal_height, $row_column_alignment ); ?>
+				<ul class="row_action">
+					<li><a href="#" data-title="<?php _e('Export', 'themify') ?>" class="themify_builder_export_component" data-component="row" rel="themify-tooltip-bottom"><span class="ti-export"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Import', 'themify') ?>" class="themify_builder_import_component" data-component="row" rel="themify-tooltip-bottom"><span class="ti-import"></span></a></li>
+					<li class="separator"></li>
+					<li><a href="#" data-title="<?php _e('Copy', 'themify') ?>" class="themify_builder_copy_component" data-component="row" rel="themify-tooltip-bottom"><span class="ti-files"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Paste', 'themify') ?>" class="themify_builder_paste_component" data-component="row" rel="themify-tooltip-bottom"><span class="ti-clipboard"></span></a></li>
+					<li class="separator"></li>
+					<li><a href="#" data-title="<?php _e('Options', 'themify') ?>" class="themify_builder_option_row" rel="themify-tooltip-bottom"><span class="ti-pencil"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Styling', 'themify') ?>" class="themify_builder_style_row" rel="themify-tooltip-bottom"><span class="ti-brush"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Duplicate', 'themify') ?>" class="themify_builder_duplicate_row" rel="themify-tooltip-bottom"><span class="ti-layers"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Delete', 'themify') ?>" class="themify_builder_delete_row" rel="themify-tooltip-bottom"><span class="ti-close"></span></a></li>
+					<li class="separator"></li>
+					<li><a href="#" data-title="<?php _e('Toggle Row', 'themify') ?>" class="toggle_row"></a></li>
+				</ul>
 			</div>
 			<!-- /row_top -->
 
@@ -49,13 +60,28 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 				
 				<?php if ( isset( $row['cols'] ) ) : ?>
 					<?php foreach ( $row['cols'] as $cols => $col ): ?>
-					<div class="themify_builder_col <?php echo $col['grid_class']; ?>">
+					<div <?php if(!empty($col['grid_width'])):?>style="width:<?php echo $col['grid_width']?>%;" <?php endif;?>class="themify_builder_col <?php echo esc_attr( $col['grid_class'] ); ?>">
+                                                <div class="themify_grid_drag themify_drag_right"></div>
+                                                <div class="themify_grid_drag themify_drag_left"></div>
+                                                <ul class="themify_builder_column_action">
+							<li><a href="#" class="themify_builder_option_column" data-title="<?php esc_html_e( 'Styling', 'themify' );?>" rel="themify-tooltip-bottom"><span class="ti-brush"></span></a></li>
+							<li class="separator"></li>
+							<li><a href="#" class="themify_builder_export_component" data-title="<?php esc_html_e( 'Export', 'themify' );?>" rel="themify-tooltip-bottom" data-component="column"><span class="ti-export"></span></a></li>
+							<li><a href="#" class="themify_builder_import_component" data-title="<?php esc_html_e( 'Import', 'themify' );?>" rel="themify-tooltip-bottom" data-component="column"><span class="ti-import"></span></a></li>
+							<li class="separator"></li>
+							<li><a href="#" class="themify_builder_copy_component" data-title="<?php esc_html_e( 'Copy', 'themify' );?>" rel="themify-tooltip-bottom" data-component="column"><span class="ti-files"></span></a></li>
+							<li><a href="#" class="themify_builder_paste_component" data-title="<?php esc_html_e( 'Paste', 'themify' );?>" rel="themify-tooltip-bottom" data-component="column"><span class="ti-clipboard"></span></a></li>
+							<li class="separator last-sep"></li>
+							<li class="themify_builder_column_dragger_li"><a href="#" class="themify_builder_column_dragger"><span class="ti-arrows-horizontal"></span></a></li>
+						</ul>
 						<div class="themify_module_holder">
 							<div class="empty_holder_text"><?php _e('drop module here', 'themify') ?></div><!-- /empty module text -->
 
 							<?php if ( isset( $col['modules'] ) && count( $col['modules'] ) > 0 ): ?>
 							<?php foreach ( $col['modules'] as $mod ): ?>
-							<div class="themify_builder_module module-<?php echo $mod['mod_name']; ?> active_module" data-mod-name="<?php echo esc_attr( $mod['mod_name'] ); ?>">
+							
+							<?php if ( isset( $mod['mod_name'] ) ): ?>
+							<div class="themify_builder_module module-<?php echo esc_attr( $mod['mod_name'] ); ?> active_module" data-mod-name="<?php echo esc_attr( $mod['mod_name'] ); ?>">
 								<div class="module_menu">
 									<div class="menu_icon">
 									</div>
@@ -63,29 +89,115 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 										<li><a href="#" class="themify_module_options" data-module-name="<?php echo esc_attr( $mod['mod_name'] ); ?>"><?php _e('Edit', 'themify') ?></a></li>
 										<li><a href="#" class="themify_module_duplicate"><?php _e('Duplicate', 'themify') ?></a></li>
 										<li><a href="#" class="themify_module_delete"><?php _e('Delete', 'themify') ?></a></li>
+										<li><a href="#" class="themify_builder_export_component" data-component="module"><?php _e('Export', 'themify') ?></a></li>
+										<li><a href="#" class="themify_builder_import_component" data-component="module"><?php _e('Import', 'themify') ?></a></li>
+										<li><a href="#" class="themify_builder_copy_component" data-component="module"><?php _e('Copy', 'themify') ?></a></li>
+										<li><a href="#" class="themify_builder_paste_component" data-component="module"><?php _e('Paste', 'themify') ?></a></li>
 									</ul>
 								</div>
 								<div class="module_label">
 									<strong class="module_name"><?php echo Themify_Builder_Model::get_module_name( $mod['mod_name'] ); ?></strong>
-									<em class="module_excerpt"><?php echo $this->get_module_excerpt($mod); ?></em>
+									<em class="module_excerpt"><?php echo isset( Themify_Builder_Model::$modules[ $mod['mod_name'] ] ) ? wp_trim_words( Themify_Builder_Model::$modules[ $mod['mod_name'] ]->get_title( $mod ), 10, '...' ) : ''; ?></em>
 								</div>
 								<div class="themify_module_settings">
-									<?php
-									$mod_settings = $mod['mod_settings'];
-									?>
-									<?php echo esc_attr( json_encode( $mod_settings ) ); ?>
+									<script type="text/json"><?php echo json_encode( $mod['mod_settings'] ); ?></script>
 								</div>
 							</div>
 							<!-- /active_module -->
+							<?php elseif( isset( $mod['cols'] ) && count( $mod['cols'] ) > 0 ):
+								$sub_row_gutter = isset( $mod['gutter'] ) && ! empty( $mod['gutter'] ) ? $mod['gutter'] : 'gutter-default';
+								$sub_row_column_equal_height = isset( $mod['equal_column_height'] ) &&
+															   ! empty( $mod['equal_column_height'] ) ? $mod['equal_column_height'] : '';
+								$sub_row_column_alignment = isset( $mod['column_alignment'] ) &&
+															   ! empty( $mod['column_alignment'] ) ? $mod['column_alignment'] : '';
+							?>
+								<div data-gutter="<?php echo esc_attr( $sub_row_gutter ); ?>" class="themify_builder_sub_row clearfix <?php echo esc_attr( $sub_row_column_equal_height ); ?>"
+								     data-equal-column-height="<?php echo esc_attr( $sub_row_column_equal_height ); ?>"
+								     data-column-alignment="<?php echo esc_attr( $sub_row_column_alignment ); ?>">
+									<div class="themify_builder_sub_row_top">
+										<?php themify_builder_grid_lists('sub_row', $sub_row_gutter, $sub_row_column_equal_height, $sub_row_column_alignment ); ?>
+										<ul class="sub_row_action">
+											<li><a href="#" class="themify_builder_export_component" data-title="<?php esc_html_e( 'Export', 'themify' );?>" rel="themify-tooltip-bottom" data-component="sub-row"><span class="ti-export"></span></a></li>
+											<li><a href="#" class="themify_builder_import_component" data-title="<?php esc_html_e( 'Import', 'themify' );?>" rel="themify-tooltip-bottom" data-component="sub-row"><span class="ti-import"></span></a></li>
+											<li class="separator"></li>
+											<li><a href="#" class="themify_builder_copy_component" data-title="<?php esc_html_e( 'Copy', 'themify' );?>" rel="themify-tooltip-bottom" data-component="sub-row"><span class="ti-files"></span></a></li>
+											<li><a href="#" class="themify_builder_paste_component" data-title="<?php esc_html_e( 'Paste', 'themify' );?>" rel="themify-tooltip-bottom" data-component="sub-row"><span class="ti-clipboard"></span></a></li>
+											<li class="separator"></li>
+											<li><a href="#" class="sub_row_duplicate" data-title="<?php esc_html_e( 'Duplicate', 'themify' );?>" rel="themify-tooltip-bottom"><span class="ti-layers"></span></a></li>
+											<li><a href="#" class="sub_row_delete" data-title="<?php esc_html_e( 'Delete', 'themify' );?>" rel="themify-tooltip-bottom"><span class="ti-close"></span></a></li>
+										</ul>
+									</div>
+									<!-- /row_top -->
+									<div class="themify_builder_sub_row_content">
+										<?php foreach( $mod['cols'] as $sub_row => $sub_col ): ?>
+										<div <?php if(!empty($sub_col['grid_width'])):?>style="width:<?php echo $sub_col['grid_width']?>%;" <?php endif;?>class="themify_builder_col <?php echo esc_attr( $sub_col['grid_class'] ); ?>">
+                                                                                        <div class="themify_grid_drag themify_drag_right"></div>
+                                                                                        <div class="themify_grid_drag themify_drag_left"></div>
+                                                                                        <ul class="themify_builder_column_action">
+												<li><a href="#" class="themify_builder_option_column" data-title="<?php esc_html_e( 'Styling', 'themify' );?>" rel="themify-tooltip-bottom"><span class="ti-brush"></span></a></li>
+												<li class="separator"></li>
+												<li><a href="#" class="themify_builder_export_component" data-title="<?php esc_html_e( 'Export', 'themify' );?>" rel="themify-tooltip-bottom" data-component="sub-column"><span class="ti-export"></span></a></li>
+												<li><a href="#" class="themify_builder_import_component" data-title="<?php esc_html_e( 'Import', 'themify' );?>" rel="themify-tooltip-bottom" data-component="sub-column"><span class="ti-import"></span></a></li>
+												<li class="separator"></li>
+												<li><a href="#" class="themify_builder_copy_component" data-title="<?php esc_html_e( 'Copy', 'themify' );?>" rel="themify-tooltip-bottom" data-component="sub-column"><span class="ti-files"></span></a></li>
+												<li><a href="#" class="themify_builder_paste_component" data-title="<?php esc_html_e( 'Paste', 'themify' );?>" rel="themify-tooltip-bottom" data-component="sub-column"><span class="ti-clipboard"></span></a></li>
+												<li class="separator last-sep"></li>
+												<li class="themify_builder_column_dragger_li"><a href="#" class="themify_builder_column_dragger"><span class="ti-arrows-horizontal"></span></a></li>
+											</ul>
+											<div class="themify_module_holder">
+												<div class="empty_holder_text"><?php _e('drop module here', 'themify') ?></div><!-- /empty module text -->
+												<?php if ( isset( $sub_col['modules'] ) && count( $sub_col['modules'] ) > 0 ):
+													foreach( $sub_col['modules'] as $sub_module ): ?>
+													<div class="themify_builder_module module-<?php echo esc_attr( $sub_module['mod_name'] ); ?> active_module" data-mod-name="<?php echo esc_attr( $sub_module['mod_name'] ); ?>">
+														<div class="module_menu">
+															<div class="menu_icon">
+															</div>
+															<ul class="themify_builder_dropdown">
+																<li><a href="#" class="themify_module_options" data-module-name="<?php echo esc_attr( $sub_module['mod_name'] ); ?>"><?php _e('Edit', 'themify') ?></a></li>
+																<li><a href="#" class="themify_module_duplicate"><?php _e('Duplicate', 'themify') ?></a></li>
+																<li><a href="#" class="themify_module_delete"><?php _e('Delete', 'themify') ?></a></li>
+																<li><a href="#" class="themify_builder_export_component" data-component="module"><?php _e('Export', 'themify') ?></a></li>
+																<li><a href="#" class="themify_builder_import_component" data-component="module"><?php _e('Import', 'themify') ?></a></li>
+																<li><a href="#" class="themify_builder_copy_component" data-component="module"><?php _e('Copy', 'themify') ?></a></li>
+																<li><a href="#" class="themify_builder_paste_component" data-component="module"><?php _e('Paste', 'themify') ?></a></li>
+															</ul>
+														</div>
+														<div class="module_label">
+															<strong class="module_name"><?php echo Themify_Builder_Model::get_module_name( $sub_module['mod_name'] ); ?></strong>
+															<em class="module_excerpt"><?php echo isset( Themify_Builder_Model::$modules[ $sub_module['mod_name'] ] ) ? wp_trim_words( Themify_Builder_Model::$modules[ $sub_module['mod_name'] ]->get_title( $sub_module ), 10, '...' ) : ''; ?></em>
+														</div>
+														<div class="themify_module_settings">
+															<script type="text/json"><?php echo json_encode( $sub_module['mod_settings'] ); ?></script>
+														</div>
+													</div>
+													<!-- /active_module -->
+												<?php endforeach; endif; ?>
+											</div>
+											<?php $sub_column_data_styling = isset( $sub_col['styling'] ) ? json_encode( $sub_col['styling'] ) : json_encode( array() ); ?>
+											<div class="column-data-styling" data-styling="<?php echo esc_attr( $sub_column_data_styling ); ?>"></div>
+										</div>
+										<?php endforeach; ?>
+									</div>
+									<!-- /sub_row_content -->
+								</div>
+							<?php endif; ?>
+
 							<?php endforeach; // end modules loop ?>
 							<?php endif; // end modules count check ?>
 
 						</div>
+						<?php $column_data_styling = isset( $col['styling'] ) ? json_encode( $col['styling'] ) : json_encode( array() ); ?>
+						<div class="column-data-styling" data-styling="<?php echo esc_attr( $column_data_styling ); ?>"></div>
 						<!-- /module_holder -->
-						<div class="col_dragger ui-resizable-handle ui-resizable-e" title="<?php _e('Drag left/right to change columns', 'themify') ?>"></div><!-- /col_dragger -->
 					</div>
 					<!-- /builder_col -->
 					<?php endforeach; // end col loop ?>
+				<?php else: ?>
+				<div class="themify_builder_col col-full first last">
+					<div class="themify_module_holder">
+						<div class="empty_holder_text"><?php _e('drop module here', 'themify') ?></div>
+					</div>
+				</div>
 				<?php endif; // isset row cols ?>
 
 			</div> <!-- /themify_builder_row_content -->
@@ -101,54 +213,62 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		<div class="themify_builder_row clearfix">
 			
 			<div class="themify_builder_row_top">
-				<div class="row_menu">
-					<div class="menu_icon">
-					</div>
-					<ul class="themify_builder_dropdown">
-						<li><a href="#" class="themify_builder_option_row"><?php _e('Options', 'themify') ?></a></li>
-						<li><a href="#" class="themify_builder_duplicate_row"><?php _e('Duplicate', 'themify') ?></a></li>
-						<li><a href="#" class="themify_builder_delete_row"><?php _e('Delete', 'themify') ?></a></li>
-					</ul>
-				</div>
-				<!-- /row_menu -->
-				<div class="toggle_row"></div><!-- /toggle_row -->
+				<?php themify_builder_grid_lists( 'row' ); ?>
+				<ul class="row_action">
+					<li><a href="#" data-title="<?php _e('Export', 'themify') ?>" class="themify_builder_export_component" data-component="row" rel="themify-tooltip-bottom"><span class="ti-export"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Import', 'themify') ?>" class="themify_builder_import_component" data-component="row" rel="themify-tooltip-bottom"><span class="ti-import"></span></a></li>
+					<li class="separator"></li>
+					<li><a href="#" data-title="<?php _e('Copy', 'themify') ?>" class="themify_builder_copy_component" data-component="row" rel="themify-tooltip-bottom"><span class="ti-files"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Paste', 'themify') ?>" class="themify_builder_paste_component" data-component="row" rel="themify-tooltip-bottom"><span class="ti-clipboard"></span></a></li>
+					<li class="separator"></li>
+					<li><a href="#" data-title="<?php _e('Options', 'themify') ?>" class="themify_builder_option_row" rel="themify-tooltip-bottom"><span class="ti-pencil"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Styling', 'themify') ?>" class="themify_builder_style_row" rel="themify-tooltip-bottom"><span class="ti-brush"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Duplicate', 'themify') ?>" class="themify_builder_duplicate_row" rel="themify-tooltip-bottom"><span class="ti-layers"></span></a></li>
+					<li><a href="#" data-title="<?php _e('Delete', 'themify') ?>" class="themify_builder_delete_row" rel="themify-tooltip-bottom"><span class="ti-close"></span></a></li>
+					<li class="separator"></li>
+					<li><a href="#" data-title="<?php _e('Toggle Row', 'themify') ?>" class="toggle_row"></a></li>
+				</ul>
 			</div>
 			<!-- /row_top -->
 
 			<div class="themify_builder_row_content">
 				<div class="themify_builder_col col4-1 first">
+                                        <div class="themify_grid_drag themify_drag_right"></div>
+                                        <div class="themify_grid_drag themify_drag_left"></div>
 					<div class="themify_module_holder">
 						<div class="empty_holder_text"><?php _e('drop module here', 'themify') ?></div><!-- /empty module text -->
 					</div>
 					<!-- /module_holder -->
-					<div class="col_dragger ui-resizable-handle ui-resizable-e" title="<?php _e('Drag left/right to change columns', 'themify') ?>"></div><!-- /col_dragger -->
 				</div>
 				<!-- /builder_col -->
 
 				<div class="themify_builder_col col4-1">
+                                        <div class="themify_grid_drag themify_drag_right"></div>
+                                        <div class="themify_grid_drag themify_drag_left"></div>
 					<div class="themify_module_holder">
 						<div class="empty_holder_text"><?php _e('drop module here', 'themify') ?></div><!-- /empty module text -->
 					</div>
 					<!-- /module_holder -->
-					<div class="col_dragger ui-resizable-handle ui-resizable-e"></div><!-- /col_dragger -->
 				</div>
 				<!-- /builder_col -->
 
 				<div class="themify_builder_col col4-1">
+                                        <div class="themify_grid_drag themify_drag_right"></div>
+                                        <div class="themify_grid_drag themify_drag_left"></div>
 					<div class="themify_module_holder">
 						<div class="empty_holder_text"><?php _e('drop module here', 'themify') ?></div><!-- /empty module text -->
 					</div>
 					<!-- /module_holder -->
-					<div class="col_dragger ui-resizable-handle ui-resizable-e" title="<?php _e('Drag left/right to change columns', 'themify') ?>"></div><!-- /col_dragger -->
 				</div>
 				<!-- /builder_col -->
 
 				<div class="themify_builder_col col4-1 last">
+                                        <div class="themify_grid_drag themify_drag_right"></div>
+                                        <div class="themify_grid_drag themify_drag_left"></div>
 					<div class="themify_module_holder">
 						<div class="empty_holder_text"><?php _e('drop module here', 'themify') ?></div><!-- /empty module text -->
 					</div>
 					<!-- /module_holder -->
-					<div class="col_dragger ui-resizable-handle ui-resizable-e" title="<?php _e('Drag left to add columns', 'themify') ?>"></div><!-- /col_dragger -->
 				</div>
 				<!-- /builder_col -->
 			</div> <!-- /themify_builder_row_content -->
@@ -158,17 +278,58 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		<!-- /builder_row -->
 		<?php endif; // end count data rows ?>
 
-		<?php themify_builder_col_detection(); ?>
-
 		</div> <!-- /#themify_builder_row_wrapper -->
-
-		<p class="themify_builder_save">
-			<?php if ( $pagenow !== 'post-new.php' ): ?>
-			<a href="#" id="themify_builder_duplicate" class="themify-builder-duplicate-btn builder_button left"><?php _e('Duplicate this page', 'themify') ?></a>
-			<a href="#" id="themify_builder_switch_frontend" class="themify_builder_switch_frontend"><?php _e('Switch to frontend', 'themify') ?></a>
-			<?php endif; ?>
-			<a href="#" id="themify_builder_main_save" class="builder_button"><?php _e('Save', 'themify') ?></a>
-		</p>
+		<?php if($post->post_status!='auto-draft'):?>
+                    <div class="themify_builder_save">
+                            <ul class="themify_builder_backend_options_menu left">
+                                    <li>
+                                            <div class="ti ti-menu"></div>
+                                            <ul>
+                                                    <li><a href="#" id="themify_builder_duplicate"><?php _e('Duplicate this page', 'themify') ?></a></li>
+                                                    <li class="has-children">
+                                                            <a href="#"><?php esc_html_e( 'Import From', 'themify' );?></a>
+                                                            <ul>
+                                                                    <li><a href="#" class="themify_builder_import_page"><?php esc_html_e( 'Existing Pages', 'themify' );?></a></li>
+                                                                    <li><a href="#" class="themify_builder_import_post"><?php esc_html_e( 'Existing Posts', 'themify' );?></a></li>
+                                                            </ul>
+                                                    </li>
+                                                    <li class="has-children">
+                                                            <a href="#"><?php esc_html_e( 'Import / Export', 'themify' );?></a>
+                                                            <ul>
+                                                                    <li><a href="#" class="themify_builder_import_file"><?php esc_html_e( 'Import', 'themify' );?></a></li>
+                                                                    <li><a href="<?php echo wp_nonce_url('?themify_builder_export_file=true&postid=' . $post->ID, 'themify_builder_export_nonce') ?>"><?php esc_html_e( 'Export', 'themify' );?></a></li>
+                                                            </ul>
+                                                    </li>
+                                                    <li class="has-children">
+                                                            <a href="#"><?php esc_html_e( 'Layouts', 'themify' );?></a>
+                                                            <ul>
+                                                                    <li><a href="#" class="themify_builder_load_layout"><?php esc_html_e( 'Load Layout', 'themify' );?></a></li>
+                                                                    <li><a href="#" class="themify_builder_save_layout"><?php esc_html_e( 'Save as Layout', 'themify' );?></a></li>
+                                                            </ul>
+                                                    </li>
+                                                    <li class="has-children">
+                                                            <a href="#"><?php esc_html_e( 'Revisions', 'themify' );?></a>
+                                                            <ul>
+                                                                    <li><a href="#" class="themify_builder_load_revision"><?php esc_html_e( 'Load Revision', 'themify' );?></a></li>
+                                                                    <li><a href="#" class="themify_builder_save_revision"><?php esc_html_e( 'Save as Revision', 'themify' );?></a></li>
+                                            </ul>
+                                    </li>
+                                            </ul>
+                                    </li>
+                                    <li class="separator"></li>
+                                    <li>
+                                            <span class="themify_builder_undo_tools">
+                                                    <a class="themify-builder-undo-btn js-themify-builder-undo-btn" rel="themify-tooltip-top" data-title="<?php esc_html_e( 'Undo', 'themify' );?>"><i class="ti-back-left"></i></a>
+                                                    <a class="themify-builder-redo-btn js-themify-builder-redo-btn" rel="themify-tooltip-top" data-title="<?php esc_html_e( 'Redo', 'themify' );?>"><i class="ti-back-right"></i></a>
+                                            </span>
+                                    </li>
+                            </ul>
+                            <?php if ( isset( $pagenow ) && $pagenow !== 'post-new.php' ): ?>
+                            <a href="#" id="themify_builder_switch_frontend" class="themify_builder_switch_frontend"><?php _e('Switch to frontend', 'themify') ?></a>
+                            <a href="#" id="themify_builder_main_save" class="builder_button"><?php _e('Save', 'themify') ?></a>
+                            <?php endif; ?>
+                    </div>
+                <?php endif;?>
 
 	</div>
 	<!-- /themify_builder_row_panel -->

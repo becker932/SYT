@@ -1,100 +1,94 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH'))
+    exit; // Exit if accessed directly
 /**
  * Template Gallery
  * 
  * Access original fields: $mod_settings
  * @author Themify
  */
+if (TFCache::start_cache('gallery', self::$post_id, array('ID' => $module_ID))):
+    
+    $fields_default = array(
+        'mod_title_gallery' => '',
+        'layout_gallery' => 'grid',
+        'image_size_gallery' => 'thumbnail',
+        'shortcode_gallery' => '',
+        'thumb_w_gallery' => '',
+        'thumb_h_gallery' => '',
+        's_image_w_gallery'=>'',
+        's_image_h_gallery'=>'',
+        's_image_size_gallery'=>'full',
+        'appearance_gallery' => '',
+        'css_gallery' => '',
+        'gallery_images' => array(),
+        'gallery_columns'=>false,
+        'link_opt' => false,
+        'link_image_size' => 'full',
+        'rands' => '',
+        'animation_effect' => '',
+        'gallery_pagination'=>false,
+        'gallery_per_page'=>'',
+        'gallery_image_title'=>false
+    );
 
-$fields_default = array(
-	'mod_title_gallery' => '',
-	'shortcode_gallery' => '',
-	'thumb_w_gallery' => '',
-	'thumb_h_gallery' => '',
-	'appearance_gallery' => '',
-	'css_gallery' => '',
-	'gallery_images' => array(),
-	'link_opt' => '',
-	'rands' => ''
-);
+    if (isset($mod_settings['appearance_gallery']))
+        $mod_settings['appearance_gallery'] = $this->get_checkbox_data($mod_settings['appearance_gallery']);
 
-if ( isset( $mod_settings['appearance_gallery'] ) ) 
-	$mod_settings['appearance_gallery'] = $this->get_checkbox_data( $mod_settings['appearance_gallery'] );
+    if (isset($mod_settings['shortcode_gallery'])) {
+        $mod_settings['gallery_images'] = $this->get_images_from_gallery_shortcode($mod_settings['shortcode_gallery']);
+    }
 
-if ( isset( $mod_settings['thumb_w_gallery'] ) && ! empty( $mod_settings['thumb_w_gallery']) ) 
-	$mod_settings['thumb_w_gallery'] = $mod_settings['thumb_w_gallery'] . 'px';
+    $fields_args = wp_parse_args($mod_settings, $fields_default);
+    extract($fields_args, EXTR_SKIP);
+    $animation_effect = $this->parse_animation_effect($animation_effect, $fields_args);
+    
+    if (isset($mod_settings['shortcode_gallery'])) {
+        $fields_args['link_opt'] = !$link_opt?$this->get_gallery_param_option($mod_settings['shortcode_gallery']):$link_opt;
+    }
+    
+    if(!$gallery_columns){
+        $columns = ( $shortcode_gallery != '' ) ? $this->get_gallery_param_option($shortcode_gallery, 'columns') : '';
+        $columns = ( $columns == '' ) ? 3 : $columns;
+        $columns = intval($columns);
+    }
+    else{
+        $columns = $gallery_columns;
+    }
 
-if ( isset( $mod_settings['thumb_h_gallery'] ) && ! empty( $mod_settings['thumb_h_gallery']) ) 
-	$mod_settings['thumb_h_gallery'] = $mod_settings['thumb_h_gallery'] . 'px';
+    // Get image size attribute from shortcode
+    $sc_image_size = ( '' !== $shortcode_gallery ) ? $this->get_gallery_param_option( $shortcode_gallery, 'size' ) : '';
+    if ( '' != $sc_image_size ) 
+        $fields_args['image_size_gallery'] = $sc_image_size;
 
-if ( isset( $mod_settings['shortcode_gallery'] ) ) {
-	$mod_settings['gallery_images'] = $this->get_images_from_gallery_shortcode( $mod_settings['shortcode_gallery'] );
-	$mod_settings['link_opt'] = $this->get_gallery_param_option( $mod_settings['shortcode_gallery'] );
-}
+    $container_class = implode(' ', apply_filters('themify_builder_module_classes', array(
+        'module', 'module-' . $mod_name, $module_ID, 'gallery', 'gallery-columns-' . $columns, 'layout-' . $layout_gallery, $appearance_gallery, $css_gallery, $animation_effect
+                    ), $mod_name, $module_ID, $fields_args)
+    );
+    $container_props = apply_filters( 'themify_builder_module_container_props', array(
+        'id' => $module_ID,
+        'class' => $container_class
+    ), $fields_args, $mod_name, $module_ID );
+    ?>
+    <!-- module gallery -->
+    <div<?php echo $this->get_element_attributes( $container_props ); ?>>
 
-$fields_args = wp_parse_args( $mod_settings, $fields_default );
-extract( $fields_args, EXTR_SKIP );
+        <?php if ($mod_title_gallery != ''): ?>
+            <?php echo $mod_settings['before_title'] . wp_kses_post(apply_filters('themify_builder_module_title', $mod_title_gallery, $fields_args)) . $mod_settings['after_title']; ?>
+        <?php endif; ?>
 
-$columns = ( $shortcode_gallery != '' ) ? $this->get_gallery_param_option( $shortcode_gallery, 'columns' ) : '';
-$columns = ( $columns == '' ) ? 3 : $columns;
-$columns = intval( $columns );
+        <?php
+        // render the template
+        $this->retrieve_template('template-' . $mod_name . '-' . $layout_gallery . '.php', array(
+            'module_ID' => $module_ID,
+            'mod_name' => $mod_name,
+            'gallery_images' => $gallery_images,
+            'columns' => $columns,
+            'settings' => ( isset($fields_args) ? $fields_args : array() )
+                ), '', '', true);
+        ?>
 
-$container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
-		'module', 'module-' . $mod_name, $module_ID, 'gallery', 'gallery-columns-' . $columns, $appearance_gallery
-	) )
-);
-?>
-<!-- module gallery -->
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
-
-	<?php if ( $mod_title_gallery != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_gallery; ?></h3>
-	<?php endif; ?>
-
-	<?php
-	$i = 0;
-	foreach ( $gallery_images as $image ):
-	?>
-		<dl class="gallery-item">
-			<dt class="gallery-icon">
-				<?php
-				if ( $link_opt == 'file' ) {
-					$link = wp_get_attachment_url( $image->ID );
-				} else{
-					$link = get_attachment_link( $image->ID );
-				}
-				$img_preset = 'thumbnail';
-				?>
-				<a title="<?php echo $image->post_title; ?>" href="<?php echo $link; ?>">
-					<?php
-						echo wp_get_attachment_image( $image->ID, $img_preset );
-					?>
-				</a>
-			</dt>
-
-			<?php if ( $image->post_excerpt ): ?>
-			<dd class="wp-caption-text gallery-caption">
-				<?php echo $image->post_excerpt; ?>
-			</dd>
-			<?php endif; ?>
-
-		</dl>
-
-		<?php if ( $columns > 0 && ++$i % $columns == 0 ): ?>
-		<br style="clear: both" />
-		<?php endif; ?>
-
-	<?php endforeach; // end loop ?>
-	<br style="clear: both" />
-	<?php if ( $thumb_w_gallery != '' || $thumb_h_gallery != '' ): ?>
-	<style type="text/css">
-		#<?php echo $module_ID; ?> img {
-			width: <?php echo $thumb_w_gallery; ?>;
-			height: <?php echo $thumb_h_gallery; ?>;
-		}
-	</style>
-	<?php endif; ?>
-</div>
-<!-- /module gallery -->
+    </div>
+    <!-- /module gallery -->
+<?php endif; ?>
+<?php TFCache::end_cache(); ?>

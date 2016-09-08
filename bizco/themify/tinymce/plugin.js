@@ -1,93 +1,138 @@
 /**
  * Routines to add a menu button in WP 3.9 Editor
  */
-tinymce.PluginManager.add('themifyMenu', function(ed, url) {
+tinymce.PluginManager.add('themifyMenu', function( editor, url ) {
 
-	function dialog(t, sc, w, h){
-		return {
-			text : t,
-			onclick : function() {
-				ed.windowManager.open({
-					file : ajaxurl + '?action=themify_editor_menu&shortcode=' + sc + '&title=' + t  + '&nonce=' + themifyEditor.nonce,
-					width : w,
-					height : h,
-					inline : 1
-				});
-			}
-		};
-	}
-	function wrapDialog(t, sc, w, h){
-		return {
-			text : t,
-			onclick : function() {
-				ed.windowManager.open({
-					file : ajaxurl + '?action=themify_editor_menu&shortcode=' + sc + '&title=' + t + '&selection=' + encodeURIComponent(ed.selection.getContent()) + '&nonce=' + themifyEditor.nonce,
-					width : w,
-					height : h,
-					inline : 1
-				});
-			}
-		};
-	}
-	function wrap(t, sc) {
-		return {
-			text : t,
-			onclick : function() {
-				ed.selection.setContent('[themify_' + sc + ']' + ed.selection.getContent() + '[/themify_' + sc + ']');
-			}
-		};
-	}
-	function col(t, grid) {
-		return {
-			text : t,
-			onclick : function() {
-				ed.selection.setContent('[themify_col grid="' + grid + '"]' + ed.selection.getContent() + '[/themify_col]');
-			}
-		};
+	'use strict';
+
+	function createColorPickAction() {
+		var colorPickerCallback = editor.settings.color_picker_callback;
+
+		if ( colorPickerCallback ) {
+			return function() {
+				var self = this;
+
+				colorPickerCallback.call(
+					editor,
+					function( value ) {
+						self.value( value ).fire( 'change' );
+					},
+					self.value()
+				);
+			};
+		}
 	}
 
-	var lang = themifyEditor.editor,
-		items = [
-		dialog(lang.button, 'button', 400, 550 ),
-		{
-			text : lang.columns,
-			menu: [
-				col( lang.half21first, '2-1 first' ),
-				col( lang.half21, '2-1' ),
-				col( lang.third31first, '3-1 first' ),
-				col( lang.third31, '3-1' ),
-				col( lang.quarter41first, '4-1 first' ),
-				col( lang.quarter41, '4-1' )
-			]
-		},
-		dialog( lang.image, 'img', 400, 250 ),
-		dialog( lang.horizontalRule, 'hr', 400, 270 ),
-		wrap( lang.quote, 'quote' ),
-		wrap( lang.isLoggedIn, 'is_logged_in' ),
-		wrap( lang.isGuest, 'is_guest' ),
-		dialog( lang.map, 'map', 400, 420 ),
-		dialog( lang.video, 'video', 400, 250 ),
-		dialog( lang.flickr, 'flickr', 400, 450 ),
-		dialog( lang.twitter, 'twitter', 400, 340 ),
-		dialog( lang.postSlider, 'post_slider', 400, 510 ),
-		{
-			text : lang.customSlider,
-			menu: [
-				wrapDialog( lang.slider, 'slider', 400, 520 ),
-				wrap( lang.slide, 'slide' )
-			]
-		},
-		dialog( lang.listPosts, 'list_posts', 400, 500 ),
-		wrapDialog( lang.box, 'box', 400, 210 ),
-		dialog( lang.authorBox, 'author_box', 400, 450 )
-	];
+	/**
+	 * Create and return a TinyMCE menu item
+	 */
+	function add_item( shortcode ) {
+		var item = {
+			'text' : shortcode.label,
+			'body' : {
+				type: shortcode.id
+			},
+			onclick : function(){
+				if( jQuery.isEmptyObject( shortcode.fields ) ) {
+					// this shortcode has no options to configure
+					var values = {};
+					values.selectedContent = editor.selection.getContent();
+					var template = wp.template( 'themify-shortcode-' + shortcode.id );
+					editor.insertContent( template( values ) );
+				} else {
 
-	ed.addButton('btnthemifyMenu', {
+					var fields = [];
+					jQuery.each( shortcode.fields, function( i, field ){
+						if( field.type == 'colorbox' ) {
+							field.onaction = createColorPickAction()
+						} else if( field.type == 'image' ) {
+							/* create an image uploader */
+							field = {
+								type : 'container',
+								label : field.label,
+								layout : 'flex',
+								direction : 'row',
+								items : [
+									{ type : 'textbox', name : field.name },
+									{ type : 'button', text : field.text, onclick : function(){
+										var $this = jQuery( this.$el );
+										var file_frame = wp.media.frames.file_frame = wp.media({
+											multiple: false  // Set to true to allow multiple files to be selected
+										});
+										// When an image is selected, run a callback.
+										file_frame.on( 'select', function() {
+											// We set multiple to false so only get one image from the uploader
+											var attachment = file_frame.state().get( 'selection' ).first().toJSON();
+
+											$this.prev().val( attachment.url );
+
+										});
+										file_frame.open();
+									} }
+								]
+							};
+						} else if( field.type == 'iconpicker' ) {
+							/* create an icon picker */
+							field = {
+								type : 'container',
+								label : field.label,
+								layout : 'flex',
+								direction : 'row',
+								items : [
+									{ type : 'textbox', name : field.name },
+									{ type : 'button', text : field.text, onclick : function(){
+										var $this = jQuery( this.$el );
+										Themify_Icons.target = $this.prev(); // set the input text box that recieves the value
+										Themify_Icons.showLightbox( Themify_Icons.target.val() ); // show the icon picker lightbox
+									} }
+								]
+							};
+						}
+						fields.push( field );
+					} );
+
+					editor.windowManager.open({
+						'title' : shortcode.label,
+						'body' : fields,
+						onSubmit : function( e ){
+							var values = this.toJSON(); // get form field values
+							values.selectedContent = editor.selection.getContent();
+							var template = wp.template( 'themify-shortcode-' + shortcode.id );
+							editor.insertContent( template( values ) );
+						}
+					});
+				}
+			}
+		};
+
+		return item;
+	}
+
+	var items = [];
+	jQuery.each( themifyEditor.shortcodes, function( key, shortcode ){
+		shortcode.id = key;
+
+		if( typeof shortcode.menu == 'object' ) {
+			var menu = []; // list of submenus
+			jQuery.each( shortcode.menu, function( sub_key, sub_item ){
+				sub_item.id = sub_key;
+				menu.push( add_item( sub_item ) );
+			});
+			items.push( {
+				'text' : shortcode.label,
+				'menu' : menu
+			} );
+		} else {
+			items.push( add_item( shortcode ) );
+		}
+	} );
+
+	editor.addButton( 'btnthemifyMenu', {
 		type: 'menubutton',
 		text: '',
 		icon: 'themify',
-		tooltip: lang.menuTooltip,
+		tooltip: themifyEditor.editor.menuTooltip,
 		menu: items
-	});
+	} );
 
 });

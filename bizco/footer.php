@@ -2,27 +2,27 @@
 /** Themify Default Variables
  @var object */
 	global $themify; ?>
-	
+
 	<?php themify_layout_after(); //hook ?>
     <div id="footerwrap">
-    	
+
         <?php themify_footer_before(); //hook ?>
-		<div id="footer" class="pagewidth">
+		<div id="footer" class="pagewidth" itemscope="itemscope" itemtype="https://schema.org/WPFooter">
         	<?php themify_footer_start(); //hook ?>
-			
+
 			<?php get_template_part( 'includes/footer-widgets'); ?>
 
 			<div class="footer-text clearfix">
 				<?php themify_the_footer_text(); ?>
 				<?php themify_the_footer_text('right'); ?>
 			</div>
-			<!--/footer-text --> 
+			<!--/footer-text -->
             <?php themify_footer_end(); //hook ?>
 		</div>
 		<!--/footer -->
         <?php themify_footer_after(); //hook ?>
 	</div>
-	<!--/footerwrap --> 
+	<!--/footerwrap -->
 
 </div>
 <!--/pagewrap -->
